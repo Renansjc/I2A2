@@ -2,7 +2,7 @@
 
 ## 📋 Descrição
 
-Este é um aplicativo Streamlit avançado que utiliza inteligência artificial (OpenAI GPT-4o-mini) para realizar análises exploratórias de dados de forma autônoma. O sistema é especialmente otimizado para análise de detecção de fraude em cartões de crédito, mas também funciona com qualquer dataset CSV.
+Este é um aplicativo Streamlit avançado que utiliza inteligência artificial (Modelo OpenAI, configurado no front) para realizar análises exploratórias de dados de forma autônoma. O sistema é especialmente otimizado para análise de detecção de fraude em cartões de crédito, mas também funciona com qualquer dataset CSV.
 
 ## ✨ Funcionalidades Principais
 
@@ -186,4 +186,5 @@ Se encontrar problemas ou tiver dúvidas:
 
 
 **🎉 Divirta-se explorando seus dados com IA!**
+
 
