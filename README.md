@@ -1,136 +1,184 @@
 # 🤖 Agente Autônomo de Análise Exploratória de Dados (EDA)
 
-Um agente inteligente que utiliza OpenAI GPT-4 para realizar análises exploratórias de dados de forma autônoma e interativa.
+## 📋 Descrição
 
-## 🚀 Configuração Rápida
+Este é um aplicativo Streamlit avançado que utiliza inteligência artificial (OpenAI GPT-4o-mini) para realizar análises exploratórias de dados de forma autônoma. O sistema é especialmente otimizado para análise de detecção de fraude em cartões de crédito, mas também funciona com qualquer dataset CSV.
 
-### 1. Instalar Python
-- Baixe Python 3.8+ em: https://www.python.org/downloads/
-- Durante a instalação, marque "Add Python to PATH"
+## ✨ Funcionalidades Principais
 
-### 2. Configurar Ambiente
+### 🔍 Análises Gerais
+- **Análise de Correlação**: Identifica relações entre variáveis numéricas
+- **Detecção de Outliers**: Usa múltiplos métodos (IQR, Z-Score, Isolation Forest)
+- **Análise de Distribuições**: Verifica normalidade e características das distribuições
+- **Análise PCA**: Reduz dimensionalidade e identifica componentes principais
+- **Análise Temporal**: Identifica tendências e sazonalidade
+- **Padrões de Missing Data**: Analisa padrões nos dados faltantes
+- **Clustering**: Identifica agrupamentos naturais nos dados
 
-#### Opção A: Automática (Recomendada)
+### 🎯 Análises Específicas para Fraude
+- **Detecção Automática**: Identifica automaticamente datasets de fraude
+- **Análise de Padrões**: Compara transações fraudulentas vs legítimas
+- **Correlações com Fraude**: Identifica features mais correlacionadas com fraude
+- **Análise Temporal de Fraudes**: Padrões de horário e sazonalidade
+- **Detecção de Anomalias**: Métodos especializados para detecção de fraude
+- **Métricas de Performance**: Precisão, Recall e F1-Score
+
+### 🧠 Inteligência Artificial
+- **Processamento de Linguagem Natural**: Entenda perguntas em português
+- **Geração de Insights**: Insights automáticos baseados nos resultados
+- **Memória Persistente**: Mantém histórico das análises realizadas
+- **Sugestões Inteligentes**: Recomenda análises baseadas no dataset
+
+## 🚀 Instalação
+
+1. **Clone o repositório**:
 ```bash
-python setup.py
+git clone <seu-repositorio>
+cd desafiopy
 ```
 
-#### Opção B: Manual
+2. **Instale as dependências**:
 ```bash
-# Criar ambiente virtual
-python -m venv venv
-
-# Ativar ambiente virtual (Windows)
-venv\Scripts\activate
-
-# Ativar ambiente virtual (Linux/Mac)
-source venv/bin/activate
-
-# Instalar dependências
 pip install -r requirements.txt
 ```
 
-### 3. Configurar Chave da OpenAI
-
-1. Abra o arquivo `config.env`
-2. Substitua `your_openai_api_key_here` pela sua chave real da OpenAI:
+3. **Configure a API Key**:
+   - Crie um arquivo `config.env` na raiz do projeto
+   - Adicione sua chave da OpenAI:
+```env
+OPENAI_API_KEY=sua_chave_aqui
 ```
-OPENAI_API_KEY=sk-1234567890abcdef...
-```
 
-### 4. Executar o App
-
+4. **Execute o aplicativo**:
 ```bash
-# Certifique-se que o ambiente virtual está ativo
-streamlit run app.py
+streamlit run app_inacabado.py
 ```
 
-## 📊 Funcionalidades
+## 📊 Como Usar
 
-- **Análise Interativa**: Faça perguntas em linguagem natural sobre seus dados
-- **Visualizações Automáticas**: Gráficos gerados automaticamente baseados na análise
-- **Memória Persistente**: O agente lembra análises anteriores
-- **Detecção de Anomalias**: Identifica outliers automaticamente
-- **Análise de Correlação**: Encontra relações entre variáveis
-- **Conclusões Inteligentes**: Gera insights e conclusões baseadas em IA
+### 1. Upload do Dataset
+- Faça upload de um arquivo CSV
+- O sistema detectará automaticamente se é um dataset de fraude
+- Visualize informações básicas do dataset
 
-## 🔧 Estrutura do Projeto
+### 2. Análise Interativa
+- **Perguntas em Português**: Digite perguntas como:
+  - "Existe correlação entre as variáveis?"
+  - "Quais são os outliers na coluna Amount?"
+  - "Como estão distribuídas as variáveis?"
+  - "Há padrões temporais nos dados?"
+
+### 3. Análises Especializadas (para datasets de fraude)
+- **Distribuição de Fraude**: Visualize a proporção de fraudes
+- **Padrões Monetários**: Compare valores entre fraudes e transações legítimas
+- **Correlações com Fraude**: Identifique features mais importantes
+- **Detecção de Anomalias**: Métodos especializados para fraude
+
+### 4. Sugestões Automáticas
+- O sistema sugere análises baseadas nas características do dataset
+- Prioriza análises por importância (alta, média, baixa)
+
+### 5. Memória e Conclusões
+- Histórico de todas as análises realizadas
+- Insights acumulados
+- Geração de conclusões finais
+
+## 🎯 Exemplos de Perguntas
+
+### Para Datasets Gerais:
+- "Existe correlação entre as variáveis numéricas?"
+- "Quais são os outliers nas variáveis?"
+- "Como está distribuída cada variável?"
+- "Há padrões temporais nos dados?"
+- "Existem agrupamentos (clusters) nos dados?"
+- "Quais valores são mais/menos frequentes?"
+
+### Para Datasets de Fraude:
+- "Quais são os padrões de fraude neste dataset?"
+- "Como as fraudes se relacionam com o valor da transação?"
+- "Há correlações específicas com fraude?"
+- "Quais são os horários de maior incidência de fraude?"
+- "Como detectar anomalias relacionadas a fraude?"
+
+## 🔧 Configurações
+
+### Limites do Sistema:
+- **Tamanho máximo**: 200MB
+- **Colunas máximas**: 50 (para análise)
+- **Preview máximo**: 1000 linhas
+
+### Configurações de Análise:
+- **Threshold de correlação**: 0.5
+- **Z-Score para outliers**: 3
+- **Multiplicador IQR**: 1.5
+- **Variância PCA**: 95%
+
+## 📁 Estrutura do Projeto
 
 ```
-├── app.py              # Aplicação principal
-├── requirements.txt    # Dependências Python
-├── config.env          # Configurações (chave API)
-├── setup.py           # Script de configuração
-├── README.md          # Este arquivo
-└── .eda_sessions/     # Memória das análises (criado automaticamente)
+desafiopy/
+├── app_inacabado.py          # Aplicativo principal
+├── app.py                    # Versão base
+├── requirements.txt          # Dependências
+├── README.md                 # Este arquivo
+├── config.env               # Configurações (criar)
+└── .eda_sessions/           # Sessões salvas (criado automaticamente)
 ```
 
-## 🎯 Como Usar
+## 🛠️ Tecnologias Utilizadas
 
-1. **Upload de Dados**: Carregue um arquivo CSV
-2. **Visão Geral**: Explore estatísticas básicas do dataset
-3. **Análise Interativa**: Faça perguntas como:
-   - "Existe correlação entre as variáveis?"
-   - "Quais são os outliers na coluna Amount?"
-   - "Como está distribuída a variável Price?"
-4. **Insights**: Veja análises anteriores e insights acumulados
-5. **Conclusões**: Gere um relatório final baseado em todas as análises
+- **Streamlit**: Interface web
+- **OpenAI GPT-4o-mini**: Processamento de linguagem natural
+- **Pandas**: Manipulação de dados
+- **NumPy**: Computação numérica
+- **Matplotlib/Seaborn**: Visualizações estáticas
+- **Plotly**: Visualizações interativas
+- **Scikit-learn**: Machine learning
+- **SciPy**: Estatísticas
 
-## 🛠️ Dependências
+## 🎯 Casos de Uso
 
-- `streamlit`: Interface web
-- `openai`: Integração com GPT-4
-- `pandas`: Manipulação de dados
-- `numpy`: Computação numérica
-- `matplotlib/seaborn`: Visualizações estáticas
-- `plotly`: Visualizações interativas
-- `python-dotenv`: Gerenciamento de variáveis de ambiente
+### 1. Análise de Fraude em Cartões de Crédito
+- Detecção automática de padrões fraudulentos
+- Análise de correlações específicas
+- Métricas de performance para modelos de detecção
 
-## 📝 Exemplo de Uso
+### 2. Análise Exploratória Geral
+- Qualquer dataset CSV
+- Análises estatísticas completas
+- Visualizações interativas
 
-```python
-# O app carrega automaticamente a chave da API do config.env
-# Você pode fazer perguntas como:
+### 3. Pesquisa e Desenvolvimento
+- Prototipagem rápida de análises
+- Geração de insights automáticos
+- Documentação automática de descobertas
 
-"Mostre a correlação entre todas as variáveis numéricas"
-"Identifique anomalias na coluna 'valor'"
-"Como está distribuída a variável 'idade'?"
-"Gere conclusões gerais sobre este dataset"
-```
+## 🤝 Contribuição
 
-## 🔒 Segurança
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-- A chave da API é carregada do arquivo `config.env`
-- Nunca commite o arquivo `config.env` com sua chave real
-- Use `.gitignore` para proteger informações sensíveis
+## 📄 Licença
 
-## 🆘 Solução de Problemas
+Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
 
-### Erro: "ModuleNotFoundError"
-```bash
-# Certifique-se que o ambiente virtual está ativo
-venv\Scripts\activate  # Windows
-source venv/bin/activate  # Linux/Mac
+## 👨‍💻 Autor
 
-# Reinstale as dependências
-pip install -r requirements.txt
-```
+**Renan Mello Nogueira**
+- Desenvolvido como parte do desafio de análise de fraude em cartões de crédito
+- Framework: OpenAI + Streamlit
 
-### Erro: "OpenAI API Key not found"
-1. Verifique se o arquivo `config.env` existe
-2. Confirme que a chave está correta no formato: `OPENAI_API_KEY=sk-...`
-3. Reinicie o Streamlit após alterar o arquivo
+## 🆘 Suporte
 
-### Erro: "Port already in use"
-```bash
-# Use uma porta diferente
-streamlit run app.py --server.port 8502
-```
+Se encontrar problemas ou tiver dúvidas:
+1. Verifique se todas as dependências estão instaladas
+2. Confirme se a API Key da OpenAI está configurada
+3. Verifique se o arquivo CSV está no formato correto
+4. Consulte os logs de erro no terminal
 
-## 📞 Suporte
+---
 
-Para dúvidas ou problemas, verifique:
-1. Se todas as dependências estão instaladas
-2. Se a chave da OpenAI está configurada corretamente
-3. Se o arquivo CSV está no formato correto
-
+**🎉 Divirta-se explorando seus dados com IA!**
