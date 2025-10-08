@@ -627,7 +627,7 @@ class MemoryManager:
             "timestamp": datetime.now().isoformat(),
             "insight": insight,
             "category": category
-        }GET
+        }
         self.memory["insights"].append(entry)
         self._persist()
     
