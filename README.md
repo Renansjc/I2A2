@@ -54,7 +54,11 @@ OPENAI_API_KEY=sua_chave_aqui
 streamlit run app_inacabado.py
 ```
 
+
 ## 📊 Como Usar
+
+### 0. Selecione o modelo de LLM a ser utilizado
+No menu esquerdo, selecione o modelo de LLM que deseja utilizar para as análises
 
 ### 1. Upload do Dataset
 - Faça upload de um arquivo CSV
@@ -180,5 +184,6 @@ Se encontrar problemas ou tiver dúvidas:
 4. Consulte os logs de erro no terminal
 
 ---
+
 
 **🎉 Divirta-se explorando seus dados com IA!**
