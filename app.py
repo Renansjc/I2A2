@@ -1,6 +1,6 @@
 """
 Agente Autônomo para Análise Exploratória de Dados (EDA)
-Autor: [Seu Nome] - VERSÃO AJUSTADA
+Autor: Renan Mello Nogueira
 Framework: OpenAI + Streamlit
 Alterações menores: prompt do LLM melhorado; suporte à análise de distribuição em múltiplas colunas; tratamento da coluna Time quando é numérica; correções de UI/slider e proteções contra respostas vazias do LLM.
 """
@@ -627,7 +627,7 @@ class MemoryManager:
             "timestamp": datetime.now().isoformat(),
             "insight": insight,
             "category": category
-        }
+        }GET
         self.memory["insights"].append(entry)
         self._persist()
     
@@ -983,7 +983,7 @@ def main():
     st.set_page_config(**PAGE_CONFIG)
     
     st.title("🤖 Agente Autônomo de Análise Exploratória de Dados")
-    st.markdown("*Framework: OpenAI GPT-4o-mini + Streamlit*")
+    st.markdown("*Framework: OpenAI + Streamlit*")
     
     # Sidebar - configuração e informações
     with st.sidebar:
