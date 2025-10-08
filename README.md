@@ -121,7 +121,6 @@ No menu esquerdo, selecione o modelo de LLM que deseja utilizar para as análise
 
 ```
 desafiopy/
-├── app_inacabado.py          # Aplicativo principal
 ├── app.py                    # Versão base
 ├── requirements.txt          # Dependências
 ├── README.md                 # Este arquivo
@@ -187,3 +186,4 @@ Se encontrar problemas ou tiver dúvidas:
 
 
 **🎉 Divirta-se explorando seus dados com IA!**
+
