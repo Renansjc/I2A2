@@ -48,6 +48,19 @@ class Settings(BaseSettings):
     ML_MODEL_PATH: str = "./models"
     SPACY_MODEL: str = "pt_core_news_sm"
     
+    # OpenAI Configuration
+    OPENAI_API_KEY: str = ""
+    OPENAI_DEFAULT_MODEL: str = "gpt-4"
+    OPENAI_FALLBACK_MODEL: str = "gpt-3.5-turbo"
+    OPENAI_MAX_TOKENS: int = 4000
+    OPENAI_TEMPERATURE: float = 0.1
+    OPENAI_MAX_RETRIES: int = 3
+    OPENAI_TIMEOUT: int = 60
+    OPENAI_RATE_LIMIT_RPM: int = 3500  # Requests per minute
+    OPENAI_RATE_LIMIT_TPM: int = 90000  # Tokens per minute
+    OPENAI_ENABLE_CACHING: bool = True
+    OPENAI_CACHE_TTL: int = 3600  # Cache TTL in seconds
+    
     class Config:
         env_file = ".env"
         case_sensitive = True

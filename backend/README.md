@@ -42,7 +42,7 @@ backend/
 ## Installation
 
 ### Prerequisites
-- Python 3.11+
+- Python 3.12
 - PostgreSQL or Supabase
 - Redis (for agent communication)
 

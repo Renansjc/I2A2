@@ -96,3 +96,6 @@ logs
 !.env.example
 
 exemplo.xml
+
+.venv/
+.vscode/
