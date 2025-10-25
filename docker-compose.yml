@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: ai-agents-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - ai-agents-network
+
+  # Opcional: Redis Commander para interface web
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: ai-agents-redis-commander
+    hostname: redis-commander
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - ai-agents-network
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  ai-agents-network:
+    driver: bridge
