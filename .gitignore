@@ -67,7 +67,7 @@ node_modules/
 *.tmp
 *.temp
 
-.kiro
+.kiro/
 
 # Nuxt dev/build outputs
 .output
