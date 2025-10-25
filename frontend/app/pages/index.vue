@@ -2,12 +2,52 @@
   <div class="space-y-6">
     <!-- Page Header -->
     <div class="hero bg-gradient-to-r from-primary to-secondary text-primary-content rounded-lg">
-      <div class="hero-content text-center py-8">
-        <div class="max-w-md">
-          <h1 class="text-4xl font-bold">Painel Executivo</h1>
-          <p class="py-4 text-lg">Insights fiscais com IA para tomada de decisões estratégicas</p>
+      <div class="hero-content py-8">
+        <div class="max-w-4xl w-full">
+          <div class="flex items-center justify-between">
+            <div class="text-center lg:text-left">
+              <h1 class="text-4xl font-bold">Painel Executivo</h1>
+              <p class="py-4 text-lg">Insights fiscais com IA para tomada de decisões estratégicas</p>
+            </div>
+            <div class="hidden lg:flex items-center gap-4">
+              <button 
+                @click="loadDashboardData" 
+                class="btn btn-outline btn-primary-content"
+                :disabled="isLoading"
+              >
+                <svg 
+                  class="w-5 h-5" 
+                  :class="{ 'animate-spin': isLoading }"
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                </svg>
+                Atualizar
+              </button>
+              <div class="text-sm opacity-75">
+                Última atualização: {{ new Date().toLocaleTimeString('pt-BR') }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+
+    <!-- Error Alert -->
+    <div v-if="error" class="alert alert-error shadow-lg">
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+      </svg>
+      <div>
+        <h3 class="font-bold">Erro no Dashboard</h3>
+        <div class="text-xs">{{ error }}</div>
+      </div>
+      <button @click="error = null" class="btn btn-sm btn-ghost">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
     </div>
 
     <!-- Quick Stats Cards -->
@@ -19,8 +59,14 @@
           </svg>
         </div>
         <div class="stat-title">Total de Notas</div>
-        <div class="stat-value text-primary">--</div>
-        <div class="stat-desc">Carregando...</div>
+        <div class="stat-value text-primary">
+          <span v-if="isLoading" class="loading loading-dots loading-sm"></span>
+          <span v-else>{{ formattedTotalInvoices }}</span>
+        </div>
+        <div class="stat-desc">
+          <span v-if="isLoading">Carregando...</span>
+          <span v-else>Processadas este mês</span>
+        </div>
       </div>
 
       <div class="stat bg-base-200 rounded-lg shadow">
@@ -30,8 +76,14 @@
           </svg>
         </div>
         <div class="stat-title">Valor Total</div>
-        <div class="stat-value text-secondary">R$ --</div>
-        <div class="stat-desc">Carregando...</div>
+        <div class="stat-value text-secondary">
+          <span v-if="isLoading" class="loading loading-dots loading-sm"></span>
+          <span v-else>{{ formattedTotalValue }}</span>
+        </div>
+        <div class="stat-desc">
+          <span v-if="isLoading">Carregando...</span>
+          <span v-else>Faturamento mensal</span>
+        </div>
       </div>
 
       <div class="stat bg-base-200 rounded-lg shadow">
@@ -41,8 +93,14 @@
           </svg>
         </div>
         <div class="stat-title">Fornecedores Ativos</div>
-        <div class="stat-value text-accent">--</div>
-        <div class="stat-desc">Carregando...</div>
+        <div class="stat-value text-accent">
+          <span v-if="isLoading" class="loading loading-dots loading-sm"></span>
+          <span v-else>{{ formattedActiveSuppliers }}</span>
+        </div>
+        <div class="stat-desc">
+          <span v-if="isLoading">Carregando...</span>
+          <span v-else>Com transações ativas</span>
+        </div>
       </div>
 
       <div class="stat bg-base-200 rounded-lg shadow">
@@ -52,8 +110,14 @@
           </svg>
         </div>
         <div class="stat-title">Eficiência Fiscal</div>
-        <div class="stat-value text-warning">--%</div>
-        <div class="stat-desc">Carregando...</div>
+        <div class="stat-value text-warning">
+          <span v-if="isLoading" class="loading loading-dots loading-sm"></span>
+          <span v-else>{{ formattedFiscalEfficiency }}</span>
+        </div>
+        <div class="stat-desc">
+          <span v-if="isLoading">Carregando...</span>
+          <span v-else>Taxa de conformidade</span>
+        </div>
       </div>
     </div>
 
@@ -70,55 +134,23 @@
       </div>
     </div>
 
-    <!-- Recent Activity and Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Recent Activity -->
-      <div class="card bg-base-200 shadow-lg">
-        <div class="card-body">
-          <h3 class="card-title">Atividade Recente</h3>
-          <div class="space-y-3">
-            <div class="flex items-center space-x-3 p-3 bg-base-100 rounded-lg">
-              <div class="w-2 h-2 bg-success rounded-full"></div>
-              <div class="flex-1">
-                <p class="text-sm font-medium">Processamento XML Concluído</p>
-                <p class="text-xs text-base-content/70">5 arquivos NF-e processados com sucesso</p>
-              </div>
-              <div class="text-xs text-base-content/50">há 2 min</div>
-            </div>
-            <div class="flex items-center space-x-3 p-3 bg-base-100 rounded-lg">
-              <div class="w-2 h-2 bg-info rounded-full"></div>
-              <div class="flex-1">
-                <p class="text-sm font-medium">Relatório Gerado</p>
-                <p class="text-xs text-base-content/70">Análise mensal de fornecedores pronta</p>
-              </div>
-              <div class="text-xs text-base-content/50">há 15 min</div>
-            </div>
-            <div class="flex items-center space-x-3 p-3 bg-base-100 rounded-lg">
-              <div class="w-2 h-2 bg-warning rounded-full"></div>
-              <div class="flex-1">
-                <p class="text-sm font-medium">Categorização IA</p>
-                <p class="text-xs text-base-content/70">Novas categorias de produtos detectadas</p>
-              </div>
-              <div class="text-xs text-base-content/50">há 1 hora</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Workflow Monitoring and Agent Status -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <WorkflowMonitor />
+      <AgentStatus />
+    </div>
 
-      <!-- Chart Placeholder -->
-      <div class="card bg-base-200 shadow-lg">
-        <div class="card-body">
-          <h3 class="card-title">Visão Geral Fiscal</h3>
-          <div class="h-64 bg-base-100 rounded-lg flex items-center justify-center">
-            <div class="text-center">
-              <svg class="w-16 h-16 mx-auto text-base-content/30 mb-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
-              </svg>
-              <p class="text-base-content/50">Visualização de gráficos aparecerá aqui</p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Charts and Analytics -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <FiscalDataChart title="Receita Mensal" data-type="revenue" />
+      <FiscalDataChart title="Top Fornecedores" data-type="suppliers" />
+    </div>
+
+    <!-- Recent Activity and Additional Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <RecentActivity :activities="recentActivities" />
+      <FiscalDataChart title="Categorias de Produtos" data-type="categories" />
+      <FiscalDataChart title="Distribuição Regional" data-type="regions" />
     </div>
 
     <!-- Quick Actions -->
@@ -156,5 +188,42 @@ definePageMeta({
   layout: 'default'
 })
 
-// Dashboard page setup - Supabase configurado e pronto para uso
+// Use dashboard composable
+const {
+  stats,
+  recentActivities,
+  isLoading,
+  error,
+  formattedTotalValue,
+  formattedTotalInvoices,
+  formattedActiveSuppliers,
+  formattedFiscalEfficiency,
+  loadDashboardData,
+  refreshStats,
+  formatActivityTime,
+  getActivityColorClass
+} = useDashboard()
+
+// Load dashboard data on mount
+onMounted(async () => {
+  await loadDashboardData()
+  
+  // Set up periodic refresh
+  const refreshInterval = setInterval(() => {
+    refreshStats()
+  }, 30000) // Refresh every 30 seconds
+  
+  // Cleanup on unmount
+  onUnmounted(() => {
+    clearInterval(refreshInterval)
+  })
+})
+
+// Error handling
+watch(error, (newError) => {
+  if (newError) {
+    console.error('Dashboard error:', newError)
+    // In a real app, you might want to show a toast notification
+  }
+})
 </script>
