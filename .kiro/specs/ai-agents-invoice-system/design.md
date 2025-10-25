@@ -216,14 +216,17 @@ class DataLakeAgent:
 
 ### Monitoring Agent
 
-**Purpose**: Handles error logging, administrator notifications, and system health monitoring (Requirement 1)
+**Purpose**: Handles error logging, administrator notifications, and system health monitoring (Requirement 1.5)
 
 **Key Features**:
-- Logs XML processing errors and system failures
-- Sends notifications to administrators when critical errors occur
-- Monitors system health and agent performance
-- Tracks processing statistics and system metrics
-- Manages alert escalation and recovery procedures
+- Logs XML processing errors and system failures using structlog for structured logging
+- Sends real-time notifications to administrators when critical errors occur
+- Monitors system health and agent performance metrics continuously
+- Tracks processing statistics, throughput, and system resource utilization
+- Manages alert escalation and automated recovery procedures
+- Integrates with external monitoring systems (Sentry, Supabase Analytics)
+- Provides dashboard metrics for system administrators
+- Maintains audit trails for compliance and debugging
 
 **Interface**:
 ```python
@@ -234,6 +237,9 @@ class MonitoringAgent:
     def track_agent_performance(self, agent_id: str) -> PerformanceMetrics
     def manage_alert_escalation(self, alert: SystemAlert) -> EscalationResult
     def initiate_recovery_procedure(self, failure: SystemFailure) -> RecoveryResult
+    def collect_system_metrics(self) -> SystemMetrics
+    def generate_health_report(self) -> HealthReport
+    def maintain_audit_trail(self, event: AuditEvent) -> None
 ```
 
 ## Data Models
@@ -748,43 +754,79 @@ CREATE INDEX idx_servicos_categoria ON dim_servicos(categoria);
 ## Technology Stack Recommendations
 
 ### Backend (AI Agents)
-**Recommended: Python 3.11+**
-- **Rationale**: Excellent AI/ML ecosystem (scikit-learn, pandas, numpy), XML processing libraries, and mature agent frameworks
-- **Agent Framework**: CrewAI or LangGraph for multi-agent coordination
-- **XML Processing**: lxml, xmlschema for NF-e/NFS-e validation
+**Selected: Python 3.11+ with FastAPI**
+- **Rationale**: Excellent AI/ML ecosystem (scikit-learn, pandas, numpy), mature XML processing libraries (lxml), and strong async support (FastAPI, asyncio)
+- **Agent Framework**: CrewAI for multi-agent coordination and workflow management
+- **XML Processing**: lxml + xmlschema for Brazilian XML processing (NF-e/NFS-e)
 - **ML/AI**: scikit-learn, transformers (Hugging Face), spaCy for NLP
 - **Database**: asyncpg for PostgreSQL/Supabase integration
-- **API**: FastAPI for high-performance async API endpoints
+- **API**: FastAPI for async API endpoints
+- **Logging**: structlog for structured logging
+- **Validation**: Pydantic for data validation and settings management
 
 ### Frontend (Executive Interface)
-**Selected: Nuxt.js 3+ with Vue 3 and TypeScript**
-- **Rationale**: Executive-level UI needs professional appearance, fast performance, and rich data visualization with modern Vue 3 composition API
-- **UI Framework**: DaisyUI + Tailwind CSS for modern, professional design with pre-built components
+**Selected: Nuxt.js 4+ with Vue 3 and TypeScript**
+- **UI Framework**: DaisyUI + Tailwind CSS 4.x for modern, professional design with pre-built components
 - **Data Visualization**: Chart.js with Vue-ChartJS for executive dashboards and reports
 - **State Management**: Pinia for Vue 3 state management
 - **Authentication**: Supabase Auth for seamless integration
 - **File Upload**: Vue file upload components for XML file uploads
-- **Icons**: Heroicons for consistent iconography
+- **Iconify**: Home of open source icon sets
+- **Routing**: Vue Router integrated with Nuxt.js for navigation
 
 ### Frontend Technology Stack:
-- **Nuxt.js 3**: Full-stack Vue framework with SSR/SSG capabilities
+- **Nuxt.js 4+**: Full-stack Vue framework with SSR/SSG capabilities
 - **Vue 3**: Modern reactive framework with Composition API
-- **TypeScript**: Type-safe development
+- **TypeScript**: Type-safe development for enhanced reliability
 - **DaisyUI**: Component library built on Tailwind CSS
-- **Tailwind CSS**: Utility-first CSS framework
+- **Tailwind CSS 4.x**: Utility-first CSS framework for rapid styling
 - **Pinia**: Official Vue 3 state management
 - **VueUse**: Collection of Vue composition utilities
+- **Vue Router**: Integrated routing solution
 
 ### Infrastructure
-- **Database**: PostgreSQL via Supabase (already decided)
+- **Database**: PostgreSQL via Supabase for data storage
+- **Cache & Communication**: Redis 7 for caching and agent communication
 - **File Storage**: Supabase Storage for XML files
+- **Containerization**: Docker for containerization
+- **Authentication**: Supabase for authentication and storage
 - **Deployment**: Vercel (frontend) + Railway/Render (backend agents)
 - **Monitoring**: Sentry for error tracking, Supabase Analytics
 
 ### Agent Communication
-- **Message Queue**: Redis for inter-agent communication
-- **Task Queue**: Celery with Redis broker for background tasks
+- **Message Queue**: Redis 7 for inter-agent communication
+- **Task Queue**: Celery with Redis broker for background task processing
 - **Real-time Updates**: WebSockets via FastAPI for live status updates
+- **Agent Coordination**: CrewAI framework for workflow orchestration
+
+## Development Environment
+
+### Prerequisites
+- **Python 3.11+** with virtual environment support
+- **Node.js 18+** for frontend development
+- **Docker** for Redis containerization
+- **PostgreSQL** or Supabase account for database
+
+### Setup Commands
+```bash
+# Backend setup
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Frontend setup
+npm install
+npm run dev
+
+# Infrastructure
+make redis-start  # or docker-compose -f docker-compose.dev.yml up -d
+```
+
+### Key Development Tools
+- **Makefile**: Build automation and shortcuts
+- **Docker Compose**: Development environment orchestration
+- **structlog**: Structured logging for debugging
+- **Pydantic**: Data validation and configuration management
 
 ## Security Considerations
 
@@ -797,7 +839,7 @@ CREATE INDEX idx_servicos_categoria ON dim_servicos(categoria);
 ### User Authentication
 - Executive-level access controls via Supabase Auth
 - Role-based permissions (CEO, CFO, COO levels)
-- Session management and timeout via Next.js middleware
+- Session management and timeout via Nuxt.js middleware
 - Multi-factor authentication support via Supabase
 
 ### Compliance
