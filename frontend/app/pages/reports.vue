@@ -22,117 +22,164 @@
       </div>
     </div>
 
-    <!-- Report Templates -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div 
-        v-for="template in reportTemplates"
-        :key="template.id"
-        class="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-        @click="selectTemplate(template)"
+    <!-- Main Navigation Tabs -->
+    <div class="tabs tabs-bordered">
+      <a 
+        class="tab tab-lg"
+        :class="{ 'tab-active': activeMainTab === 'templates' }"
+        @click="activeMainTab = 'templates'"
       >
-        <div class="card-body">
-          <div class="flex items-start justify-between">
-            <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
-              <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path>
-              </svg>
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+        </svg>
+        Modelos de Relatório
+      </a>
+      <a 
+        class="tab tab-lg"
+        :class="{ 'tab-active': activeMainTab === 'history' }"
+        @click="activeMainTab = 'history'"
+      >
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+        </svg>
+        Histórico
+      </a>
+      <a 
+        class="tab tab-lg"
+        :class="{ 'tab-active': activeMainTab === 'downloads' }"
+        @click="activeMainTab = 'downloads'"
+      >
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+        Downloads
+      </a>
+    </div>
+
+    <!-- Templates Tab Content -->
+    <div v-if="activeMainTab === 'templates'" class="space-y-6">
+      <!-- Report Templates -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div 
+          v-for="template in templates"
+          :key="template.id"
+          class="card bg-base-200 shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+          @click="selectTemplate(template)"
+        >
+          <div class="card-body">
+            <div class="flex items-start justify-between">
+              <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <div class="badge badge-outline">{{ template.category }}</div>
             </div>
-            <div class="badge badge-outline">{{ template.category }}</div>
+            
+            <h3 class="card-title text-lg">{{ template.name }}</h3>
+            <p class="text-sm text-base-content/70">{{ template.description }}</p>
+            
+            <div class="card-actions justify-end mt-4">
+              <div class="badge badge-ghost">{{ template.estimatedTime }}</div>
+              <button class="btn btn-primary btn-sm">Gerar</button>
+            </div>
           </div>
-          
-          <h3 class="card-title text-lg">{{ template.name }}</h3>
-          <p class="text-sm text-base-content/70">{{ template.description }}</p>
-          
-          <div class="card-actions justify-end mt-4">
-            <div class="badge badge-ghost">{{ template.estimatedTime }}</div>
-            <button class="btn btn-primary btn-sm">Gerar</button>
+        </div>
+      </div>
+
+      <!-- Recent Reports -->
+      <div class="card bg-base-200 shadow-lg">
+        <div class="card-body">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="card-title">Relatórios Recentes</h2>
+            <div class="join">
+              <input 
+                v-model="searchReports"
+                class="input input-bordered input-sm join-item" 
+                placeholder="Buscar relatórios..."
+              />
+              <button class="btn btn-sm join-item">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="table table-zebra">
+              <thead>
+                <tr>
+                  <th>Nome do Relatório</th>
+                  <th>Tipo</th>
+                  <th>Gerado</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="report in filteredReports" :key="report.id">
+                  <td>
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 bg-primary/20 rounded flex items-center justify-center">
+                        <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
+                        </svg>
+                      </div>
+                      <div>
+                        <div class="font-bold">{{ report.name }}</div>
+                        <div class="text-sm text-base-content/70">{{ report.description }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="badge badge-outline">{{ report.type }}</div>
+                  </td>
+                  <td>{{ formatDate(report.generatedAt) }}</td>
+                  <td>
+                    <div 
+                      class="badge"
+                      :class="{
+                        'badge-success': report.status === 'completed',
+                        'badge-warning': report.status === 'processing',
+                        'badge-error': report.status === 'failed'
+                      }"
+                    >
+                      {{ report.status === 'completed' ? 'concluído' : report.status === 'processing' ? 'processando' : 'falhou' }}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="dropdown dropdown-end">
+                      <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                        </svg>
+                      </div>
+                      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                        <li><a @click="viewReport(report)">Visualizar</a></li>
+                        <li><a @click="downloadReport(report)">Baixar</a></li>
+                        <li><a @click="scheduleReport(report)">Agendar</a></li>
+                        <li><a @click="duplicateReport(report)">Duplicar</a></li>
+                        <li><a class="text-error" @click="deleteReport(report)">Excluir</a></li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Recent Reports -->
-    <div class="card bg-base-200 shadow-lg">
-      <div class="card-body">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="card-title">Relatórios Recentes</h2>
-          <div class="join">
-            <input 
-              v-model="searchReports"
-              class="input input-bordered input-sm join-item" 
-              placeholder="Buscar relatórios..."
-            />
-            <button class="btn btn-sm join-item">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
+    <!-- History Tab Content -->
+    <div v-if="activeMainTab === 'history'">
+      <ReportHistory />
+    </div>
 
-        <div class="overflow-x-auto">
-          <table class="table table-zebra">
-            <thead>
-              <tr>
-                <th>Nome do Relatório</th>
-                <th>Tipo</th>
-                <th>Gerado</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="report in filteredReports" :key="report.id">
-                <td>
-                  <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-primary/20 rounded flex items-center justify-center">
-                      <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <div class="font-bold">{{ report.name }}</div>
-                      <div class="text-sm text-base-content/70">{{ report.description }}</div>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <div class="badge badge-outline">{{ report.type }}</div>
-                </td>
-                <td>{{ formatDate(report.generatedAt) }}</td>
-                <td>
-                  <div 
-                    class="badge"
-                    :class="{
-                      'badge-success': report.status === 'completed',
-                      'badge-warning': report.status === 'processing',
-                      'badge-error': report.status === 'failed'
-                    }"
-                  >
-                    {{ report.status === 'completed' ? 'concluído' : report.status === 'processing' ? 'processando' : 'falhou' }}
-                  </div>
-                </td>
-                <td>
-                  <div class="dropdown dropdown-end">
-                    <div tabindex="0" role="button" class="btn btn-ghost btn-sm">
-                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                      </svg>
-                    </div>
-                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-                      <li><a @click="viewReport(report)">Visualizar</a></li>
-                      <li><a @click="downloadReport(report)">Baixar</a></li>
-                      <li><a @click="scheduleReport(report)">Agendar</a></li>
-                      <li><a @click="duplicateReport(report)">Duplicar</a></li>
-                      <li><a class="text-error" @click="deleteReport(report)">Excluir</a></li>
-                    </ul>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <!-- Downloads Tab Content -->
+    <div v-if="activeMainTab === 'downloads'">
+      <DownloadManager />
     </div>
 
     <!-- New Report Modal -->
@@ -204,7 +251,7 @@
             >
               <option value="">Selecione um modelo</option>
               <option 
-                v-for="template in reportTemplates"
+                v-for="template in templates"
                 :key="template.id"
                 :value="template.id"
               >
@@ -489,7 +536,7 @@
             v-if="activeReportTab === 'schedule' || !newReport.isScheduled"
             class="btn btn-primary"
             :disabled="!isFormValid"
-            @click="createReport"
+            @click="createReportFromForm"
           >
             <span v-if="isCreatingReport" class="loading loading-spinner loading-sm mr-2"></span>
             {{ newReport.isScheduled ? 'Agendar Relatório' : 'Gerar Relatório' }}
@@ -703,18 +750,35 @@
 
 <script setup lang="ts">
 import { ref, computed, reactive } from 'vue'
+import { useReports } from '~/composables/useReports'
+import ReportHistory from '~/components/ReportHistory.vue'
+import DownloadManager from '~/components/DownloadManager.vue'
 
 definePageMeta({
   layout: 'default'
 })
 
+// Composables
+const { 
+  reports, 
+  templates, 
+  recentReports,
+  createReport,
+  downloadReport: downloadReportFromStore,
+  duplicateReport: duplicateReportFromStore,
+  deleteReport: deleteReportFromStore
+} = useReports()
+
 // Reactive state
 const showNewReportModal = ref(false)
 const showPreviewModal = ref(false)
 const showSettingsModal = ref(false)
+const showDownloadManager = ref(false)
+const showReportHistory = ref(false)
 const searchReports = ref('')
 const activeReportTab = ref('basic')
 const activeSettingsTab = ref('preferences')
+const activeMainTab = ref('templates')
 const isCreatingReport = ref(false)
 const selectedReport = ref(null)
 
@@ -784,53 +848,8 @@ const customTemplates = ref([
   }
 ])
 
-// Mock data
-const reportTemplates = [
-  {
-    id: '1',
-    name: 'Análise de Fornecedores',
-    description: 'Análise abrangente de desempenho e custos de fornecedores',
-    category: 'Financeiro',
-    estimatedTime: '5 min'
-  },
-  {
-    id: '2',
-    name: 'Relatório de Eficiência Fiscal',
-    description: 'Análise de oportunidades de otimização fiscal',
-    category: 'Fiscal',
-    estimatedTime: '3 min'
-  },
-  {
-    id: '3',
-    name: 'Tendências de Categorias de Produtos',
-    description: 'Tendências e padrões em categorias de produtos',
-    category: 'Análises',
-    estimatedTime: '7 min'
-  },
-  {
-    id: '4',
-    name: 'Resumo Executivo Mensal',
-    description: 'Visão geral de alto nível para tomada de decisões executivas',
-    category: 'Executivo',
-    estimatedTime: '2 min'
-  },
-  {
-    id: '5',
-    name: 'Desempenho Regional',
-    description: 'Análise de desempenho por região geográfica',
-    category: 'Regional',
-    estimatedTime: '4 min'
-  },
-  {
-    id: '6',
-    name: 'Painel de Conformidade',
-    description: 'Visão geral de conformidade fiscal e regulatória',
-    category: 'Conformidade',
-    estimatedTime: '3 min'
-  }
-]
-
-const recentReports = [
+// Mock data for backward compatibility
+const mockRecentReports = [
   {
     id: '1',
     name: 'Análise de Fornecedores T4',
@@ -859,9 +878,11 @@ const recentReports = [
 
 // Computed properties
 const filteredReports = computed(() => {
-  if (!searchReports.value) return recentReports
+  const reportsToFilter = recentReports.value.length > 0 ? recentReports.value : mockRecentReports
   
-  return recentReports.filter(report =>
+  if (!searchReports.value) return reportsToFilter
+  
+  return reportsToFilter.filter(report =>
     report.name.toLowerCase().includes(searchReports.value.toLowerCase()) ||
     report.description.toLowerCase().includes(searchReports.value.toLowerCase())
   )
@@ -976,7 +997,7 @@ const closeNewReportModal = () => {
   })
 }
 
-const createReport = async () => {
+const createReportFromForm = async () => {
   if (!validateForm()) {
     return
   }
@@ -984,20 +1005,20 @@ const createReport = async () => {
   isCreatingReport.value = true
 
   try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    console.log('Creating report:', newReport.value)
-    
-    // Add to recent reports (mock)
-    recentReports.unshift({
-      id: Date.now().toString(),
+    const reportConfig = {
       name: newReport.value.name,
       description: newReport.value.description || 'Relatório gerado automaticamente',
-      type: reportTemplates.find(t => t.id === newReport.value.templateId)?.category || 'Personalizado',
-      generatedAt: new Date(),
-      status: 'processing'
-    })
+      templateId: newReport.value.templateId,
+      startDate: newReport.value.startDate,
+      endDate: newReport.value.endDate,
+      formats: newReport.value.formats,
+      isScheduled: newReport.value.isScheduled,
+      filters: newReport.value.filters,
+      schedule: newReport.value.schedule,
+      customXMLFiles: newReport.value.customXMLFiles
+    }
+    
+    const reportId = await createReport(reportConfig)
     
     closeNewReportModal()
     
@@ -1070,10 +1091,18 @@ const viewReport = (report: any) => {
   showPreviewModal.value = true
 }
 
-const downloadReport = (report: any) => {
-  console.log('Downloading report:', report)
-  // Simulate download
-  alert('Download iniciado...')
+const downloadReport = async (report: any) => {
+  try {
+    if (report.formats && report.formats.length > 0) {
+      // Download the first available format
+      await downloadReportFromStore(report.id, report.formats[0])
+    } else {
+      alert('Nenhum formato disponível para download')
+    }
+  } catch (error) {
+    console.error('Error downloading report:', error)
+    alert('Erro ao fazer download do relatório')
+  }
 }
 
 const scheduleReport = (report: any) => {
@@ -1082,17 +1111,23 @@ const scheduleReport = (report: any) => {
   alert('Funcionalidade de agendamento será implementada')
 }
 
-const duplicateReport = (report: any) => {
-  console.log('Duplicating report:', report)
-  // Duplicate report logic
-  alert('Relatório duplicado com sucesso!')
+const duplicateReport = async (report: any) => {
+  try {
+    await duplicateReportFromStore(report.id)
+    alert('Relatório duplicado com sucesso!')
+  } catch (error) {
+    console.error('Error duplicating report:', error)
+    alert('Erro ao duplicar relatório')
+  }
 }
 
-const deleteReport = (report: any) => {
+const deleteReport = async (report: any) => {
   if (confirm('Tem certeza que deseja excluir este relatório?')) {
-    const index = recentReports.findIndex(r => r.id === report.id)
-    if (index > -1) {
-      recentReports.splice(index, 1)
+    try {
+      await deleteReportFromStore(report.id)
+    } catch (error) {
+      console.error('Error deleting report:', error)
+      alert('Erro ao excluir relatório')
     }
   }
 }
