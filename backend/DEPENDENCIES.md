@@ -1,191 +1,145 @@
-# 📦 Dependencies - AI Agents Invoice System
+# Dependências do Backend - AI Agents Invoice Analysis System
 
-Documentação completa das dependências do sistema de análise de faturas com agentes de IA.
+## Visão Geral
 
-## ✅ Status das Dependências
+Este documento descreve todas as dependências necessárias para o funcionamento do sistema de análise de notas fiscais com agentes de IA.
 
-**Última verificação**: 2025-10-25  
-**Python**: 3.13.9  
-**Sistema**: Windows  
-**Status**: ✅ Todas as 25 dependências instaladas e funcionando
+## Dependências Principais
 
-## 🚀 Dependências Principais
+### Framework Web
+- **FastAPI 0.115.0**: Framework web moderno e rápido para APIs
+- **Uvicorn 0.32.0**: Servidor ASGI para FastAPI
+- **python-multipart 0.0.20**: Suporte para upload de arquivos
 
-### Web Framework
+### Framework Multi-Agente
+- **CrewAI 0.203.1**: Framework para coordenação de múltiplos agentes de IA
+- **LangChain 0.3.9**: Framework para aplicações com LLM
+- **langchain-community 0.3.9**: Extensões da comunidade para LangChain
 
-- **FastAPI** `0.115.0` - Framework web moderno e rápido
-- **Uvicorn** `0.32.0` - Servidor ASGI de alta performance
-- **python-multipart** `0.0.20` - Suporte para upload de arquivos
-
-### Multi-Agent Framework
-
-- **CrewAI** `0.203.1` - Framework para sistemas multi-agentes
-- **LangChain** `0.3.9` - Framework para aplicações com LLM
-- **LangChain Community** `0.3.9` - Extensões da comunidade
-
-### Processamento de Dados
-
-- **lxml** `6.0.2` - Processamento XML/HTML de alta performance
-- **NumPy** `2.3.4` - Computação numérica fundamental
+### Processamento XML
+- **lxml 6.0.2**: Biblioteca para processamento XML/HTML
+- **xmlschema 4.2.0**: Validação de esquemas XML
+- **elementpath 5.0.4**: Dependência do xmlschema para XPath
 
 ### Banco de Dados
+- **asyncpg 0.30.0**: Driver assíncrono para PostgreSQL
+- **supabase 2.9.1**: Cliente para Supabase (PostgreSQL como serviço)
 
-- **AsyncPG** `0.30.0` - Driver PostgreSQL assíncrono
-- **Supabase** `2.9.1` - Cliente Python para Supabase
+### Processamento de Dados
+- **numpy 2.3.4**: Biblioteca fundamental para computação científica
 
-### Cache e Filas
+### Fila de Tarefas e Cache
+- **celery 5.3.6**: Sistema de fila de tarefas distribuído
+- **redis 5.2.1**: Banco de dados em memória para cache e filas
 
-- **Celery** `5.3.6` - Sistema de filas de tarefas distribuídas
-- **Redis** `5.2.1` - Cliente Python para Redis
-
-### Configuração e Ambiente
-
-- **python-dotenv** `1.1.1` - Carregamento de variáveis de ambiente
-- **Pydantic** `2.12.3` - Validação de dados com type hints
-- **Pydantic Settings** `2.11.0` - Gerenciamento de configurações
+### Configuração e Validação
+- **python-dotenv 1.1.1**: Carregamento de variáveis de ambiente
+- **pydantic 2.12.3**: Validação de dados usando type hints
+- **pydantic-settings 2.11.0**: Gerenciamento de configurações com Pydantic
+- **typing-extensions 4.15.0**: Extensões para type hints
+- **typing-inspection 0.4.2**: Inspeção de tipos em runtime
+- **typing-inspect 0.9.0**: Utilitários para inspeção de tipos
+- **annotated-types 0.7.0**: Tipos anotados para Pydantic
+- **pydantic-core 2.41.4**: Core do Pydantic em Rust
 
 ### Logging e Monitoramento
-
-- **Structlog** `25.4.0` - Logging estruturado
-- **Sentry SDK** `2.19.2` - Monitoramento de erros
+- **structlog 25.4.0**: Logging estruturado
+- **sentry-sdk[fastapi] 2.19.2**: Monitoramento de erros
 
 ### Processamento de Arquivos
+- **watchdog 6.0.0**: Monitoramento de sistema de arquivos
 
-- **Watchdog** `6.0.0` - Monitoramento de sistema de arquivos
-- **OpenPyXL** `3.1.5` - Leitura/escrita de arquivos Excel
-- **python-docx** `1.1.2` - Manipulação de documentos Word
-- **Jinja2** `3.1.4` - Engine de templates
+### Geração de Relatórios
+- **openpyxl 3.1.5**: Leitura/escrita de arquivos Excel
+- **python-docx 1.1.2**: Criação de documentos Word
+- **jinja2 3.1.4**: Engine de templates
+- **reportlab 4.4.4**: Geração de PDFs
 
-### HTTP Client
-
-- **HTTPX** `0.27.2` - Cliente HTTP assíncrono
+### Cliente HTTP
+- **httpx 0.27.2**: Cliente HTTP assíncrono
 
 ### Testes (Desenvolvimento)
+- **pytest 8.3.4**: Framework de testes
+- **pytest-asyncio 0.24.0**: Suporte para testes assíncronos
+- **pytest-mock 3.14.0**: Mocking para testes
 
-- **pytest** `8.3.4` - Framework de testes
-- **pytest-asyncio** `0.24.0` - Suporte para testes assíncronos
-- **pytest-mock** `3.14.0` - Mocking para testes
+## Instalação
 
-## 🛠️ Instalação
+### Pré-requisitos
+- Python 3.13.9 ou superior
+- Ambiente virtual (recomendado)
 
-### Instalação Completa
+### Passos de Instalação
 
-```bash
-cd backend
-pip install -r requirements.txt
+1. **Criar ambiente virtual:**
+   ```bash
+   python -m venv venv
+   ```
+
+2. **Ativar ambiente virtual:**
+   ```bash
+   # Windows
+   venv\Scripts\activate
+   
+   # Linux/Mac
+   source venv/bin/activate
+   ```
+
+3. **Instalar dependências:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Verificação da Instalação
+
+Para verificar se todas as dependências foram instaladas corretamente:
+
+```python
+# Teste básico de imports
+import structlog
+import pydantic
+import lxml
+import xmlschema
+import watchdog
+import fastapi
+
+print("✅ Todas as dependências principais estão funcionando!")
 ```
 
-### Verificação das Dependências
+## Dependências Opcionais
 
-```bash
-cd backend
-python check_dependencies.py
-```
+As seguintes dependências são opcionais e podem ser instaladas conforme necessário:
 
-### Instalação Individual (se necessário)
+- **pandas 2.2.3**: Para análise avançada de dados
+- **scikit-learn ≥1.5.2**: Para recursos de machine learning (requer compilador C++)
+- **spacy 3.8.7**: Para processamento de linguagem natural (requer compilador C++)
 
-```bash
-# Web Framework
-pip install fastapi==0.115.0 uvicorn[standard]==0.32.0 python-multipart==0.0.20
+## Notas Importantes
 
-# AI/ML Framework
-pip install crewai==0.203.1 langchain==0.3.9 langchain-community==0.3.9
+1. **Compilador C++**: Algumas dependências opcionais (scikit-learn, spacy) requerem um compilador C++ instalado no sistema.
 
-# Banco de Dados
-pip install asyncpg==0.30.0 supabase==2.9.1
+2. **Ambiente Windows**: Todas as dependências foram testadas no Windows com Python 3.13.9.
 
-# Cache e Filas
-pip install celery==5.3.6 redis==5.2.1
+3. **Versões Fixas**: As versões estão fixadas para garantir compatibilidade e reprodutibilidade.
 
-# Utilitários
-pip install structlog==25.4.0 sentry-sdk[fastapi]==2.19.2
-```
+4. **Atualizações**: Antes de atualizar qualquer dependência, teste em ambiente de desenvolvimento.
 
-## 📋 Dependências Opcionais
+## Resolução de Problemas
 
-Estas dependências requerem compilador C++ e não foram instaladas:
+### Erro de Importação
+Se encontrar erros de importação, verifique se:
+- O ambiente virtual está ativado
+- Todas as dependências foram instaladas
+- As versões estão corretas
 
-```bash
-# Machine Learning (opcional)
-pip install pandas==2.1.4
-pip install scikit-learn==1.4.2
-pip install spacy==3.7.4
-
-# Geração de PDF (opcional)
-pip install reportlab==4.2.5
-```
-
-## 🔧 Resolução de Problemas
-
-### Erro de Compilação
-
-Se encontrar erros de compilação (especialmente com pandas, numpy, etc.):
-
-1. Instale o Visual Studio Build Tools
-2. Ou use versões pré-compiladas (wheels)
-3. Ou pule as dependências opcionais
+### Problemas de Compilação
+Para dependências que requerem compilação:
+- Windows: Instale Visual Studio Build Tools
+- Linux: Instale build-essential
+- Mac: Instale Xcode Command Line Tools
 
 ### Conflitos de Versão
-
-```bash
-# Limpar cache do pip
-pip cache purge
-
-# Reinstalar dependências
-pip uninstall -r requirements.txt -y
-pip install -r requirements.txt
-```
-
-### Verificar Instalação
-
-```bash
-# Verificar todas as dependências
-python check_dependencies.py
-
-# Testar imports específicos
-python -c "import fastapi, crewai, langchain; print('✅ Core packages OK')"
-```
-
-## 🐳 Docker (Alternativa)
-
-Se tiver problemas com dependências locais, considere usar Docker:
-
-```dockerfile
-FROM python:3.13-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-CMD ["python", "main.py"]
-```
-
-## 📊 Estatísticas
-
-- **Total de dependências**: 25
-- **Tamanho aproximado**: ~500MB (com todas as dependências)
-- **Tempo de instalação**: ~5-10 minutos
-- **Compatibilidade**: Python 3.10+
-
-## 🔄 Atualizações
-
-Para atualizar dependências:
-
-```bash
-# Verificar versões desatualizadas
-pip list --outdated
-
-# Atualizar pacote específico
-pip install --upgrade fastapi
-
-# Atualizar requirements.txt
-pip freeze > requirements.txt
-```
-
-## 📝 Notas
-
-1. **Python 3.13**: Algumas dependências podem ter compatibilidade limitada
-2. **Windows**: Algumas dependências podem precisar de Visual Studio Build Tools
-3. **Produção**: Considere usar versões fixas (como no requirements.txt)
-4. **Desenvolvimento**: Use ambiente virtual (venv) sempre
+Se houver conflitos de versão:
+1. Recrie o ambiente virtual
+2. Instale as dependências na ordem especificada
+3. Use `pip freeze` para verificar as versões instaladas
