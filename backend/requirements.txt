@@ -53,7 +53,7 @@ pytest-mock==3.14.0
 
 # Additional dependencies that may be needed
 # Uncomment if required:
-# pandas==2.1.4  # Requires C++ compiler
-# scikit-learn==1.4.2  # Requires C++ compiler
-# spacy==3.7.4  # Requires C++ compiler
-# reportlab==4.2.5  # For PDF generation
+pandas==2.2.3
+scikit-learn>=1.5.2  # Requires C++ compiler
+spacy==3.8.7  # Requires C++ compiler
+reportlab==4.4.4  # For PDF generation

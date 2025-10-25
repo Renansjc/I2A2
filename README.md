@@ -62,11 +62,11 @@ ai-agents-invoice-system/
 
 ### Frontend
 
-- **Next.js 14+** with TypeScript for modern web application
-- **Shadcn/ui + Tailwind CSS** for professional executive interface
-- **Recharts** for data visualization and executive dashboards
+- **Nuxt.js 3+** with Vue 3 and TypeScript for modern web application
+- **DaisyUI + Tailwind CSS** for professional executive interface
+- **Chart.js + Vue-ChartJS** for data visualization and executive dashboards
 - **Supabase Auth** for authentication and authorization
-- **React Dropzone** for XML file uploads
+- **Vue file upload components** for XML file uploads
 
 ### Infrastructure
 
@@ -144,8 +144,8 @@ ai-agents-invoice-system/
 3. Configure environment:
 
    ```bash
-   cp .env.example .env.local
-   # Edit .env.local with your Supabase and API configuration
+   cp .env.example .env
+   # Edit .env with your Supabase and API configuration
    ```
 
 4. Start the development server:

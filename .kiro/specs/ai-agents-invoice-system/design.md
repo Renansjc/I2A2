@@ -757,18 +757,23 @@ CREATE INDEX idx_servicos_categoria ON dim_servicos(categoria);
 - **API**: FastAPI for high-performance async API endpoints
 
 ### Frontend (Executive Interface)
-**Recommended: Next.js 14+ with TypeScript**
-- **Rationale**: Executive-level UI needs professional appearance, fast performance, and rich data visualization
-- **UI Framework**: Shadcn/ui + Tailwind CSS for modern, professional design
-- **Data Visualization**: Recharts or Chart.js for executive dashboards and reports
-- **State Management**: Zustand for simple, effective state management
+**Selected: Nuxt.js 3+ with Vue 3 and TypeScript**
+- **Rationale**: Executive-level UI needs professional appearance, fast performance, and rich data visualization with modern Vue 3 composition API
+- **UI Framework**: DaisyUI + Tailwind CSS for modern, professional design with pre-built components
+- **Data Visualization**: Chart.js with Vue-ChartJS for executive dashboards and reports
+- **State Management**: Pinia for Vue 3 state management
 - **Authentication**: Supabase Auth for seamless integration
-- **File Upload**: React Dropzone for XML file uploads
+- **File Upload**: Vue file upload components for XML file uploads
+- **Icons**: Heroicons for consistent iconography
 
-### Alternative Frontend Options:
-1. **Streamlit** (Python): Rapid prototyping, great for data-heavy apps, but less professional appearance
-2. **React + Vite**: More flexibility, but requires more setup
-3. **Vue.js + Nuxt**: Good alternative to React/Next.js
+### Frontend Technology Stack:
+- **Nuxt.js 3**: Full-stack Vue framework with SSR/SSG capabilities
+- **Vue 3**: Modern reactive framework with Composition API
+- **TypeScript**: Type-safe development
+- **DaisyUI**: Component library built on Tailwind CSS
+- **Tailwind CSS**: Utility-first CSS framework
+- **Pinia**: Official Vue 3 state management
+- **VueUse**: Collection of Vue composition utilities
 
 ### Infrastructure
 - **Database**: PostgreSQL via Supabase (already decided)

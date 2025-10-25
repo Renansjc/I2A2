@@ -61,6 +61,7 @@ xml_files/
 xml_processed/
 xml_errors/
 models/
+node_modules/
 
 # Temporary files
 *.tmp
