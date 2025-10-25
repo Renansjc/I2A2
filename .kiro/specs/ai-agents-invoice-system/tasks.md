@@ -215,25 +215,25 @@
     - _Requirements: 3.1, 4.1, 5.1_
 
 - [ ] 14. Integration testing and system validation
-  - [ ] 12.1 Test XML processing pipeline
+  - [ ] 14.1 Test XML processing pipeline
     - Test NF-e and NFS-e file processing end-to-end
     - Validate data extraction accuracy against official schemas
     - Test error handling and notification systems
     - _Requirements: 1.1, 1.2, 1.4, 1.5_
 
-  - [ ] 12.2 Test multi-agent coordination
+  - [ ] 14.2 Test multi-agent coordination
     - Test natural language query processing workflow
     - Validate report generation and scheduling functionality
     - Test system performance under concurrent user load
     - _Requirements: 3.1, 3.2, 3.3, 4.1, 5.1_
 
-- [ ]* 12.3 Performance and load testing
+- [ ]* 14.3 Performance and load testing
   - Test system performance with large XML files
   - Validate concurrent user query handling
   - Test database query optimization effectiveness
   - _Requirements: 6.5_
 
-- [ ]* 12.4 Security and compliance testing
+- [ ]* 14.4 Security and compliance testing
   - Test Row Level Security (RLS) policies in Supabase
   - Validate data encryption and access controls
   - Test audit logging and compliance features
