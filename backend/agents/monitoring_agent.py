@@ -1,8 +1,10 @@
 """
-Monitoring Agent for error logging, notifications, and system health monitoring
+LLM-Enhanced Monitoring Agent for intelligent error logging, predictive monitoring, 
+and system health analysis with business context understanding
 """
 
 import asyncio
+import json
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from enum import Enum
@@ -11,6 +13,8 @@ import structlog
 from .base_agent import BaseAgent
 from models.fiscal_data import ProcessingError
 from utils.config import settings
+from utils.openai_integration import get_openai_service
+from utils.llm_error_handler import get_error_handler, ErrorSeverity, ErrorCategory
 
 
 class AlertLevel(Enum):
@@ -72,7 +76,10 @@ class PerformanceMetrics:
 
 
 class MonitoringAgent(BaseAgent):
-    """Agent responsible for system monitoring and error handling"""
+    """
+    LLM-Enhanced Monitoring Agent responsible for intelligent system monitoring, 
+    predictive issue detection, and automated performance optimization
+    """
     
     def __init__(self):
         super().__init__("MonitoringAgent")
@@ -81,6 +88,15 @@ class MonitoringAgent(BaseAgent):
         self.performance_history = []
         self.system_metrics = {}
         self.alert_thresholds = {}
+        
+        # LLM-enhanced capabilities
+        self.llm_service = get_openai_service()
+        self.error_handler = get_error_handler()
+        self.pattern_history = []
+        self.predictive_models = {}
+        self.optimization_suggestions = []
+        self.anomaly_detection_enabled = True
+        self.predictive_alerting_enabled = True
         
     async def initialize(self):
         """Initialize Monitoring Agent resources"""
@@ -172,15 +188,35 @@ class MonitoringAgent(BaseAgent):
         try:
             self.alerts.append(alert)
             
-            self.logger.log(
-                self._get_log_level(alert.level),
-                "System alert generated",
-                alert_id=alert.alert_id,
-                level=alert.level.value,
-                message=alert.message,
-                source=alert.source,
-                details=alert.details
-            )
+            log_level = self._get_log_level(alert.level)
+            if log_level == "critical":
+                self.logger.critical("System alert generated",
+                                   alert_id=alert.alert_id,
+                                   level=alert.level.value,
+                                   message=alert.message,
+                                   source=alert.source,
+                                   details=alert.details)
+            elif log_level == "error":
+                self.logger.error("System alert generated",
+                                alert_id=alert.alert_id,
+                                level=alert.level.value,
+                                message=alert.message,
+                                source=alert.source,
+                                details=alert.details)
+            elif log_level == "warning":
+                self.logger.warning("System alert generated",
+                                  alert_id=alert.alert_id,
+                                  level=alert.level.value,
+                                  message=alert.message,
+                                  source=alert.source,
+                                  details=alert.details)
+            else:
+                self.logger.info("System alert generated",
+                               alert_id=alert.alert_id,
+                               level=alert.level.value,
+                               message=alert.message,
+                               source=alert.source,
+                               details=alert.details)
             
             # Send notifications for critical alerts
             if alert.level in [AlertLevel.ERROR, AlertLevel.CRITICAL]:
@@ -702,3 +738,908 @@ class MonitoringAgent(BaseAgent):
             except Exception as e:
                 self.logger.error("Error in alert cleanup loop", error=str(e))
                 await asyncio.sleep(3600)
+    
+    # ========== LLM-Enhanced Predictive Monitoring Methods ==========
+    
+    async def analyze_system_patterns_with_llm(self) -> Dict[str, Any]:
+        """
+        Use LLM to analyze system patterns and detect anomalies
+        Implements requirement 8.2: LLM analysis for pattern recognition
+        """
+        try:
+            if len(self.performance_history) < 10:
+                return {'patterns': [], 'message': 'Insufficient data for pattern analysis'}
+            
+            # Prepare data for LLM analysis
+            recent_metrics = self._prepare_metrics_for_analysis()
+            historical_trends = self._calculate_historical_trends()
+            
+            llm_context = {
+                'current_metrics': recent_metrics,
+                'historical_trends': historical_trends,
+                'alert_history': self._get_alert_summary(),
+                'system_components': ['xml_processing', 'database', 'agents', 'api', 'storage'],
+                'business_context': {
+                    'peak_hours': '09:00-17:00 BRT',
+                    'critical_operations': ['nfe_processing', 'report_generation'],
+                    'seasonal_patterns': 'month_end_spike'
+                }
+            }
+            
+            llm_response = await self.llm_service.generate_completion(
+                "system_pattern_analysis",
+                llm_context,
+                model=settings.OPENAI_DEFAULT_MODEL,
+                temperature=0.1
+            )
+            
+            pattern_analysis = await self._parse_pattern_analysis(llm_response.content)
+            
+            # Store pattern for future reference
+            self.pattern_history.append({
+                'timestamp': datetime.now(),
+                'analysis': pattern_analysis,
+                'confidence': llm_response.confidence_score
+            })
+            
+            # Generate proactive alerts if needed
+            if pattern_analysis.get('anomalies_detected'):
+                await self._create_predictive_alerts(pattern_analysis)
+            
+            self.logger.info("System pattern analysis completed",
+                           patterns_detected=len(pattern_analysis.get('patterns', [])),
+                           anomalies_detected=len(pattern_analysis.get('anomalies_detected', [])),
+                           confidence=llm_response.confidence_score)
+            
+            return pattern_analysis
+            
+        except Exception as e:
+            self.logger.error("Error in LLM pattern analysis", error=str(e))
+            return {'error': str(e), 'patterns': []}
+    
+    async def predict_system_issues(self) -> Dict[str, Any]:
+        """
+        Use LLM to predict potential system issues based on current trends
+        Implements requirement 8.3: Predictive issue detection and proactive alerting
+        """
+        try:
+            # Collect comprehensive system state
+            current_state = await self._get_comprehensive_system_state()
+            
+            llm_context = {
+                'current_system_state': current_state,
+                'recent_error_patterns': await self.error_handler.detect_error_patterns(),
+                'performance_trends': self._analyze_performance_trends(),
+                'resource_utilization': await self._analyze_resource_utilization(),
+                'business_calendar': self._get_business_calendar_context(),
+                'historical_incidents': self._get_historical_incident_patterns()
+            }
+            
+            llm_response = await self.llm_service.generate_completion(
+                "predictive_issue_detection",
+                llm_context,
+                model=settings.OPENAI_DEFAULT_MODEL,
+                temperature=0.2
+            )
+            
+            predictions = await self._parse_issue_predictions(llm_response.content)
+            
+            # Create proactive alerts for high-risk predictions
+            for prediction in predictions.get('high_risk_issues', []):
+                if prediction.get('probability', 0) > 0.7:
+                    await self._create_proactive_alert(prediction)
+            
+            # Generate optimization recommendations
+            optimization_suggestions = await self._generate_optimization_suggestions(predictions)
+            
+            self.logger.info("Predictive issue analysis completed",
+                           predictions_count=len(predictions.get('predictions', [])),
+                           high_risk_count=len(predictions.get('high_risk_issues', [])),
+                           optimization_suggestions=len(optimization_suggestions))
+            
+            return {
+                'predictions': predictions,
+                'optimization_suggestions': optimization_suggestions,
+                'analysis_timestamp': datetime.now().isoformat(),
+                'confidence_score': llm_response.confidence_score
+            }
+            
+        except Exception as e:
+            self.logger.error("Error in predictive issue detection", error=str(e))
+            return {'error': str(e), 'predictions': []}
+    
+    async def generate_performance_optimization_suggestions(self) -> Dict[str, Any]:
+        """
+        Use LLM to generate intelligent performance optimization suggestions
+        Implements requirement 8.4: Performance optimization suggestions
+        """
+        try:
+            # Analyze current performance bottlenecks
+            bottlenecks = await self._identify_performance_bottlenecks()
+            
+            llm_context = {
+                'performance_bottlenecks': bottlenecks,
+                'system_metrics': await self._collect_system_metrics(),
+                'resource_constraints': await self._analyze_resource_constraints(),
+                'workload_patterns': self._analyze_workload_patterns(),
+                'infrastructure_capacity': await self._get_infrastructure_capacity(),
+                'business_requirements': {
+                    'sla_targets': {'response_time': '< 2s', 'uptime': '99.9%'},
+                    'peak_load_handling': 'month_end_processing',
+                    'cost_optimization': 'moderate_priority'
+                }
+            }
+            
+            llm_response = await self.llm_service.generate_completion(
+                "performance_optimization",
+                llm_context,
+                model=settings.OPENAI_DEFAULT_MODEL,
+                temperature=0.3
+            )
+            
+            optimization_plan = await self._parse_optimization_suggestions(llm_response.content)
+            
+            # Prioritize suggestions based on impact and feasibility
+            prioritized_suggestions = self._prioritize_optimization_suggestions(optimization_plan)
+            
+            # Store suggestions for tracking implementation
+            self.optimization_suggestions.extend(prioritized_suggestions.get('suggestions', []))
+            
+            self.logger.info("Performance optimization analysis completed",
+                           suggestions_count=len(prioritized_suggestions.get('suggestions', [])),
+                           high_impact_count=len([s for s in prioritized_suggestions.get('suggestions', []) 
+                                                if s.get('impact') == 'high']),
+                           confidence=llm_response.confidence_score)
+            
+            return prioritized_suggestions
+            
+        except Exception as e:
+            self.logger.error("Error generating optimization suggestions", error=str(e))
+            return {'error': str(e), 'suggestions': []}
+    
+    async def analyze_fiscal_data_quality_patterns(self, fiscal_data_metrics: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Use LLM to analyze fiscal data quality patterns and detect business anomalies
+        Implements requirement 8.3: Evaluate if patterns indicate data quality issues or business changes
+        """
+        try:
+            llm_context = {
+                'fiscal_data_metrics': fiscal_data_metrics,
+                'data_quality_indicators': {
+                    'xml_validation_errors': fiscal_data_metrics.get('validation_errors', 0),
+                    'missing_fields_rate': fiscal_data_metrics.get('missing_fields_rate', 0),
+                    'duplicate_documents': fiscal_data_metrics.get('duplicates', 0),
+                    'processing_time_variance': fiscal_data_metrics.get('processing_variance', 0)
+                },
+                'business_context': {
+                    'document_types': ['NF-e', 'NFS-e'],
+                    'typical_volumes': fiscal_data_metrics.get('typical_volumes', {}),
+                    'seasonal_patterns': fiscal_data_metrics.get('seasonal_patterns', {}),
+                    'supplier_patterns': fiscal_data_metrics.get('supplier_patterns', {})
+                },
+                'historical_baselines': self._get_fiscal_data_baselines()
+            }
+            
+            llm_response = await self.llm_service.generate_completion(
+                "fiscal_data_quality_analysis",
+                llm_context,
+                model=settings.OPENAI_DEFAULT_MODEL,
+                temperature=0.1
+            )
+            
+            quality_analysis = await self._parse_data_quality_analysis(llm_response.content)
+            
+            # Create alerts for significant data quality issues
+            if quality_analysis.get('data_quality_issues'):
+                for issue in quality_analysis['data_quality_issues']:
+                    if issue.get('severity') in ['high', 'critical']:
+                        alert = SystemAlert(
+                            level=AlertLevel.ERROR if issue['severity'] == 'high' else AlertLevel.CRITICAL,
+                            message=f"Data quality issue detected: {issue['description']}",
+                            source="MonitoringAgent",
+                            details={
+                                'issue_type': issue.get('type'),
+                                'affected_documents': issue.get('affected_count'),
+                                'business_impact': issue.get('business_impact')
+                            }
+                        )
+                        await self.handle_system_alert(alert)
+            
+            self.logger.info("Fiscal data quality analysis completed",
+                           issues_detected=len(quality_analysis.get('data_quality_issues', [])),
+                           business_changes_detected=len(quality_analysis.get('business_changes', [])),
+                           confidence=llm_response.confidence_score)
+            
+            return quality_analysis
+            
+        except Exception as e:
+            self.logger.error("Error analyzing fiscal data quality patterns", error=str(e))
+            return {'error': str(e), 'analysis': {}}
+    
+    async def create_intelligent_maintenance_recommendations(self) -> Dict[str, Any]:
+        """
+        Generate LLM-powered maintenance recommendations and impact assessments
+        Implements requirement 8.4: Generate maintenance recommendations and impact evaluations
+        """
+        try:
+            # Collect maintenance-relevant data
+            system_health = await self.monitor_system_health()
+            
+            llm_context = {
+                'system_health': {
+                    'overall_status': system_health.overall_status,
+                    'component_health': system_health.components,
+                    'performance_metrics': system_health.metrics
+                },
+                'maintenance_history': self._get_maintenance_history(),
+                'upcoming_business_events': self._get_business_calendar_events(),
+                'resource_utilization_trends': self._analyze_resource_trends(),
+                'known_technical_debt': self._get_technical_debt_items(),
+                'business_constraints': {
+                    'maintenance_windows': ['02:00-04:00 BRT daily', 'Saturday 20:00-Sunday 06:00'],
+                    'critical_business_periods': ['month_end', 'quarter_end', 'year_end'],
+                    'sla_requirements': {'max_downtime': '4 hours/month', 'planned_maintenance': '< 2 hours'}
+                }
+            }
+            
+            llm_response = await self.llm_service.generate_completion(
+                "maintenance_recommendations",
+                llm_context,
+                model=settings.OPENAI_DEFAULT_MODEL,
+                temperature=0.2
+            )
+            
+            maintenance_plan = await self._parse_maintenance_recommendations(llm_response.content)
+            
+            # Assess business impact for each recommendation
+            for recommendation in maintenance_plan.get('recommendations', []):
+                impact_assessment = await self._assess_maintenance_impact(recommendation)
+                recommendation['impact_assessment'] = impact_assessment
+            
+            self.logger.info("Maintenance recommendations generated",
+                           recommendations_count=len(maintenance_plan.get('recommendations', [])),
+                           urgent_count=len([r for r in maintenance_plan.get('recommendations', []) 
+                                           if r.get('urgency') == 'high']),
+                           confidence=llm_response.confidence_score)
+            
+            return maintenance_plan
+            
+        except Exception as e:
+            self.logger.error("Error generating maintenance recommendations", error=str(e))
+            return {'error': str(e), 'recommendations': []}
+    
+    # ========== Helper Methods for LLM-Enhanced Monitoring ==========
+    
+    def _prepare_metrics_for_analysis(self) -> Dict[str, Any]:
+        """Prepare recent metrics for LLM analysis"""
+        recent_metrics = []
+        cutoff_time = datetime.now() - timedelta(hours=24)
+        
+        for pm in self.performance_history:
+            if pm.collected_at > cutoff_time:
+                recent_metrics.append({
+                    'timestamp': pm.collected_at.isoformat(),
+                    'agent_id': pm.agent_id,
+                    'metrics': pm.metrics
+                })
+        
+        return {
+            'metrics_count': len(recent_metrics),
+            'time_range': '24_hours',
+            'metrics_data': recent_metrics[-50:]  # Last 50 metrics
+        }
+    
+    def _calculate_historical_trends(self) -> Dict[str, Any]:
+        """Calculate historical trends for pattern analysis"""
+        if len(self.performance_history) < 5:
+            return {'insufficient_data': True}
+        
+        # Calculate trends for key metrics
+        trends = {}
+        
+        # Group metrics by agent
+        agent_metrics = {}
+        for pm in self.performance_history[-100:]:  # Last 100 entries
+            if pm.agent_id not in agent_metrics:
+                agent_metrics[pm.agent_id] = []
+            agent_metrics[pm.agent_id].append(pm)
+        
+        # Calculate trends for each agent
+        for agent_id, metrics_list in agent_metrics.items():
+            if len(metrics_list) >= 5:
+                trends[agent_id] = self._calculate_agent_trends(metrics_list)
+        
+        return trends
+    
+    def _calculate_agent_trends(self, metrics_list: List) -> Dict[str, Any]:
+        """Calculate trends for a specific agent"""
+        # Simple trend calculation (in real implementation, use more sophisticated analysis)
+        recent = metrics_list[-5:]
+        older = metrics_list[-10:-5] if len(metrics_list) >= 10 else metrics_list[:-5]
+        
+        if not older:
+            return {'trend': 'insufficient_data'}
+        
+        # Calculate average metrics for comparison
+        recent_avg = self._calculate_average_metrics(recent)
+        older_avg = self._calculate_average_metrics(older)
+        
+        trends = {}
+        for metric_name in recent_avg:
+            if metric_name in older_avg and isinstance(recent_avg[metric_name], (int, float)):
+                change = ((recent_avg[metric_name] - older_avg[metric_name]) / older_avg[metric_name]) * 100
+                trends[metric_name] = {
+                    'change_percent': round(change, 2),
+                    'direction': 'increasing' if change > 5 else 'decreasing' if change < -5 else 'stable'
+                }
+        
+        return trends
+    
+    def _calculate_average_metrics(self, metrics_list: List) -> Dict[str, Any]:
+        """Calculate average metrics from a list of performance metrics"""
+        if not metrics_list:
+            return {}
+        
+        # Aggregate numeric metrics
+        aggregated = {}
+        count = len(metrics_list)
+        
+        for pm in metrics_list:
+            for key, value in pm.metrics.items():
+                if isinstance(value, (int, float)):
+                    if key not in aggregated:
+                        aggregated[key] = 0
+                    aggregated[key] += value
+        
+        # Calculate averages
+        return {key: value / count for key, value in aggregated.items()}
+    
+    def _get_alert_summary(self) -> Dict[str, Any]:
+        """Get summary of recent alerts for pattern analysis"""
+        recent_alerts = [a for a in self.alerts if a.timestamp > datetime.now() - timedelta(hours=24)]
+        
+        return {
+            'total_alerts': len(recent_alerts),
+            'by_level': {
+                'critical': len([a for a in recent_alerts if a.level == AlertLevel.CRITICAL]),
+                'error': len([a for a in recent_alerts if a.level == AlertLevel.ERROR]),
+                'warning': len([a for a in recent_alerts if a.level == AlertLevel.WARNING]),
+                'info': len([a for a in recent_alerts if a.level == AlertLevel.INFO])
+            },
+            'by_source': self._group_alerts_by_source(recent_alerts),
+            'alert_frequency': len(recent_alerts) / 24  # alerts per hour
+        }
+    
+    def _group_alerts_by_source(self, alerts: List[SystemAlert]) -> Dict[str, int]:
+        """Group alerts by source for analysis"""
+        sources = {}
+        for alert in alerts:
+            sources[alert.source] = sources.get(alert.source, 0) + 1
+        return sources
+    
+    async def _parse_pattern_analysis(self, llm_content: str) -> Dict[str, Any]:
+        """Parse LLM pattern analysis response"""
+        try:
+            return json.loads(llm_content)
+        except json.JSONDecodeError:
+            return {
+                'patterns': [],
+                'anomalies_detected': [],
+                'recommendations': [llm_content[:500]],
+                'confidence_score': 0.5
+            }
+    
+    async def _create_predictive_alerts(self, pattern_analysis: Dict[str, Any]):
+        """Create predictive alerts based on pattern analysis"""
+        for anomaly in pattern_analysis.get('anomalies_detected', []):
+            alert = SystemAlert(
+                level=AlertLevel.WARNING,
+                message=f"Predictive anomaly detected: {anomaly.get('description', 'Unknown anomaly')}",
+                source="MonitoringAgent_Predictive",
+                details={
+                    'anomaly_type': anomaly.get('type'),
+                    'confidence': anomaly.get('confidence'),
+                    'predicted_impact': anomaly.get('predicted_impact'),
+                    'recommended_actions': anomaly.get('recommended_actions', [])
+                }
+            )
+            await self.handle_system_alert(alert)
+    
+    async def _get_comprehensive_system_state(self) -> Dict[str, Any]:
+        """Get comprehensive system state for predictive analysis"""
+        return {
+            'health_status': await self.monitor_system_health(),
+            'current_metrics': await self._collect_system_metrics(),
+            'active_alerts': len([a for a in self.alerts if not a.resolved]),
+            'recent_failures': len([f for f in self.failures if f.timestamp > datetime.now() - timedelta(hours=1)]),
+            'agent_performance': self._get_agent_performance_summary(),
+            'resource_utilization': await self._get_resource_utilization(),
+            'workload_characteristics': self._analyze_current_workload()
+        }
+    
+    def _get_agent_performance_summary(self) -> Dict[str, Any]:
+        """Get summary of agent performance"""
+        recent_performance = [pm for pm in self.performance_history 
+                            if pm.collected_at > datetime.now() - timedelta(hours=1)]
+        
+        agent_summary = {}
+        for pm in recent_performance:
+            if pm.agent_id not in agent_summary:
+                agent_summary[pm.agent_id] = {
+                    'metrics_count': 0,
+                    'avg_success_rate': 0,
+                    'avg_response_time': 0
+                }
+            
+            summary = agent_summary[pm.agent_id]
+            summary['metrics_count'] += 1
+            
+            # Update averages (simplified)
+            if 'success_rate' in pm.metrics:
+                summary['avg_success_rate'] = (summary['avg_success_rate'] + pm.metrics['success_rate']) / 2
+            if 'avg_completion_time' in pm.metrics:
+                summary['avg_response_time'] = (summary['avg_response_time'] + pm.metrics['avg_completion_time']) / 2
+        
+        return agent_summary
+    
+    async def _get_resource_utilization(self) -> Dict[str, Any]:
+        """Get current resource utilization"""
+        # In real implementation, this would collect actual resource metrics
+        return {
+            'cpu_usage': 45.2,
+            'memory_usage': 62.8,
+            'disk_usage': 34.5,
+            'network_io': {'in_mbps': 10.5, 'out_mbps': 8.3},
+            'database_connections': 15,
+            'redis_memory': 128.5  # MB
+        }
+    
+    def _analyze_current_workload(self) -> Dict[str, Any]:
+        """Analyze current system workload characteristics"""
+        return {
+            'active_tasks': 25,
+            'queue_sizes': {
+                'xml_processing': 5,
+                'report_generation': 2,
+                'scheduled_tasks': 8
+            },
+            'processing_rates': {
+                'documents_per_hour': 150,
+                'reports_per_hour': 12
+            },
+            'peak_load_indicator': 'normal'  # normal, high, critical
+        }
+    
+    async def _parse_issue_predictions(self, llm_content: str) -> Dict[str, Any]:
+        """Parse LLM issue prediction response"""
+        try:
+            return json.loads(llm_content)
+        except json.JSONDecodeError:
+            return {
+                'predictions': [],
+                'high_risk_issues': [],
+                'recommendations': [llm_content[:500]],
+                'confidence_score': 0.5
+            }
+    
+    async def _create_proactive_alert(self, prediction: Dict[str, Any]):
+        """Create proactive alert for high-risk predictions"""
+        alert = SystemAlert(
+            level=AlertLevel.WARNING,
+            message=f"Proactive alert: {prediction.get('issue_description', 'Potential issue predicted')}",
+            source="MonitoringAgent_Proactive",
+            details={
+                'prediction_type': prediction.get('type'),
+                'probability': prediction.get('probability'),
+                'estimated_time_to_occurrence': prediction.get('eta'),
+                'preventive_actions': prediction.get('preventive_actions', []),
+                'business_impact': prediction.get('business_impact')
+            }
+        )
+        await self.handle_system_alert(alert)
+    
+    async def _generate_optimization_suggestions(self, predictions: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Generate optimization suggestions based on predictions"""
+        suggestions = []
+        
+        for prediction in predictions.get('predictions', []):
+            if prediction.get('probability', 0) > 0.6:
+                suggestion = {
+                    'type': 'preventive_optimization',
+                    'description': f"Optimize {prediction.get('issue_type')} to prevent predicted issue",
+                    'priority': 'high' if prediction.get('probability', 0) > 0.8 else 'medium',
+                    'actions': prediction.get('preventive_actions', []),
+                    'estimated_impact': prediction.get('business_impact', 'medium')
+                }
+                suggestions.append(suggestion)
+        
+        return suggestions
+    
+    def _analyze_performance_trends(self) -> Dict[str, Any]:
+        """Analyze performance trends for predictive analysis"""
+        if len(self.performance_history) < 10:
+            return {'insufficient_data': True}
+        
+        # Calculate trends over different time periods
+        recent_24h = [pm for pm in self.performance_history 
+                     if pm.collected_at > datetime.now() - timedelta(hours=24)]
+        recent_7d = [pm for pm in self.performance_history 
+                    if pm.collected_at > datetime.now() - timedelta(days=7)]
+        
+        return {
+            'short_term_trend': self._calculate_trend_direction(recent_24h),
+            'medium_term_trend': self._calculate_trend_direction(recent_7d),
+            'performance_degradation': self._detect_performance_degradation(recent_24h),
+            'resource_pressure': self._analyze_resource_pressure(recent_24h)
+        }
+    
+    def _calculate_trend_direction(self, metrics_list: List) -> str:
+        """Calculate overall trend direction for metrics"""
+        if len(metrics_list) < 5:
+            return 'insufficient_data'
+        
+        # Simple trend calculation based on success rates and response times
+        first_half = metrics_list[:len(metrics_list)//2]
+        second_half = metrics_list[len(metrics_list)//2:]
+        
+        first_avg = self._calculate_average_metrics(first_half)
+        second_avg = self._calculate_average_metrics(second_half)
+        
+        # Check success rate trend
+        if 'success_rate' in first_avg and 'success_rate' in second_avg:
+            success_change = second_avg['success_rate'] - first_avg['success_rate']
+            if success_change < -5:
+                return 'declining'
+            elif success_change > 5:
+                return 'improving'
+        
+        return 'stable'
+    
+    def _detect_performance_degradation(self, recent_metrics: List) -> Dict[str, Any]:
+        """Detect performance degradation patterns"""
+        if len(recent_metrics) < 5:
+            return {'detected': False}
+        
+        # Check for increasing response times
+        response_times = []
+        for pm in recent_metrics:
+            if 'avg_completion_time' in pm.metrics:
+                response_times.append(pm.metrics['avg_completion_time'])
+        
+        if len(response_times) >= 5:
+            recent_avg = sum(response_times[-3:]) / 3
+            older_avg = sum(response_times[:3]) / 3
+            
+            if recent_avg > older_avg * 1.5:  # 50% increase
+                return {
+                    'detected': True,
+                    'type': 'response_time_degradation',
+                    'severity': 'high' if recent_avg > older_avg * 2 else 'medium',
+                    'change_percent': ((recent_avg - older_avg) / older_avg) * 100
+                }
+        
+        return {'detected': False}
+    
+    def _analyze_resource_pressure(self, recent_metrics: List) -> Dict[str, Any]:
+        """Analyze resource pressure indicators"""
+        # In real implementation, this would analyze CPU, memory, disk usage trends
+        return {
+            'cpu_pressure': 'normal',
+            'memory_pressure': 'normal',
+            'disk_pressure': 'low',
+            'network_pressure': 'low'
+        }
+    
+    async def _analyze_resource_utilization(self) -> Dict[str, Any]:
+        """Analyze resource utilization patterns"""
+        current_resources = await self._get_resource_utilization()
+        
+        return {
+            'current_utilization': current_resources,
+            'utilization_trends': self._calculate_resource_trends(),
+            'capacity_warnings': self._check_capacity_warnings(current_resources),
+            'optimization_opportunities': self._identify_resource_optimization_opportunities(current_resources)
+        }
+    
+    def _calculate_resource_trends(self) -> Dict[str, Any]:
+        """Calculate resource utilization trends"""
+        # Placeholder for resource trend calculation
+        return {
+            'cpu_trend': 'stable',
+            'memory_trend': 'increasing',
+            'disk_trend': 'stable',
+            'network_trend': 'stable'
+        }
+    
+    def _check_capacity_warnings(self, resources: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Check for capacity warnings"""
+        warnings = []
+        
+        if resources.get('cpu_usage', 0) > 80:
+            warnings.append({
+                'type': 'cpu_high',
+                'current_value': resources['cpu_usage'],
+                'threshold': 80,
+                'severity': 'high'
+            })
+        
+        if resources.get('memory_usage', 0) > 85:
+            warnings.append({
+                'type': 'memory_high',
+                'current_value': resources['memory_usage'],
+                'threshold': 85,
+                'severity': 'high'
+            })
+        
+        return warnings
+    
+    def _identify_resource_optimization_opportunities(self, resources: Dict[str, Any]) -> List[str]:
+        """Identify resource optimization opportunities"""
+        opportunities = []
+        
+        if resources.get('cpu_usage', 0) < 30:
+            opportunities.append('CPU underutilization - consider resource reallocation')
+        
+        if resources.get('memory_usage', 0) > 80:
+            opportunities.append('Memory optimization needed - review memory-intensive processes')
+        
+        return opportunities
+    
+    def _get_business_calendar_context(self) -> Dict[str, Any]:
+        """Get business calendar context for predictions"""
+        now = datetime.now()
+        
+        return {
+            'current_date': now.isoformat(),
+            'day_of_week': now.strftime('%A'),
+            'is_month_end': now.day >= 25,
+            'is_quarter_end': now.month in [3, 6, 9, 12] and now.day >= 25,
+            'is_year_end': now.month == 12 and now.day >= 25,
+            'business_hours': '09:00-17:00 BRT',
+            'peak_processing_periods': ['month_end', 'quarter_end']
+        }
+    
+    def _get_historical_incident_patterns(self) -> Dict[str, Any]:
+        """Get historical incident patterns for prediction"""
+        # In real implementation, this would analyze historical incident data
+        return {
+            'common_failure_patterns': [
+                'database_connection_exhaustion',
+                'xml_processing_queue_overflow',
+                'memory_leaks_in_long_running_processes'
+            ],
+            'seasonal_incidents': {
+                'month_end': ['high_load_database_timeouts', 'report_generation_delays'],
+                'quarter_end': ['storage_capacity_issues', 'backup_failures']
+            },
+            'time_based_patterns': {
+                'monday_morning': 'high_error_rates',
+                'friday_evening': 'maintenance_window_issues'
+            }
+        }
+    
+    async def _identify_performance_bottlenecks(self) -> Dict[str, Any]:
+        """Identify current performance bottlenecks"""
+        current_metrics = await self._collect_system_metrics()
+        
+        bottlenecks = []
+        
+        # Check response time bottlenecks
+        if current_metrics.get('response_times', {}).get('avg', 0) > 1000:
+            bottlenecks.append({
+                'type': 'response_time',
+                'component': 'api',
+                'severity': 'high',
+                'current_value': current_metrics['response_times']['avg'],
+                'threshold': 1000
+            })
+        
+        # Check queue size bottlenecks
+        for queue_name, size in current_metrics.get('queue_sizes', {}).items():
+            if size > 50:
+                bottlenecks.append({
+                    'type': 'queue_overflow',
+                    'component': queue_name,
+                    'severity': 'medium',
+                    'current_value': size,
+                    'threshold': 50
+                })
+        
+        return {
+            'bottlenecks': bottlenecks,
+            'bottleneck_count': len(bottlenecks),
+            'most_critical': bottlenecks[0] if bottlenecks else None
+        }
+    
+    async def _analyze_resource_constraints(self) -> Dict[str, Any]:
+        """Analyze current resource constraints"""
+        return {
+            'cpu_constraint': 'none',  # none, moderate, severe
+            'memory_constraint': 'moderate',
+            'disk_constraint': 'none',
+            'network_constraint': 'none',
+            'database_connection_constraint': 'none',
+            'constraint_summary': 'Memory usage approaching limits'
+        }
+    
+    def _analyze_workload_patterns(self) -> Dict[str, Any]:
+        """Analyze workload patterns"""
+        return {
+            'current_workload_type': 'normal',  # light, normal, heavy, peak
+            'workload_distribution': {
+                'xml_processing': 60,
+                'report_generation': 25,
+                'api_requests': 15
+            },
+            'peak_hours': '09:00-11:00, 14:00-16:00',
+            'workload_predictability': 'high'  # high, medium, low
+        }
+    
+    async def _get_infrastructure_capacity(self) -> Dict[str, Any]:
+        """Get infrastructure capacity information"""
+        return {
+            'cpu_capacity': {'total_cores': 8, 'available_cores': 4.5},
+            'memory_capacity': {'total_gb': 32, 'available_gb': 12},
+            'disk_capacity': {'total_gb': 500, 'available_gb': 325},
+            'network_capacity': {'max_mbps': 1000, 'current_utilization': 15},
+            'scaling_options': ['horizontal_scaling', 'vertical_scaling'],
+            'capacity_planning_horizon': '6_months'
+        }
+    
+    async def _parse_optimization_suggestions(self, llm_content: str) -> Dict[str, Any]:
+        """Parse LLM optimization suggestions response"""
+        try:
+            return json.loads(llm_content)
+        except json.JSONDecodeError:
+            return {
+                'immediate_optimizations': [],
+                'medium_term_improvements': [],
+                'long_term_investments': [],
+                'priority_ranking': [llm_content[:200]],
+                'confidence_score': 0.5
+            }
+    
+    def _prioritize_optimization_suggestions(self, optimization_plan: Dict[str, Any]) -> Dict[str, Any]:
+        """Prioritize optimization suggestions based on impact and feasibility"""
+        all_suggestions = []
+        
+        # Add immediate optimizations with high priority
+        for opt in optimization_plan.get('immediate_optimizations', []):
+            opt['category'] = 'immediate'
+            opt['priority_score'] = self._calculate_priority_score(opt['impact'], opt['effort'])
+            all_suggestions.append(opt)
+        
+        # Add medium-term improvements
+        for imp in optimization_plan.get('medium_term_improvements', []):
+            imp['category'] = 'medium_term'
+            imp['priority_score'] = self._calculate_priority_score(imp['impact'], imp['effort'])
+            all_suggestions.append(imp)
+        
+        # Sort by priority score
+        all_suggestions.sort(key=lambda x: x.get('priority_score', 0), reverse=True)
+        
+        return {
+            'suggestions': all_suggestions,
+            'high_priority_count': len([s for s in all_suggestions if s.get('priority_score', 0) > 7]),
+            'total_suggestions': len(all_suggestions),
+            'prioritization_timestamp': datetime.now().isoformat()
+        }
+    
+    def _calculate_priority_score(self, impact: str, effort: str) -> int:
+        """Calculate priority score based on impact and effort"""
+        impact_scores = {'high': 9, 'medium': 6, 'low': 3}
+        effort_scores = {'low': 3, 'medium': 2, 'high': 1}
+        
+        return impact_scores.get(impact, 6) + effort_scores.get(effort, 2)
+    
+    def _get_fiscal_data_baselines(self) -> Dict[str, Any]:
+        """Get fiscal data quality baselines"""
+        return {
+            'validation_error_baseline': 2.5,  # percentage
+            'missing_fields_baseline': 1.0,    # percentage
+            'duplicate_rate_baseline': 0.5,    # percentage
+            'processing_time_baseline': 2.5,   # seconds average
+            'baseline_period': 'last_30_days'
+        }
+    
+    async def _parse_data_quality_analysis(self, llm_content: str) -> Dict[str, Any]:
+        """Parse LLM data quality analysis response"""
+        try:
+            return json.loads(llm_content)
+        except json.JSONDecodeError:
+            return {
+                'data_quality_assessment': {'overall_score': 75, 'quality_trend': 'stable'},
+                'data_quality_issues': [],
+                'business_changes': [],
+                'improvement_recommendations': [llm_content[:200]],
+                'confidence_score': 0.5
+            }
+    
+    def _get_maintenance_history(self) -> Dict[str, Any]:
+        """Get maintenance history for planning"""
+        return {
+            'last_major_maintenance': '2024-10-01',
+            'last_minor_maintenance': '2024-10-15',
+            'maintenance_frequency': 'monthly',
+            'average_downtime': '1.5_hours',
+            'maintenance_success_rate': 95.0,
+            'common_maintenance_issues': ['database_optimization', 'log_cleanup', 'security_updates']
+        }
+    
+    def _get_business_calendar_events(self) -> List[Dict[str, Any]]:
+        """Get upcoming business events that might affect maintenance scheduling"""
+        return [
+            {
+                'event': 'month_end_processing',
+                'date': '2024-11-30',
+                'impact': 'high_load',
+                'maintenance_restriction': True
+            },
+            {
+                'event': 'quarter_end_reporting',
+                'date': '2024-12-31',
+                'impact': 'critical_load',
+                'maintenance_restriction': True
+            },
+            {
+                'event': 'holiday_period',
+                'date_range': '2024-12-20 to 2025-01-05',
+                'impact': 'reduced_support',
+                'maintenance_restriction': True
+            }
+        ]
+    
+    def _analyze_resource_trends(self) -> Dict[str, Any]:
+        """Analyze resource utilization trends"""
+        return {
+            'cpu_trend': {'direction': 'stable', 'change_rate': 2.5},
+            'memory_trend': {'direction': 'increasing', 'change_rate': 8.3},
+            'disk_trend': {'direction': 'increasing', 'change_rate': 5.1},
+            'network_trend': {'direction': 'stable', 'change_rate': 1.2}
+        }
+    
+    def _get_technical_debt_items(self) -> List[Dict[str, Any]]:
+        """Get known technical debt items"""
+        return [
+            {
+                'item': 'Legacy XML parser optimization',
+                'priority': 'high',
+                'estimated_effort': '2 weeks',
+                'business_impact': 'Performance improvement for NF-e processing'
+            },
+            {
+                'item': 'Database index optimization',
+                'priority': 'medium',
+                'estimated_effort': '1 week',
+                'business_impact': 'Faster report generation'
+            },
+            {
+                'item': 'API rate limiting implementation',
+                'priority': 'medium',
+                'estimated_effort': '1 week',
+                'business_impact': 'Better resource protection'
+            }
+        ]
+    
+    async def _parse_maintenance_recommendations(self, llm_content: str) -> Dict[str, Any]:
+        """Parse LLM maintenance recommendations response"""
+        try:
+            return json.loads(llm_content)
+        except json.JSONDecodeError:
+            return {
+                'urgent_maintenance': [],
+                'preventive_maintenance': [],
+                'planned_improvements': [],
+                'recommended_schedule': [],
+                'confidence_score': 0.5
+            }
+    
+    async def _assess_maintenance_impact(self, recommendation: Dict[str, Any]) -> Dict[str, Any]:
+        """Assess business impact of maintenance recommendation"""
+        return {
+            'downtime_estimate': recommendation.get('estimated_downtime', 'unknown'),
+            'affected_services': ['xml_processing', 'api'],
+            'user_impact': 'minimal' if recommendation.get('urgency') == 'low' else 'moderate',
+            'business_risk': 'low',
+            'mitigation_strategies': ['schedule_during_maintenance_window', 'notify_users_in_advance']
+        }

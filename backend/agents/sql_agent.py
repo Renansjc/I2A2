@@ -1,19 +1,82 @@
 """
-SQL Agent for natural language to SQL query translation
+LLM-Enhanced SQL Agent for intelligent business-to-SQL translation
 """
 
 import asyncio
-from typing import Dict, Any, List, Optional
+import json
+from typing import Dict, Any, List, Optional, Union
 import re
 import structlog
+from datetime import datetime, timedelta
 
 from .base_agent import BaseAgent
 from utils.database import DatabaseManager
 from utils.config import settings
+from utils.openai_integration import get_openai_service, LLMResponse, BusinessInsights
 
+
+class SQLTranslation:
+    """Enhanced SQL translation with business context"""
+    
+    def __init__(self, sql_query: str, business_logic_explanation: str, 
+                 confidence_score: float, optimization_suggestions: List[str] = None,
+                 potential_issues: List[str] = None, estimated_performance: Dict[str, Any] = None):
+        self.sql_query = sql_query
+        self.business_logic_explanation = business_logic_explanation
+        self.confidence_score = confidence_score
+        self.optimization_suggestions = optimization_suggestions or []
+        self.potential_issues = potential_issues or []
+        self.estimated_performance = estimated_performance or {}
+        self.parameters = []
+        self.query_type = "SELECT"
+        self.complexity_score = 0
+
+class OptimizedQuery:
+    """Optimized SQL query with business context"""
+    
+    def __init__(self, original_query: str, optimized_query: str, 
+                 optimization_reasoning: str, performance_improvement: Dict[str, Any],
+                 business_alignment: str):
+        self.original_query = original_query
+        self.optimized_query = optimized_query
+        self.optimization_reasoning = optimization_reasoning
+        self.performance_improvement = performance_improvement
+        self.business_alignment = business_alignment
+
+class QueryExplanation:
+    """Business-focused query explanation"""
+    
+    def __init__(self, sql_query: str, business_purpose: str, 
+                 data_sources: List[str], business_impact: str,
+                 confidence_assessment: str, data_quality_notes: List[str]):
+        self.sql_query = sql_query
+        self.business_purpose = business_purpose
+        self.data_sources = data_sources
+        self.business_impact = business_impact
+        self.confidence_assessment = confidence_assessment
+        self.data_quality_notes = data_quality_notes
+
+class SchemaContext:
+    """Database schema context for LLM understanding"""
+    
+    def __init__(self):
+        self.schema_info = {}
+        self.business_rules = {}
+        self.data_relationships = {}
+        self.query_examples = []
+    
+    async def get_relevant_schema(self, natural_query: str) -> Dict[str, Any]:
+        """Get schema information relevant to the natural query"""
+        # This would analyze the query and return relevant schema parts
+        # For now, return the full schema context
+        return {
+            'tables': self.schema_info,
+            'relationships': self.data_relationships,
+            'business_rules': self.business_rules
+        }
 
 class SQLQuery:
-    """SQL Query representation"""
+    """SQL Query representation (legacy compatibility)"""
     
     def __init__(self, sql: str, parameters: List[Any] = None, query_type: str = "SELECT"):
         self.sql = sql
@@ -21,7 +84,6 @@ class SQLQuery:
         self.query_type = query_type
         self.estimated_rows = 0
         self.complexity_score = 0
-
 
 class QueryResult:
     """Query execution result"""
@@ -33,17 +95,21 @@ class QueryResult:
         self.row_count = row_count
 
 
-class SQLAgent(BaseAgent):
-    """Agent responsible for converting natural language to SQL queries"""
+class LLMEnhancedSQLAgent(BaseAgent):
+    """LLM-Enhanced SQL Agent for intelligent business-to-SQL translation"""
     
     def __init__(self):
-        super().__init__("SQLAgent")
+        super().__init__("LLMEnhancedSQLAgent")
+        self.llm_service = get_openai_service()
+        self.schema_context = SchemaContext()
         self.table_schema = {}
         self.query_templates = {}
         self.business_terms = {}
+        self.business_rules = {}
+        self.query_examples = []
         
     async def initialize(self):
-        """Initialize SQL Agent resources"""
+        """Initialize LLM-Enhanced SQL Agent resources"""
         try:
             # Load database schema information
             await self._load_table_schema()
@@ -54,10 +120,19 @@ class SQLAgent(BaseAgent):
             # Load business term mappings
             await self._load_business_terms()
             
-            self.logger.info("SQL Agent initialized")
+            # Load business rules for LLM context
+            await self._load_business_rules()
+            
+            # Load query examples for LLM learning
+            await self._load_query_examples()
+            
+            # Initialize schema context for LLM
+            await self._initialize_schema_context()
+            
+            self.logger.info("LLM-Enhanced SQL Agent initialized")
             
         except Exception as e:
-            self.logger.error("Failed to initialize SQL Agent", error=str(e))
+            self.logger.error("Failed to initialize LLM-Enhanced SQL Agent", error=str(e))
             raise
     
     async def cleanup(self):
@@ -543,3 +618,663 @@ class SQLAgent(BaseAgent):
         except Exception as e:
             self.logger.error("Error explaining query", error=str(e))
             return {'error': str(e)}
+    
+    # ===== LLM-ENHANCED METHODS =====
+    
+    async def translate_business_query(
+        self,
+        natural_query: str,
+        business_context: Dict[str, Any]
+    ) -> SQLTranslation:
+        """Convert business questions to SQL with full context understanding"""
+        try:
+            self.logger.info("Translating business query with LLM", query=natural_query)
+            
+            # Get relevant schema context
+            schema_context = await self.schema_context.get_relevant_schema(natural_query)
+            
+            # Prepare context for LLM
+            llm_context = {
+                'natural_query': natural_query,
+                'database_schema': schema_context,
+                'business_rules': self.business_rules,
+                'data_relationships': self.schema_context.data_relationships,
+                'query_examples': await self._get_similar_query_examples(natural_query),
+                'business_context': business_context,
+                'user_role': business_context.get('user_role', 'executive'),
+                'table_descriptions': self._get_table_descriptions(),
+                'brazilian_context': {
+                    'fiscal_document_types': ['NF-e', 'NFS-e'],
+                    'tax_types': ['ICMS', 'IPI', 'PIS', 'COFINS', 'ISSQN'],
+                    'date_format': 'DD/MM/YYYY',
+                    'currency': 'BRL'
+                }
+            }
+            
+            # Use LLM to translate business query to SQL
+            response = await self.llm_service.generate_completion(
+                "business_to_sql_translation",
+                llm_context,
+                model="gpt-4o-mini",
+                temperature=0.1
+            )
+            
+            # Parse LLM response
+            translation = await self._parse_sql_translation_response(response, natural_query)
+            
+            self.logger.info("Business query translated successfully", 
+                           confidence=translation.confidence_score)
+            
+            return translation
+            
+        except Exception as e:
+            self.logger.error("Error translating business query", error=str(e))
+            # Fallback to traditional method
+            fallback_query = await self.generate_sql(natural_query, business_context)
+            return SQLTranslation(
+                sql_query=fallback_query.sql,
+                business_logic_explanation="Fallback translation due to LLM error",
+                confidence_score=0.5,
+                optimization_suggestions=["Review query manually"],
+                potential_issues=[f"LLM translation failed: {str(e)}"]
+            )
+    
+    async def optimize_query_for_business(
+        self,
+        sql_query: str,
+        business_objective: str
+    ) -> OptimizedQuery:
+        """Optimize SQL query based on business objectives"""
+        try:
+            self.logger.info("Optimizing query for business objective", 
+                           objective=business_objective)
+            
+            # Prepare context for LLM optimization
+            llm_context = {
+                'original_query': sql_query,
+                'business_objective': business_objective,
+                'performance_requirements': await self._get_performance_requirements(),
+                'data_volume_estimates': await self._get_data_volume_estimates(),
+                'index_information': await self._get_index_information(),
+                'optimization_patterns': await self._get_optimization_patterns(),
+                'database_type': 'PostgreSQL',
+                'business_constraints': {
+                    'max_execution_time': '30 seconds',
+                    'data_freshness_requirements': 'real-time for current month, daily for historical',
+                    'user_expectations': 'executive-level summary data'
+                }
+            }
+            
+            # Use LLM for intelligent optimization
+            response = await self.llm_service.generate_completion(
+                "query_optimization",
+                llm_context,
+                model="gpt-4o-mini",
+                temperature=0.1
+            )
+            
+            # Parse optimization response
+            optimization = await self._parse_optimization_response(response, sql_query)
+            
+            self.logger.info("Query optimized successfully")
+            
+            return optimization
+            
+        except Exception as e:
+            self.logger.error("Error optimizing query", error=str(e))
+            # Return original query as fallback
+            return OptimizedQuery(
+                original_query=sql_query,
+                optimized_query=sql_query,
+                optimization_reasoning=f"Optimization failed: {str(e)}",
+                performance_improvement={'status': 'no_improvement'},
+                business_alignment="Unable to assess due to optimization error"
+            )
+    
+    async def explain_query_business_logic(
+        self,
+        sql_query: str,
+        results: QueryResult
+    ) -> QueryExplanation:
+        """Generate business-focused explanation of query and results"""
+        try:
+            self.logger.info("Generating business explanation for query")
+            
+            # Prepare context for business explanation
+            llm_context = {
+                'sql_query': sql_query,
+                'query_results': {
+                    'row_count': results.row_count,
+                    'execution_time': results.execution_time,
+                    'sample_data': results.data[:5] if results.data else [],
+                    'columns': list(results.data[0].keys()) if results.data else []
+                },
+                'business_impact': await self._analyze_business_impact(results),
+                'data_quality_assessment': await self._assess_data_quality(results),
+                'confidence_level': await self._calculate_confidence_level(results),
+                'executive_context': {
+                    'focus_areas': ['financial_impact', 'operational_insights', 'strategic_implications'],
+                    'communication_style': 'executive_summary',
+                    'language': 'portuguese'
+                }
+            }
+            
+            # Use LLM to generate business explanation
+            response = await self.llm_service.generate_completion(
+                "business_explanation",
+                llm_context,
+                model="gpt-4o-mini",
+                temperature=0.2
+            )
+            
+            # Parse explanation response
+            explanation = await self._parse_explanation_response(response, sql_query, results)
+            
+            self.logger.info("Business explanation generated successfully")
+            
+            return explanation
+            
+        except Exception as e:
+            self.logger.error("Error generating business explanation", error=str(e))
+            # Return basic explanation as fallback
+            return QueryExplanation(
+                sql_query=sql_query,
+                business_purpose="Consulta de dados fiscais para análise executiva",
+                data_sources=self._extract_table_names(sql_query),
+                business_impact="Impacto não determinado devido a erro na análise",
+                confidence_assessment="Baixa confiança devido a erro no processamento",
+                data_quality_notes=[f"Erro na análise: {str(e)}"]
+            )
+    
+    # ===== LLM HELPER METHODS =====
+    
+    async def _load_business_rules(self):
+        """Load business rules for LLM context"""
+        try:
+            self.business_rules = {
+                'fiscal_document_validation': {
+                    'nfe_required_fields': ['chave_nfe', 'numero_nf', 'data_emissao', 'valor_total_nf'],
+                    'nfse_required_fields': ['id_nfse', 'numero_nfse', 'data_emissao', 'valor_total_servicos'],
+                    'date_range_limits': 'Maximum 2 years for detailed queries, unlimited for summaries'
+                },
+                'business_logic': {
+                    'supplier_classification': 'Based on transaction volume and frequency',
+                    'product_categorization': 'Uses NCM codes and business context',
+                    'tax_calculations': 'Brazilian tax rules (ICMS, IPI, PIS, COFINS, ISSQN)',
+                    'regional_analysis': 'Based on UF (state) codes'
+                },
+                'performance_guidelines': {
+                    'large_datasets': 'Use aggregation and date filters',
+                    'real_time_queries': 'Limit to current month data',
+                    'historical_analysis': 'Use monthly/yearly aggregations'
+                }
+            }
+            
+            self.logger.info("Business rules loaded for LLM context")
+            
+        except Exception as e:
+            self.logger.error("Error loading business rules", error=str(e))
+    
+    async def _load_query_examples(self):
+        """Load query examples for LLM learning"""
+        try:
+            self.query_examples = [
+                {
+                    'business_question': 'Quais são os 5 maiores fornecedores por valor no último trimestre?',
+                    'sql_query': """
+                        SELECT e.razao_social, SUM(n.valor_total_nf) as total_value
+                        FROM nfe_main n
+                        JOIN dim_emitente e ON SUBSTRING(n.chave_nfe, 7, 14) = e.cnpj
+                        WHERE n.data_emissao >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+                        GROUP BY e.cnpj, e.razao_social
+                        ORDER BY total_value DESC
+                        LIMIT 5
+                    """,
+                    'explanation': 'Identifica fornecedores com maior volume de transações'
+                },
+                {
+                    'business_question': 'Qual foi o total de impostos pagos por tipo no ano passado?',
+                    'sql_query': """
+                        SELECT 
+                            'ICMS' as tipo_imposto, SUM(valor_icms) as total
+                        FROM vw_documentos_fiscais
+                        WHERE YEAR(data_emissao) = YEAR(CURDATE()) - 1
+                        UNION ALL
+                        SELECT 
+                            'ISSQN' as tipo_imposto, SUM(valor_issqn) as total
+                        FROM vw_documentos_fiscais
+                        WHERE YEAR(data_emissao) = YEAR(CURDATE()) - 1
+                    """,
+                    'explanation': 'Sumariza impostos por tipo para análise fiscal'
+                },
+                {
+                    'business_question': 'Quais produtos tiveram maior crescimento de preço este ano?',
+                    'sql_query': """
+                        WITH preco_atual AS (
+                            SELECT p.codigo_produto, p.descricao,
+                                   AVG(i.valor_unitario_comercial) as preco_medio_atual
+                            FROM fact_itens_nfe i
+                            JOIN dim_produtos p ON i.codigo_produto = p.codigo_produto
+                            JOIN nfe_main n ON i.chave_nfe = n.chave_nfe
+                            WHERE n.data_emissao >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH)
+                            GROUP BY p.codigo_produto, p.descricao
+                        ),
+                        preco_anterior AS (
+                            SELECT p.codigo_produto,
+                                   AVG(i.valor_unitario_comercial) as preco_medio_anterior
+                            FROM fact_itens_nfe i
+                            JOIN dim_produtos p ON i.codigo_produto = p.codigo_produto
+                            JOIN nfe_main n ON i.chave_nfe = n.chave_nfe
+                            WHERE n.data_emissao BETWEEN DATE_SUB(CURDATE(), INTERVAL 15 MONTH) 
+                                  AND DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                            GROUP BY p.codigo_produto
+                        )
+                        SELECT pa.codigo_produto, pa.descricao,
+                               pa.preco_medio_atual, pr.preco_medio_anterior,
+                               ((pa.preco_medio_atual - pr.preco_medio_anterior) / pr.preco_medio_anterior) * 100 as crescimento_percentual
+                        FROM preco_atual pa
+                        JOIN preco_anterior pr ON pa.codigo_produto = pr.codigo_produto
+                        ORDER BY crescimento_percentual DESC
+                        LIMIT 10
+                    """,
+                    'explanation': 'Analisa variação de preços para identificar tendências de mercado'
+                }
+            ]
+            
+            self.logger.info("Query examples loaded for LLM learning", examples=len(self.query_examples))
+            
+        except Exception as e:
+            self.logger.error("Error loading query examples", error=str(e))
+    
+    async def _initialize_schema_context(self):
+        """Initialize schema context for LLM"""
+        try:
+            self.schema_context.schema_info = self.table_schema
+            self.schema_context.business_rules = self.business_rules
+            self.schema_context.query_examples = self.query_examples
+            
+            # Set up data relationships
+            self.schema_context.data_relationships = {
+                'nfe_to_emitente': 'SUBSTRING(nfe_main.chave_nfe, 7, 14) = dim_emitente.cnpj',
+                'nfe_to_items': 'nfe_main.chave_nfe = fact_itens_nfe.chave_nfe',
+                'items_to_products': 'fact_itens_nfe.codigo_produto = dim_produtos.codigo_produto',
+                'nfse_to_emitente': 'SUBSTRING(nfse_main.id_nfse, 9, 14) = dim_emitente.cnpj',
+                'nfse_to_services': 'nfse_main.id_nfse = fact_servicos_nfse.id_nfse',
+                'services_to_service_dim': 'fact_servicos_nfse.codigo_servico = dim_servicos.codigo_servico'
+            }
+            
+            self.logger.info("Schema context initialized for LLM")
+            
+        except Exception as e:
+            self.logger.error("Error initializing schema context", error=str(e))
+    
+    def _get_business_to_sql_prompt(self) -> str:
+        """Get prompt template for business-to-SQL translation"""
+        return """
+Você é um especialista em SQL e análise de dados fiscais brasileiros. Sua tarefa é converter perguntas empresariais em consultas SQL otimizadas.
+
+CONTEXTO DA CONSULTA:
+Pergunta Empresarial: {natural_query}
+Cargo do Usuário: {user_role}
+Contexto Empresarial: {business_context}
+
+ESQUEMA DO BANCO DE DADOS:
+{database_schema}
+
+REGRAS DE NEGÓCIO:
+{business_rules}
+
+RELACIONAMENTOS DE DADOS:
+{data_relationships}
+
+EXEMPLOS DE CONSULTAS SIMILARES:
+{query_examples}
+
+CONTEXTO BRASILEIRO:
+- Tipos de documentos fiscais: {brazilian_context[fiscal_document_types]}
+- Tipos de impostos: {brazilian_context[tax_types]}
+- Formato de data: {brazilian_context[date_format]}
+- Moeda: {brazilian_context[currency]}
+
+INSTRUÇÕES:
+1. Analise a pergunta empresarial e identifique:
+   - Objetivo principal da consulta
+   - Dados necessários
+   - Filtros e agregações requeridas
+   - Período temporal (se aplicável)
+
+2. Gere uma consulta SQL que:
+   - Reflita com precisão a intenção empresarial
+   - Use JOINs apropriados baseados nos relacionamentos
+   - Inclua filtros de performance (datas, limites)
+   - Otimize para execução eficiente
+   - Trate casos extremos adequadamente
+
+3. Forneça explicação da lógica empresarial em português
+
+4. Avalie a confiança da tradução (0-1)
+
+5. Identifique possíveis problemas ou sugestões de otimização
+
+RESPOSTA EM JSON:
+{{
+    "sql_query": "consulta SQL completa",
+    "business_logic_explanation": "explicação da lógica empresarial em português",
+    "confidence_score": 0.95,
+    "optimization_suggestions": ["sugestão 1", "sugestão 2"],
+    "potential_issues": ["problema potencial 1"],
+    "estimated_performance": {{
+        "complexity": "medium",
+        "estimated_rows": 1000,
+        "execution_time_estimate": "< 5 segundos"
+    }}
+}}
+"""
+    
+    def _get_query_optimization_prompt(self) -> str:
+        """Get prompt template for query optimization"""
+        return """
+Você é um especialista em otimização de consultas SQL para bancos de dados PostgreSQL com foco em dados fiscais brasileiros.
+
+CONSULTA ORIGINAL:
+{original_query}
+
+OBJETIVO EMPRESARIAL:
+{business_objective}
+
+CONTEXTO DE PERFORMANCE:
+- Requisitos de Performance: {performance_requirements}
+- Estimativas de Volume de Dados: {data_volume_estimates}
+- Informações de Índices: {index_information}
+- Padrões de Otimização: {optimization_patterns}
+- Tipo de Banco: {database_type}
+
+RESTRIÇÕES EMPRESARIAIS:
+{business_constraints}
+
+INSTRUÇÕES:
+1. Analise a consulta original identificando:
+   - Gargalos de performance
+   - Oportunidades de otimização
+   - Uso inadequado de índices
+   - JOINs desnecessários ou ineficientes
+
+2. Otimize a consulta considerando:
+   - Alinhamento com o objetivo empresarial
+   - Melhoria de performance
+   - Manutenção da precisão dos resultados
+   - Legibilidade e manutenibilidade
+
+3. Explique as otimizações realizadas
+
+4. Estime a melhoria de performance
+
+RESPOSTA EM JSON:
+{{
+    "optimized_query": "consulta SQL otimizada",
+    "optimization_reasoning": "explicação das otimizações em português",
+    "performance_improvement": {{
+        "estimated_speedup": "2x mais rápida",
+        "resource_usage": "50% menos CPU",
+        "scalability": "melhor para grandes volumes"
+    }},
+    "business_alignment": "como a otimização atende ao objetivo empresarial"
+}}
+"""
+    
+    def _get_business_explanation_prompt(self) -> str:
+        """Get prompt template for business explanation"""
+        return """
+Você é um consultor de business intelligence especializado em comunicação executiva para o mercado brasileiro.
+
+CONSULTA SQL:
+{sql_query}
+
+RESULTADOS DA CONSULTA:
+- Número de registros: {query_results[row_count]}
+- Tempo de execução: {query_results[execution_time]} segundos
+- Colunas: {query_results[columns]}
+- Amostra de dados: {query_results[sample_data]}
+
+ANÁLISE DE IMPACTO EMPRESARIAL:
+{business_impact}
+
+AVALIAÇÃO DE QUALIDADE DOS DADOS:
+{data_quality_assessment}
+
+NÍVEL DE CONFIANÇA:
+{confidence_level}
+
+CONTEXTO EXECUTIVO:
+- Áreas de foco: {executive_context[focus_areas]}
+- Estilo de comunicação: {executive_context[communication_style]}
+- Idioma: {executive_context[language]}
+
+INSTRUÇÕES:
+1. Explique o propósito empresarial da consulta em linguagem executiva
+2. Identifique as fontes de dados utilizadas
+3. Analise o impacto empresarial dos resultados
+4. Avalie a confiança nos dados e resultados
+5. Forneça notas sobre qualidade dos dados
+
+RESPOSTA EM JSON:
+{{
+    "business_purpose": "propósito empresarial da consulta em português executivo",
+    "data_sources": ["fonte 1", "fonte 2"],
+    "business_impact": "análise do impacto empresarial dos resultados",
+    "confidence_assessment": "avaliação da confiança nos resultados",
+    "data_quality_notes": ["nota 1 sobre qualidade", "nota 2 sobre qualidade"]
+}}
+"""
+    
+    async def _get_similar_query_examples(self, natural_query: str) -> List[Dict[str, Any]]:
+        """Get similar query examples for LLM context"""
+        # Simple keyword matching for now
+        query_lower = natural_query.lower()
+        similar_examples = []
+        
+        for example in self.query_examples:
+            example_lower = example['business_question'].lower()
+            
+            # Check for common keywords
+            common_keywords = ['fornecedor', 'produto', 'imposto', 'valor', 'total', 'maior', 'menor']
+            matches = sum(1 for keyword in common_keywords if keyword in query_lower and keyword in example_lower)
+            
+            if matches > 0:
+                similar_examples.append({
+                    'question': example['business_question'],
+                    'sql': example['sql_query'],
+                    'explanation': example['explanation'],
+                    'relevance_score': matches / len(common_keywords)
+                })
+        
+        # Sort by relevance and return top 3
+        similar_examples.sort(key=lambda x: x['relevance_score'], reverse=True)
+        return similar_examples[:3]
+    
+    def _get_table_descriptions(self) -> Dict[str, str]:
+        """Get table descriptions for LLM context"""
+        return {
+            table: info.get('description', f'Tabela {table}')
+            for table, info in self.table_schema.items()
+        }
+    
+    async def _parse_sql_translation_response(self, response: LLMResponse, original_query: str) -> SQLTranslation:
+        """Parse LLM response for SQL translation"""
+        try:
+            # Try to parse JSON response
+            response_data = json.loads(response.content)
+            
+            return SQLTranslation(
+                sql_query=response_data.get('sql_query', ''),
+                business_logic_explanation=response_data.get('business_logic_explanation', ''),
+                confidence_score=response_data.get('confidence_score', response.confidence_score),
+                optimization_suggestions=response_data.get('optimization_suggestions', []),
+                potential_issues=response_data.get('potential_issues', []),
+                estimated_performance=response_data.get('estimated_performance', {})
+            )
+            
+        except json.JSONDecodeError:
+            # Fallback to parsing raw response
+            self.logger.warning("Failed to parse JSON response, using raw content")
+            return SQLTranslation(
+                sql_query=self._extract_sql_from_text(response.content),
+                business_logic_explanation=response.content,
+                confidence_score=response.confidence_score * 0.7,  # Lower confidence for unparsed response
+                optimization_suggestions=["Revisar consulta manualmente"],
+                potential_issues=["Resposta não estruturada do LLM"]
+            )
+    
+    async def _parse_optimization_response(self, response: LLMResponse, original_query: str) -> OptimizedQuery:
+        """Parse LLM response for query optimization"""
+        try:
+            response_data = json.loads(response.content)
+            
+            return OptimizedQuery(
+                original_query=original_query,
+                optimized_query=response_data.get('optimized_query', original_query),
+                optimization_reasoning=response_data.get('optimization_reasoning', ''),
+                performance_improvement=response_data.get('performance_improvement', {}),
+                business_alignment=response_data.get('business_alignment', '')
+            )
+            
+        except json.JSONDecodeError:
+            return OptimizedQuery(
+                original_query=original_query,
+                optimized_query=original_query,
+                optimization_reasoning="Falha ao processar otimização do LLM",
+                performance_improvement={'status': 'no_improvement'},
+                business_alignment="Não foi possível avaliar alinhamento empresarial"
+            )
+    
+    async def _parse_explanation_response(self, response: LLMResponse, sql_query: str, results: QueryResult) -> QueryExplanation:
+        """Parse LLM response for business explanation"""
+        try:
+            response_data = json.loads(response.content)
+            
+            return QueryExplanation(
+                sql_query=sql_query,
+                business_purpose=response_data.get('business_purpose', ''),
+                data_sources=response_data.get('data_sources', []),
+                business_impact=response_data.get('business_impact', ''),
+                confidence_assessment=response_data.get('confidence_assessment', ''),
+                data_quality_notes=response_data.get('data_quality_notes', [])
+            )
+            
+        except json.JSONDecodeError:
+            return QueryExplanation(
+                sql_query=sql_query,
+                business_purpose="Análise de dados fiscais para tomada de decisão executiva",
+                data_sources=self._extract_table_names(sql_query),
+                business_impact="Impacto não determinado devido a erro na análise",
+                confidence_assessment="Confiança limitada devido a erro no processamento",
+                data_quality_notes=["Erro ao processar explicação do LLM"]
+            )
+    
+    def _extract_sql_from_text(self, text: str) -> str:
+        """Extract SQL query from text response"""
+        # Look for SQL patterns in the text
+        sql_patterns = [
+            r'```sql\s*(.*?)\s*```',
+            r'```\s*(SELECT.*?)\s*```',
+            r'(SELECT.*?;)',
+            r'(SELECT.*?)(?=\n\n|\Z)'
+        ]
+        
+        for pattern in sql_patterns:
+            match = re.search(pattern, text, re.DOTALL | re.IGNORECASE)
+            if match:
+                return match.group(1).strip()
+        
+        # If no pattern matches, return the whole text (might be just SQL)
+        return text.strip()
+    
+    def _extract_table_names(self, sql_query: str) -> List[str]:
+        """Extract table names from SQL query"""
+        # Simple regex to find table names after FROM and JOIN
+        table_pattern = r'(?:FROM|JOIN)\s+(\w+)'
+        matches = re.findall(table_pattern, sql_query, re.IGNORECASE)
+        return list(set(matches))
+    
+    async def _get_performance_requirements(self) -> Dict[str, Any]:
+        """Get performance requirements for optimization"""
+        return {
+            'max_execution_time': '30 seconds',
+            'target_response_time': '< 5 seconds',
+            'concurrent_users': 10,
+            'data_freshness': 'real-time for current month'
+        }
+    
+    async def _get_data_volume_estimates(self) -> Dict[str, Any]:
+        """Get data volume estimates"""
+        return {
+            'nfe_main': '~1M records per year',
+            'nfse_main': '~500K records per year',
+            'fact_itens_nfe': '~10M records per year',
+            'fact_servicos_nfse': '~2M records per year'
+        }
+    
+    async def _get_index_information(self) -> Dict[str, Any]:
+        """Get database index information"""
+        return {
+            'nfe_main': ['data_emissao', 'chave_nfe', 'valor_total_nf'],
+            'nfse_main': ['data_emissao', 'id_nfse', 'valor_total_servicos'],
+            'dim_emitente': ['cnpj', 'razao_social'],
+            'dim_produtos': ['codigo_produto', 'categoria'],
+            'dim_servicos': ['codigo_servico', 'categoria']
+        }
+    
+    async def _get_optimization_patterns(self) -> List[str]:
+        """Get common optimization patterns"""
+        return [
+            'Use date range filters to limit data scan',
+            'Prefer aggregated views for summary queries',
+            'Use LIMIT for top-N queries',
+            'Consider partitioning for large date ranges',
+            'Use appropriate JOINs based on cardinality'
+        ]
+    
+    async def _analyze_business_impact(self, results: QueryResult) -> str:
+        """Analyze business impact of query results"""
+        if results.row_count == 0:
+            return "Nenhum dado encontrado - pode indicar filtros muito restritivos ou ausência de dados no período"
+        elif results.row_count > 10000:
+            return "Grande volume de dados - considere agregação para análise executiva"
+        else:
+            return f"Volume adequado de dados ({results.row_count} registros) para análise detalhada"
+    
+    async def _assess_data_quality(self, results: QueryResult) -> List[str]:
+        """Assess data quality from results"""
+        quality_notes = []
+        
+        if results.execution_time > 10:
+            quality_notes.append("Consulta demorada - pode indicar necessidade de otimização")
+        
+        if results.row_count == 0:
+            quality_notes.append("Nenhum resultado - verificar filtros e disponibilidade de dados")
+        
+        # Check for null values in sample data
+        if results.data:
+            sample = results.data[0]
+            null_columns = [col for col, val in sample.items() if val is None]
+            if null_columns:
+                quality_notes.append(f"Valores nulos encontrados em: {', '.join(null_columns)}")
+        
+        if not quality_notes:
+            quality_notes.append("Qualidade dos dados aparenta estar adequada")
+        
+        return quality_notes
+    
+    async def _calculate_confidence_level(self, results: QueryResult) -> str:
+        """Calculate confidence level in results"""
+        if results.row_count == 0:
+            return "Baixa confiança - nenhum dado encontrado"
+        elif results.execution_time > 30:
+            return "Confiança moderada - consulta muito lenta pode indicar problemas"
+        elif results.row_count > 0 and results.execution_time < 5:
+            return "Alta confiança - dados encontrados com boa performance"
+        else:
+            return "Confiança moderada - resultados adequados"
+
+# Compatibility alias for existing code
+SQLAgent = LLMEnhancedSQLAgent

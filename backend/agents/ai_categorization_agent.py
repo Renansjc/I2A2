@@ -1,11 +1,12 @@
 """
-Agente de Categorização IA para classificação automática de dados fiscais
-Implementa categorização por aprendizado de máquina para produtos, serviços e fornecedores
+LLM-Enhanced AI Categorization Agent for intelligent fiscal data classification
+Implements LLM-powered categorization with business context understanding for products, services and suppliers
 """
 
 import asyncio
 import pickle
 import os
+import json
 from typing import List, Dict, Any, Optional, Tuple, Union
 from datetime import datetime
 from decimal import Decimal
@@ -18,6 +19,7 @@ from models.fiscal_data import (
     FiscalDocument, NFEData, NFSEData, Product, Service, Supplier,
     CategorizedFiscalData, DocumentType
 )
+from utils.openai_integration import get_openai_service, BusinessInsights, CategorizationResult
 
 # ML and NLP imports
 try:
@@ -88,13 +90,19 @@ class AICategorization_Agent(BaseAgent):
         self.detected_patterns = []
         self.pattern_history = []
         
+        # LLM Integration Service
+        self.llm_service = None
+        
     async def initialize(self):
-        """Inicializar o agente de categorização IA"""
-        self.logger.info("Initializing AI Categorization Agent")
+        """Inicializar o agente de categorização IA com capacidades LLM"""
+        self.logger.info("Initializing LLM-Enhanced AI Categorization Agent")
         
         try:
             # Create models directory if it doesn't exist
             os.makedirs(self.models_dir, exist_ok=True)
+            
+            # Initialize LLM service
+            self.llm_service = get_openai_service()
             
             # Initialize spaCy NLP pipeline
             await self._initialize_nlp()
@@ -102,10 +110,10 @@ class AICategorization_Agent(BaseAgent):
             # Load or create ML models
             await self._load_or_create_models()
             
-            self.logger.info("AI Categorization Agent initialized successfully")
+            self.logger.info("LLM-Enhanced AI Categorization Agent initialized successfully")
             
         except Exception as e:
-            self.logger.error("Failed to initialize AI Categorization Agent", error=str(e))
+            self.logger.error("Failed to initialize LLM-Enhanced AI Categorization Agent", error=str(e))
             raise
     
     async def cleanup(self):
@@ -124,16 +132,16 @@ class AICategorization_Agent(BaseAgent):
     
     async def process(self, fiscal_data: FiscalDocument) -> CategorizedFiscalData:
         """
-        Main processing method for categorizing fiscal data
+        Main processing method for categorizing fiscal data with LLM enhancement
         
         Args:
             fiscal_data: NFEData or NFSEData to be categorized
             
         Returns:
-            CategorizedFiscalData with AI-generated classifications
+            CategorizedFiscalData with LLM-enhanced AI-generated classifications
         """
         self.logger.info(
-            "Processing fiscal data for categorization",
+            "Processing fiscal data for LLM-enhanced categorization",
             document_type=fiscal_data.document_type.value,
             document_id=getattr(fiscal_data, 'chave_nfe', getattr(fiscal_data, 'id_nfse', 'unknown'))
         )
@@ -142,27 +150,122 @@ class AICategorization_Agent(BaseAgent):
             # Initialize result object
             result = CategorizedFiscalData(original_data=fiscal_data)
             
-            # Categorize based on document type
+            # Prepare business context for LLM analysis
+            business_context = {
+                'supplier_info': {
+                    'name': fiscal_data.supplier.razao_social if fiscal_data.supplier else '',
+                    'cnpj': fiscal_data.supplier.cnpj if fiscal_data.supplier else '',
+                    'state': fiscal_data.supplier.address.uf if fiscal_data.supplier and fiscal_data.supplier.address else ''
+                },
+                'business_sector': await self._determine_business_sector(fiscal_data),
+                'document_context': {
+                    'type': fiscal_data.document_type.value,
+                    'date': fiscal_data.data_emissao.isoformat() if fiscal_data.data_emissao else '',
+                    'value': float(getattr(fiscal_data, 'valor_total_nf', getattr(fiscal_data, 'valor_total_servicos', 0)))
+                }
+            }
+            
+            # Categorize based on document type using LLM-enhanced methods
             if fiscal_data.document_type == DocumentType.NFE:
-                result = await self._process_nfe_data(fiscal_data, result)
+                result = await self._process_nfe_data_with_llm(fiscal_data, result, business_context)
             elif fiscal_data.document_type == DocumentType.NFSE:
-                result = await self._process_nfse_data(fiscal_data, result)
+                result = await self._process_nfse_data_with_llm(fiscal_data, result, business_context)
             
-            # Classify supplier
-            result.classified_supplier = await self._classify_supplier(fiscal_data.supplier)
+            # Classify supplier using LLM analysis
+            if fiscal_data.supplier:
+                supplier_analysis = await self.analyze_supplier_relationships([fiscal_data.supplier])
+                if supplier_analysis:
+                    result.classified_supplier = supplier_analysis[0]['supplier']
+                    result.supplier_analysis = supplier_analysis[0]
             
-            # Detect patterns
-            result.detected_patterns = await self._detect_patterns(fiscal_data)
+            # Detect patterns using LLM-enhanced analysis
+            pattern_analysis = await self.detect_business_patterns([fiscal_data])
+            result.detected_patterns = pattern_analysis.get('llm_insights', {}).get('key_findings', [])
+            result.pattern_analysis = pattern_analysis
             
             # Calculate confidence scores
             result.confidence_scores = await self._calculate_confidence_scores(result)
             
-            self.logger.info("Fiscal data categorization completed successfully")
+            self.logger.info("LLM-enhanced fiscal data categorization completed successfully")
             return result
             
         except Exception as e:
-            self.logger.error("Error processing fiscal data", error=str(e))
-            raise
+            self.logger.error("Error processing fiscal data with LLM enhancement", error=str(e))
+            # Fallback to traditional processing
+            return await self._process_traditional(fiscal_data)
+    
+    async def _process_nfe_data_with_llm(
+        self, 
+        nfe_data: NFEData, 
+        result: CategorizedFiscalData,
+        business_context: Dict[str, Any]
+    ) -> CategorizedFiscalData:
+        """Process NFE data with LLM-enhanced product categorization"""
+        if nfe_data.items:
+            products = [item.produto for item in nfe_data.items]
+            categorized_products = await self.categorize_products_with_context(
+                products, business_context
+            )
+            result.categorized_products = categorized_products
+        
+        return result
+    
+    async def _process_nfse_data_with_llm(
+        self, 
+        nfse_data: NFSEData, 
+        result: CategorizedFiscalData,
+        business_context: Dict[str, Any]
+    ) -> CategorizedFiscalData:
+        """Process NFSE data with LLM-enhanced service categorization"""
+        if nfse_data.services:
+            # For services, we still use traditional categorization but could enhance with LLM
+            categorized_services = []
+            for service_item in nfse_data.services:
+                categorized_service = await self._categorize_service(service_item.servico)
+                categorized_services.append(categorized_service)
+            result.categorized_services = categorized_services
+        
+        return result
+    
+    async def _determine_business_sector(self, fiscal_data: FiscalDocument) -> str:
+        """Determine business sector from fiscal data"""
+        # Simple heuristic based on document content
+        if fiscal_data.document_type == DocumentType.NFE and hasattr(fiscal_data, 'items'):
+            # Analyze product types to determine sector
+            for item in fiscal_data.items:
+                if item.produto.ncm:
+                    ncm_prefix = item.produto.ncm[:2]
+                    if ncm_prefix in ['01', '02', '03', '04']:
+                        return 'Agronegócio'
+                    elif ncm_prefix in ['84', '85']:
+                        return 'Industrial'
+                    elif ncm_prefix in ['87']:
+                        return 'Automotivo'
+        
+        return 'Geral'
+    
+    async def _process_traditional(self, fiscal_data: FiscalDocument) -> CategorizedFiscalData:
+        """Fallback to traditional processing without LLM"""
+        self.logger.info("Using traditional processing as fallback")
+        
+        result = CategorizedFiscalData(original_data=fiscal_data)
+        
+        # Traditional categorization
+        if fiscal_data.document_type == DocumentType.NFE:
+            result = await self._process_nfe_data(fiscal_data, result)
+        elif fiscal_data.document_type == DocumentType.NFSE:
+            result = await self._process_nfse_data(fiscal_data, result)
+        
+        # Traditional supplier classification
+        result.classified_supplier = await self._classify_supplier(fiscal_data.supplier)
+        
+        # Traditional pattern detection
+        result.detected_patterns = await self._detect_patterns(fiscal_data)
+        
+        # Calculate confidence scores
+        result.confidence_scores = await self._calculate_confidence_scores(result)
+        
+        return result
     
     async def _process_nfe_data(self, nfe_data: NFEData, result: CategorizedFiscalData) -> CategorizedFiscalData:
         """Process NFE data for product categorization"""
@@ -428,6 +531,533 @@ class AICategorization_Agent(BaseAgent):
             self.logger.error("Error calculating confidence scores", error=str(e))
             return {'overall': 0.0}
     
+    # LLM-Enhanced Categorization Methods
+    
+    async def categorize_products_with_context(
+        self, 
+        products: List[Product],
+        business_context: Dict[str, Any]
+    ) -> List[Product]:
+        """
+        Intelligent product categorization using LLM business understanding
+        
+        Args:
+            products: List of products to categorize
+            business_context: Business context including supplier info, sector, etc.
+            
+        Returns:
+            List of products with LLM-enhanced categorization
+        """
+        self.logger.info("Starting LLM-powered product categorization", 
+                        product_count=len(products))
+        
+        try:
+            categorized_products = []
+            
+            for product in products:
+                # Prepare context for LLM
+                llm_context = {
+                    'description': product.descricao or '',
+                    'ncm': product.ncm or '',
+                    'cfop': product.cfop or '',
+                    'unit': product.unidade_comercial or '',
+                    'supplier_info': business_context.get('supplier_info', {}),
+                    'usage_context': await self._get_product_usage_context(product.codigo_produto),
+                    'market_category': await self._get_market_category(product.ncm),
+                    'business_sector': business_context.get('business_sector', ''),
+                    'existing_categories': await self._get_existing_categories(),
+                    'categorization_rules': await self._get_business_rules()
+                }
+                
+                # Use LLM for intelligent categorization
+                if self.llm_service:
+                    try:
+                        categorization_result = await self.llm_service.categorize_with_context(
+                            [product.descricao or ''], 
+                            'product', 
+                            llm_context
+                        )
+                        
+                        # Extract categorization from LLM response
+                        if categorization_result.categories:
+                            category_info = categorization_result.categories[0]
+                            product.category = category_info.get('category', 'Não Classificado')
+                            product.subcategory = category_info.get('subcategory', 'Geral')
+                            
+                            # Store LLM reasoning for audit
+                            if hasattr(product, 'categorization_reasoning'):
+                                product.categorization_reasoning = categorization_result.reasoning
+                        else:
+                            # Fallback to traditional categorization
+                            product.category, product.subcategory = self._rule_based_product_categorization(product)
+                            
+                    except Exception as e:
+                        self.logger.warning("LLM categorization failed, using fallback", 
+                                          error=str(e), product_code=product.codigo_produto)
+                        product.category, product.subcategory = self._rule_based_product_categorization(product)
+                else:
+                    # Fallback to traditional categorization
+                    product.category, product.subcategory = self._rule_based_product_categorization(product)
+                
+                categorized_products.append(product)
+                
+                self.logger.debug("Product categorized with LLM", 
+                                product_code=product.codigo_produto,
+                                category=product.category,
+                                subcategory=product.subcategory)
+            
+            self.logger.info("LLM-powered product categorization completed", 
+                           categorized_count=len(categorized_products))
+            
+            return categorized_products
+            
+        except Exception as e:
+            self.logger.error("Error in LLM product categorization", error=str(e))
+            # Fallback to traditional categorization
+            return [await self._categorize_product(product) for product in products]
+    
+    async def analyze_supplier_relationships(
+        self, 
+        suppliers: List[Supplier]
+    ) -> List[Dict[str, Any]]:
+        """
+        Use LLM to analyze supplier relationships and strategic importance
+        
+        Args:
+            suppliers: List of suppliers to analyze
+            
+        Returns:
+            List of supplier analysis results with LLM insights
+        """
+        self.logger.info("Starting LLM-powered supplier relationship analysis", 
+                        supplier_count=len(suppliers))
+        
+        try:
+            analyses = []
+            
+            for supplier in suppliers:
+                # Prepare context for LLM analysis
+                llm_context = {
+                    'supplier_name': supplier.razao_social or '',
+                    'cnpj': supplier.cnpj or '',
+                    'transaction_history': await self._get_supplier_history(supplier.cnpj),
+                    'market_position': await self._get_market_position(supplier),
+                    'risk_factors': await self._get_risk_factors(supplier),
+                    'strategic_importance': await self._calculate_strategic_importance(supplier)
+                }
+                
+                if self.llm_service:
+                    try:
+                        # Generate insights using LLM
+                        insights = await self.llm_service.generate_insights(
+                            llm_context, 'supplier_relationship', 'executive'
+                        )
+                        
+                        analysis = {
+                            'supplier': supplier,
+                            'relationship_classification': self._extract_relationship_classification(insights),
+                            'risk_assessment': self._extract_risk_assessment(insights),
+                            'growth_potential': self._extract_growth_potential(insights),
+                            'strategic_recommendations': insights.strategic_implications,
+                            'optimization_opportunities': self._extract_optimization_opportunities(insights),
+                            'confidence_level': insights.confidence_level,
+                            'key_insights': insights.key_findings
+                        }
+                        
+                    except Exception as e:
+                        self.logger.warning("LLM supplier analysis failed, using fallback", 
+                                          error=str(e), supplier_cnpj=supplier.cnpj)
+                        analysis = await self._fallback_supplier_analysis(supplier)
+                else:
+                    analysis = await self._fallback_supplier_analysis(supplier)
+                
+                analyses.append(analysis)
+                
+                self.logger.debug("Supplier analyzed with LLM", 
+                                supplier_cnpj=supplier.cnpj,
+                                relationship=analysis.get('relationship_classification'))
+            
+            self.logger.info("LLM-powered supplier relationship analysis completed", 
+                           analyzed_count=len(analyses))
+            
+            return analyses
+            
+        except Exception as e:
+            self.logger.error("Error in LLM supplier relationship analysis", error=str(e))
+            return [await self._fallback_supplier_analysis(supplier) for supplier in suppliers]
+    
+    async def detect_business_patterns(
+        self, 
+        fiscal_data: List[FiscalDocument]
+    ) -> Dict[str, Any]:
+        """
+        Use LLM to detect business patterns and trends with strategic impact analysis
+        
+        Args:
+            fiscal_data: List of fiscal documents to analyze
+            
+        Returns:
+            Dictionary with comprehensive pattern analysis and strategic insights
+        """
+        self.logger.info("Starting LLM-powered business pattern detection", 
+                        document_count=len(fiscal_data))
+        
+        try:
+            # Prepare comprehensive context for LLM analysis
+            llm_context = {
+                'documents_summary': await self._prepare_documents_summary(fiscal_data),
+                'time_series_data': await self._prepare_time_series(fiscal_data),
+                'market_trends': await self._get_market_trends(),
+                'seasonal_patterns': await self._get_seasonal_patterns(),
+                'business_cycles': await self._get_business_cycles()
+            }
+            
+            if self.llm_service:
+                try:
+                    # Generate comprehensive business insights
+                    insights = await self.llm_service.generate_insights(
+                        llm_context, 'pattern_detection', 'executive'
+                    )
+                    
+                    # Combine LLM insights with traditional pattern detection
+                    traditional_patterns = await self._detect_traditional_patterns(fiscal_data)
+                    
+                    pattern_analysis = {
+                        'llm_insights': {
+                            'key_findings': insights.key_findings,
+                            'trends_identified': insights.trends_identified,
+                            'business_impact': insights.business_impact,
+                            'strategic_implications': insights.strategic_implications,
+                            'confidence_level': insights.confidence_level
+                        },
+                        'traditional_patterns': traditional_patterns,
+                        'combined_recommendations': await self._combine_pattern_recommendations(
+                            insights, traditional_patterns
+                        ),
+                        'risk_assessment': await self._assess_pattern_risks(insights, traditional_patterns),
+                        'opportunity_identification': await self._identify_opportunities(insights),
+                        'executive_summary': await self._generate_executive_pattern_summary(insights)
+                    }
+                    
+                except Exception as e:
+                    self.logger.warning("LLM pattern detection failed, using traditional methods", 
+                                      error=str(e))
+                    pattern_analysis = await self._fallback_pattern_detection(fiscal_data)
+            else:
+                pattern_analysis = await self._fallback_pattern_detection(fiscal_data)
+            
+            self.logger.info("LLM-powered business pattern detection completed", 
+                           patterns_found=len(pattern_analysis.get('llm_insights', {}).get('key_findings', [])))
+            
+            return pattern_analysis
+            
+        except Exception as e:
+            self.logger.error("Error in LLM business pattern detection", error=str(e))
+            return await self._fallback_pattern_detection(fiscal_data)
+    
+    # Helper methods for LLM-enhanced functionality
+    
+    async def _get_product_usage_context(self, product_code: str) -> Dict[str, Any]:
+        """Get product usage context from historical data"""
+        # This would typically query database for historical usage patterns
+        # For now, return placeholder data
+        return {
+            'frequency': 'regular',
+            'seasonal_usage': 'stable',
+            'business_purpose': 'operational'
+        }
+    
+    async def _get_market_category(self, ncm: str) -> Dict[str, Any]:
+        """Get market category information based on NCM"""
+        if not ncm:
+            return {'category': 'unknown', 'market_segment': 'general'}
+        
+        # Simplified NCM to market category mapping
+        ncm_prefix = ncm[:2] if len(ncm) >= 2 else ""
+        
+        market_categories = {
+            "01": {"category": "agribusiness", "market_segment": "primary"},
+            "02": {"category": "food_industry", "market_segment": "consumer_goods"},
+            "84": {"category": "machinery", "market_segment": "industrial"},
+            "85": {"category": "electronics", "market_segment": "technology"},
+            "87": {"category": "automotive", "market_segment": "transportation"}
+        }
+        
+        return market_categories.get(ncm_prefix, {'category': 'general', 'market_segment': 'diverse'})
+    
+    async def _get_existing_categories(self) -> List[str]:
+        """Get list of existing product categories"""
+        return list(self.product_categories.keys())
+    
+    async def _get_business_rules(self) -> Dict[str, Any]:
+        """Get business rules for categorization"""
+        return {
+            'prioritize_ncm': True,
+            'consider_supplier_type': True,
+            'use_business_context': True,
+            'adaptive_learning': True
+        }
+    
+    async def _get_supplier_history(self, cnpj: str) -> Dict[str, Any]:
+        """Get supplier transaction history"""
+        # This would typically query database for supplier history
+        # For now, return placeholder data
+        return {
+            'total_transactions': 0,
+            'avg_transaction_value': 0.0,
+            'transaction_frequency': 'unknown',
+            'payment_behavior': 'unknown',
+            'relationship_duration': 'unknown'
+        }
+    
+    async def _get_market_position(self, supplier: Supplier) -> Dict[str, Any]:
+        """Get supplier market position information"""
+        return {
+            'market_share': 'unknown',
+            'competitive_position': 'unknown',
+            'growth_trend': 'stable',
+            'market_reputation': 'unknown'
+        }
+    
+    async def _get_risk_factors(self, supplier: Supplier) -> Dict[str, Any]:
+        """Get supplier risk factors"""
+        return {
+            'financial_risk': 'low',
+            'operational_risk': 'low',
+            'compliance_risk': 'low',
+            'geographic_risk': 'low'
+        }
+    
+    async def _calculate_strategic_importance(self, supplier: Supplier) -> Dict[str, Any]:
+        """Calculate supplier strategic importance"""
+        return {
+            'business_criticality': 'medium',
+            'replacement_difficulty': 'medium',
+            'cost_impact': 'medium',
+            'innovation_potential': 'medium'
+        }
+    
+    def _extract_relationship_classification(self, insights: BusinessInsights) -> str:
+        """Extract relationship classification from LLM insights"""
+        # Look for relationship keywords in insights
+        key_findings = ' '.join(insights.key_findings).lower()
+        
+        if 'estratégico' in key_findings or 'crítico' in key_findings:
+            return 'Estratégico'
+        elif 'importante' in key_findings or 'relevante' in key_findings:
+            return 'Importante'
+        elif 'regular' in key_findings or 'padrão' in key_findings:
+            return 'Regular'
+        else:
+            return 'Eventual'
+    
+    def _extract_risk_assessment(self, insights: BusinessInsights) -> str:
+        """Extract risk assessment from LLM insights"""
+        key_findings = ' '.join(insights.key_findings).lower()
+        
+        if 'alto risco' in key_findings or 'risco elevado' in key_findings:
+            return 'Alto'
+        elif 'médio risco' in key_findings or 'risco moderado' in key_findings:
+            return 'Médio'
+        else:
+            return 'Baixo'
+    
+    def _extract_growth_potential(self, insights: BusinessInsights) -> str:
+        """Extract growth potential from LLM insights"""
+        trends = ' '.join(insights.trends_identified).lower()
+        
+        if 'crescimento' in trends or 'expansão' in trends:
+            return 'Alto'
+        elif 'estável' in trends or 'manutenção' in trends:
+            return 'Médio'
+        else:
+            return 'Baixo'
+    
+    def _extract_optimization_opportunities(self, insights: BusinessInsights) -> List[str]:
+        """Extract optimization opportunities from LLM insights"""
+        return insights.strategic_implications[:3]  # Top 3 strategic implications
+    
+    async def _fallback_supplier_analysis(self, supplier: Supplier) -> Dict[str, Any]:
+        """Fallback supplier analysis using traditional methods"""
+        return {
+            'supplier': supplier,
+            'relationship_classification': 'A Definir',
+            'risk_assessment': 'Médio',
+            'growth_potential': 'Médio',
+            'strategic_recommendations': ['Análise mais detalhada necessária'],
+            'optimization_opportunities': ['Revisar histórico de transações'],
+            'confidence_level': 0.5,
+            'key_insights': ['Análise baseada em métodos tradicionais']
+        }
+    
+    async def _prepare_documents_summary(self, fiscal_data: List[FiscalDocument]) -> Dict[str, Any]:
+        """Prepare summary of fiscal documents for LLM analysis"""
+        summary = {
+            'total_documents': len(fiscal_data),
+            'document_types': {},
+            'total_value': 0.0,
+            'date_range': {},
+            'supplier_count': 0,
+            'top_suppliers': [],
+            'product_categories': {},
+            'geographic_distribution': {}
+        }
+        
+        suppliers = set()
+        categories = defaultdict(int)
+        states = defaultdict(int)
+        
+        for doc in fiscal_data:
+            # Document type count
+            doc_type = doc.document_type.value
+            summary['document_types'][doc_type] = summary['document_types'].get(doc_type, 0) + 1
+            
+            # Total value
+            total_value = getattr(doc, 'valor_total_nf', getattr(doc, 'valor_total_servicos', 0))
+            summary['total_value'] += float(total_value) if total_value else 0.0
+            
+            # Suppliers
+            if hasattr(doc, 'supplier') and doc.supplier:
+                suppliers.add(doc.supplier.cnpj)
+                states[doc.supplier.address.uf] += 1
+            
+            # Categories (for NFE)
+            if doc.document_type == DocumentType.NFE and hasattr(doc, 'items'):
+                for item in doc.items:
+                    if hasattr(item.produto, 'category') and item.produto.category:
+                        categories[item.produto.category] += 1
+        
+        summary['supplier_count'] = len(suppliers)
+        summary['product_categories'] = dict(categories)
+        summary['geographic_distribution'] = dict(states)
+        
+        # Date range
+        if fiscal_data:
+            dates = [doc.data_emissao for doc in fiscal_data if doc.data_emissao]
+            if dates:
+                summary['date_range'] = {
+                    'start': min(dates).isoformat(),
+                    'end': max(dates).isoformat()
+                }
+        
+        return summary
+    
+    async def _detect_traditional_patterns(self, fiscal_data: List[FiscalDocument]) -> List[str]:
+        """Detect patterns using traditional rule-based methods"""
+        patterns = []
+        
+        # Use existing pattern detection logic
+        for doc in fiscal_data:
+            simple_patterns = await self._detect_simple_patterns(doc)
+            patterns.extend(simple_patterns)
+        
+        # Remove duplicates and return unique patterns
+        return list(set(patterns))
+    
+    async def _combine_pattern_recommendations(
+        self, 
+        llm_insights: BusinessInsights, 
+        traditional_patterns: List[str]
+    ) -> List[str]:
+        """Combine LLM insights with traditional pattern recommendations"""
+        recommendations = []
+        
+        # Add LLM strategic implications
+        recommendations.extend(llm_insights.strategic_implications)
+        
+        # Add traditional pattern-based recommendations
+        for pattern in traditional_patterns:
+            if pattern == "high_value_transaction":
+                recommendations.append("Revisar processos de aprovação para transações de alto valor")
+            elif pattern == "cross_state_transaction":
+                recommendations.append("Otimizar estratégia tributária para transações interestaduais")
+            elif pattern == "diverse_product_mix":
+                recommendations.append("Considerar especialização ou diversificação estratégica")
+        
+        # Remove duplicates and limit to top 10
+        return list(set(recommendations))[:10]
+    
+    async def _assess_pattern_risks(
+        self, 
+        llm_insights: BusinessInsights, 
+        traditional_patterns: List[str]
+    ) -> Dict[str, Any]:
+        """Assess risks based on detected patterns"""
+        risks = {
+            'financial_risks': [],
+            'operational_risks': [],
+            'compliance_risks': [],
+            'strategic_risks': []
+        }
+        
+        # Extract risks from LLM insights
+        business_impact = llm_insights.business_impact
+        if 'risks' in business_impact:
+            risks['strategic_risks'].extend(business_impact['risks'])
+        
+        # Add risks based on traditional patterns
+        for pattern in traditional_patterns:
+            if pattern == "high_value_transaction":
+                risks['financial_risks'].append("Exposição a transações de alto valor")
+            elif pattern == "cross_state_transaction":
+                risks['compliance_risks'].append("Complexidade tributária interestadual")
+            elif pattern == "weekend_transaction":
+                risks['operational_risks'].append("Operações fora do horário comercial")
+        
+        return risks
+    
+    async def _identify_opportunities(self, llm_insights: BusinessInsights) -> List[str]:
+        """Identify business opportunities from LLM insights"""
+        opportunities = []
+        
+        # Extract opportunities from trends and business impact
+        for trend in llm_insights.trends_identified:
+            if 'crescimento' in trend.lower():
+                opportunities.append(f"Oportunidade de crescimento: {trend}")
+            elif 'otimização' in trend.lower():
+                opportunities.append(f"Oportunidade de otimização: {trend}")
+        
+        # Extract from business impact
+        business_impact = llm_insights.business_impact
+        if 'opportunities' in business_impact:
+            opportunities.extend(business_impact['opportunities'])
+        
+        return opportunities[:5]  # Top 5 opportunities
+    
+    async def _generate_executive_pattern_summary(self, llm_insights: BusinessInsights) -> str:
+        """Generate executive summary of pattern analysis"""
+        key_points = []
+        
+        if llm_insights.key_findings:
+            key_points.append(f"Principais descobertas: {', '.join(llm_insights.key_findings[:2])}")
+        
+        if llm_insights.trends_identified:
+            key_points.append(f"Tendências identificadas: {', '.join(llm_insights.trends_identified[:2])}")
+        
+        if llm_insights.strategic_implications:
+            key_points.append(f"Implicações estratégicas: {', '.join(llm_insights.strategic_implications[:2])}")
+        
+        return ". ".join(key_points) + "."
+    
+    async def _fallback_pattern_detection(self, fiscal_data: List[FiscalDocument]) -> Dict[str, Any]:
+        """Fallback pattern detection using traditional methods"""
+        traditional_patterns = await self._detect_traditional_patterns(fiscal_data)
+        
+        return {
+            'llm_insights': {
+                'key_findings': ['Análise baseada em métodos tradicionais'],
+                'trends_identified': traditional_patterns,
+                'business_impact': {'note': 'Análise limitada sem LLM'},
+                'strategic_implications': ['Considerar implementar análise LLM para insights mais profundos'],
+                'confidence_level': 0.6
+            },
+            'traditional_patterns': traditional_patterns,
+            'combined_recommendations': ['Implementar análise LLM para melhor categorização'],
+            'risk_assessment': {'note': 'Avaliação de risco limitada'},
+            'opportunity_identification': ['Melhorar capacidades de análise'],
+            'executive_summary': 'Análise realizada com métodos tradicionais. Recomenda-se implementar LLM para insights mais profundos.'
+        }
+
     # Helper methods for ML model management
     async def _initialize_nlp(self):
         """Initialize spaCy NLP pipeline"""
@@ -992,36 +1622,40 @@ class AICategorization_Agent(BaseAgent):
     
     async def analyze_batch_patterns(self, fiscal_documents: List[FiscalDocument]) -> Dict[str, Any]:
         """
-        Analyze patterns across a batch of fiscal documents for comprehensive insights
+        Analyze patterns across a batch of fiscal documents with LLM-enhanced comprehensive insights
         
         Args:
             fiscal_documents: List of fiscal documents to analyze
             
         Returns:
-            Dictionary with comprehensive pattern analysis results
+            Dictionary with LLM-enhanced comprehensive pattern analysis results
         """
         try:
-            self.logger.info("Starting batch pattern analysis", document_count=len(fiscal_documents))
+            self.logger.info("Starting LLM-enhanced batch pattern analysis", document_count=len(fiscal_documents))
             
-            # Use pattern detection engine for comprehensive analysis
+            # Use LLM-enhanced pattern detection for comprehensive analysis
+            llm_pattern_analysis = await self.detect_business_patterns(fiscal_documents)
+            
+            # Use traditional pattern detection engine as well
             detected_patterns = await self.pattern_engine.detect_patterns(fiscal_documents)
             
-            # Categorize all documents first
+            # Categorize all documents using LLM-enhanced processing
             categorized_data = []
             for doc in fiscal_documents:
                 categorized = await self.process(doc)
                 categorized_data.append(categorized)
             
-            # Analyze categorization patterns
-            categorization_insights = await self._analyze_categorization_patterns(categorized_data)
+            # Analyze categorization patterns with LLM insights
+            categorization_insights = await self._analyze_categorization_patterns_with_llm(categorized_data)
             
             # Get pattern summary from engine
             pattern_summary = self.pattern_engine.get_pattern_summary()
             
-            # Combine results
+            # Combine LLM and traditional results
             analysis_result = {
                 'total_documents': len(fiscal_documents),
-                'detected_patterns': [
+                'llm_enhanced_analysis': llm_pattern_analysis,
+                'traditional_patterns': [
                     {
                         'id': p.pattern_id,
                         'type': p.pattern_type,
@@ -1038,18 +1672,249 @@ class AICategorization_Agent(BaseAgent):
                 'high_impact_patterns': [
                     p.description for p in self.pattern_engine.get_high_impact_patterns()
                 ],
-                'recommendations': await self._generate_recommendations(detected_patterns, categorized_data)
+                'executive_recommendations': await self._generate_executive_recommendations(
+                    llm_pattern_analysis, detected_patterns, categorized_data
+                ),
+                'strategic_insights': await self._extract_strategic_insights(llm_pattern_analysis),
+                'risk_opportunities_matrix': await self._create_risk_opportunities_matrix(
+                    llm_pattern_analysis, categorized_data
+                )
             }
             
-            self.logger.info("Batch pattern analysis completed", 
-                           patterns_found=len(detected_patterns),
-                           high_impact_count=len(analysis_result['high_impact_patterns']))
+            self.logger.info("LLM-enhanced batch pattern analysis completed", 
+                           llm_patterns_found=len(llm_pattern_analysis.get('llm_insights', {}).get('key_findings', [])),
+                           traditional_patterns_found=len(detected_patterns))
             
             return analysis_result
             
         except Exception as e:
-            self.logger.error("Error in batch pattern analysis", error=str(e))
+            self.logger.error("Error in LLM-enhanced batch pattern analysis", error=str(e))
             return {'error': str(e), 'total_documents': len(fiscal_documents)}
+    
+    async def _analyze_categorization_patterns_with_llm(
+        self, 
+        categorized_data: List[CategorizedFiscalData]
+    ) -> Dict[str, Any]:
+        """Analyze categorization patterns with LLM insights"""
+        
+        # Get traditional categorization insights
+        traditional_insights = await self._analyze_categorization_patterns(categorized_data)
+        
+        # Prepare data for LLM analysis
+        categorization_summary = {
+            'total_documents': len(categorized_data),
+            'categorization_distribution': traditional_insights,
+            'confidence_metrics': traditional_insights.get('categorization_quality', {}),
+            'supplier_diversity': len(set(
+                data.classified_supplier.cnpj 
+                for data in categorized_data 
+                if data.classified_supplier and data.classified_supplier.cnpj
+            ))
+        }
+        
+        # Use LLM to generate insights about categorization patterns
+        if self.llm_service:
+            try:
+                llm_insights = await self.llm_service.generate_insights(
+                    categorization_summary, 'categorization_analysis', 'executive'
+                )
+                
+                return {
+                    'traditional_analysis': traditional_insights,
+                    'llm_insights': {
+                        'key_findings': llm_insights.key_findings,
+                        'trends_identified': llm_insights.trends_identified,
+                        'strategic_implications': llm_insights.strategic_implications,
+                        'confidence_level': llm_insights.confidence_level
+                    },
+                    'combined_recommendations': await self._combine_categorization_recommendations(
+                        traditional_insights, llm_insights
+                    )
+                }
+                
+            except Exception as e:
+                self.logger.warning("LLM categorization analysis failed", error=str(e))
+                return {'traditional_analysis': traditional_insights, 'llm_analysis': 'failed'}
+        
+        return {'traditional_analysis': traditional_insights}
+    
+    async def _generate_executive_recommendations(
+        self,
+        llm_analysis: Dict[str, Any],
+        traditional_patterns: List[Pattern],
+        categorized_data: List[CategorizedFiscalData]
+    ) -> List[Dict[str, Any]]:
+        """Generate executive-level recommendations combining LLM and traditional analysis"""
+        
+        recommendations = []
+        
+        # Extract LLM recommendations
+        llm_insights = llm_analysis.get('llm_insights', {})
+        if llm_insights.get('strategic_implications'):
+            for implication in llm_insights['strategic_implications'][:3]:
+                recommendations.append({
+                    'type': 'strategic',
+                    'priority': 'high',
+                    'recommendation': implication,
+                    'source': 'llm_analysis',
+                    'confidence': llm_insights.get('confidence_level', 0.7)
+                })
+        
+        # Add traditional pattern-based recommendations
+        high_impact_patterns = [p for p in traditional_patterns if p.impact_score > 0.7]
+        for pattern in high_impact_patterns[:2]:
+            recommendations.append({
+                'type': 'operational',
+                'priority': 'medium',
+                'recommendation': f"Ação recomendada para padrão: {pattern.description}",
+                'source': 'pattern_analysis',
+                'confidence': pattern.confidence
+            })
+        
+        # Add categorization quality recommendations
+        avg_confidence = self._calculate_average_confidence(categorized_data)
+        if avg_confidence < 0.7:
+            recommendations.append({
+                'type': 'process_improvement',
+                'priority': 'medium',
+                'recommendation': 'Melhorar qualidade dos dados para aumentar precisão da categorização',
+                'source': 'quality_analysis',
+                'confidence': 0.9
+            })
+        
+        return recommendations[:10]  # Top 10 recommendations
+    
+    async def _extract_strategic_insights(self, llm_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Extract strategic insights from LLM analysis"""
+        
+        llm_insights = llm_analysis.get('llm_insights', {})
+        
+        return {
+            'market_opportunities': self._extract_opportunities_from_insights(llm_insights),
+            'competitive_advantages': self._extract_advantages_from_insights(llm_insights),
+            'risk_mitigation': self._extract_risks_from_insights(llm_insights),
+            'operational_efficiency': self._extract_efficiency_insights(llm_insights),
+            'strategic_priorities': llm_insights.get('strategic_implications', [])[:5]
+        }
+    
+    async def _create_risk_opportunities_matrix(
+        self,
+        llm_analysis: Dict[str, Any],
+        categorized_data: List[CategorizedFiscalData]
+    ) -> Dict[str, Any]:
+        """Create risk-opportunities matrix from analysis"""
+        
+        matrix = {
+            'high_risk_high_opportunity': [],
+            'high_risk_low_opportunity': [],
+            'low_risk_high_opportunity': [],
+            'low_risk_low_opportunity': []
+        }
+        
+        # Extract risks and opportunities from LLM analysis
+        risks = llm_analysis.get('risk_assessment', {})
+        opportunities = llm_analysis.get('opportunity_identification', [])
+        
+        # Categorize based on risk and opportunity levels
+        for opportunity in opportunities:
+            risk_level = self._assess_opportunity_risk(opportunity, risks)
+            opportunity_level = self._assess_opportunity_potential(opportunity)
+            
+            if risk_level == 'high' and opportunity_level == 'high':
+                matrix['high_risk_high_opportunity'].append(opportunity)
+            elif risk_level == 'high' and opportunity_level == 'low':
+                matrix['high_risk_low_opportunity'].append(opportunity)
+            elif risk_level == 'low' and opportunity_level == 'high':
+                matrix['low_risk_high_opportunity'].append(opportunity)
+            else:
+                matrix['low_risk_low_opportunity'].append(opportunity)
+        
+        return matrix
+    
+    def _calculate_average_confidence(self, categorized_data: List[CategorizedFiscalData]) -> float:
+        """Calculate average confidence across categorized data"""
+        confidences = []
+        for data in categorized_data:
+            if data.confidence_scores and 'overall' in data.confidence_scores:
+                confidences.append(data.confidence_scores['overall'])
+        
+        return sum(confidences) / len(confidences) if confidences else 0.0
+    
+    def _extract_opportunities_from_insights(self, llm_insights: Dict[str, Any]) -> List[str]:
+        """Extract market opportunities from LLM insights"""
+        opportunities = []
+        
+        for finding in llm_insights.get('key_findings', []):
+            if 'oportunidade' in finding.lower() or 'crescimento' in finding.lower():
+                opportunities.append(finding)
+        
+        return opportunities[:3]
+    
+    def _extract_advantages_from_insights(self, llm_insights: Dict[str, Any]) -> List[str]:
+        """Extract competitive advantages from LLM insights"""
+        advantages = []
+        
+        for trend in llm_insights.get('trends_identified', []):
+            if 'vantagem' in trend.lower() or 'competitiv' in trend.lower():
+                advantages.append(trend)
+        
+        return advantages[:3]
+    
+    def _extract_risks_from_insights(self, llm_insights: Dict[str, Any]) -> List[str]:
+        """Extract risks from LLM insights"""
+        risks = []
+        
+        for finding in llm_insights.get('key_findings', []):
+            if 'risco' in finding.lower() or 'ameaça' in finding.lower():
+                risks.append(finding)
+        
+        return risks[:3]
+    
+    def _extract_efficiency_insights(self, llm_insights: Dict[str, Any]) -> List[str]:
+        """Extract operational efficiency insights"""
+        efficiency = []
+        
+        for implication in llm_insights.get('strategic_implications', []):
+            if 'eficiência' in implication.lower() or 'otimização' in implication.lower():
+                efficiency.append(implication)
+        
+        return efficiency[:3]
+    
+    def _assess_opportunity_risk(self, opportunity: str, risks: Dict[str, Any]) -> str:
+        """Assess risk level of an opportunity"""
+        # Simple heuristic based on keywords
+        if 'alto risco' in opportunity.lower() or 'complexo' in opportunity.lower():
+            return 'high'
+        return 'low'
+    
+    def _assess_opportunity_potential(self, opportunity: str) -> str:
+        """Assess potential level of an opportunity"""
+        # Simple heuristic based on keywords
+        if 'grande' in opportunity.lower() or 'significativ' in opportunity.lower():
+            return 'high'
+        return 'low'
+    
+    async def _combine_categorization_recommendations(
+        self,
+        traditional_insights: Dict[str, Any],
+        llm_insights: BusinessInsights
+    ) -> List[str]:
+        """Combine traditional and LLM categorization recommendations"""
+        
+        recommendations = []
+        
+        # Add LLM strategic implications
+        recommendations.extend(llm_insights.strategic_implications[:3])
+        
+        # Add traditional quality-based recommendations
+        quality_metrics = traditional_insights.get('categorization_quality', {})
+        if quality_metrics.get('avg_confidence', 0) < 0.7:
+            recommendations.append("Implementar treinamento adicional dos modelos de categorização")
+        
+        if quality_metrics.get('high_confidence_percentage', 0) < 0.8:
+            recommendations.append("Enriquecer dados de entrada para melhorar precisão")
+        
+        return recommendations[:5]
     
     async def _analyze_categorization_patterns(self, categorized_data: List[CategorizedFiscalData]) -> Dict[str, Any]:
         """Analyze patterns in categorization results"""

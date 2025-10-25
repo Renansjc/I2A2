@@ -6,7 +6,7 @@ from .base_agent import BaseAgent
 from .xml_processing_agent import XMLProcessingAgent
 from .ai_categorization_agent import AICategorization_Agent
 from .master_agent import MasterAgent
-from .sql_agent import SQLAgent
+from .sql_agent import SQLAgent, LLMEnhancedSQLAgent
 from .report_agent import ReportAgent
 from .scheduler_agent import SchedulerAgent
 from .data_lake_agent import DataLakeAgent
@@ -18,6 +18,7 @@ __all__ = [
     'AICategorization_Agent',
     'MasterAgent',
     'SQLAgent',
+    'LLMEnhancedSQLAgent',
     'ReportAgent',
     'SchedulerAgent',
     'DataLakeAgent',
