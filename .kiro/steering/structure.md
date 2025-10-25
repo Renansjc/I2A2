@@ -33,22 +33,33 @@ backend/
 │   ├── database.py        # Database connection management
 │   ├── logging.py         # Structured logging setup
 │   └── __init__.py
+├── venv/                  # Python virtual environment
+├── __pycache__/           # Python bytecode cache (auto-generated)
 ├── main.py                # FastAPI application entry point
-├── requirements.txt       # Python dependencies
+├── requirements.txt       # Python dependencies (tested on Python 3.13.9)
+├── .env                   # Environment configuration (not committed)
 ├── .env.example          # Environment configuration template
+├── DEPENDENCIES.md        # Dependency documentation
 └── README.md             # Backend-specific documentation
 ```
 
 ## Frontend Structure (`frontend/`)
 ```
 frontend/
-├── app/                   # Nuxt 3 app directory structure
+├── app/                   # Nuxt 4 app directory structure
+│   ├── assets/           # CSS and other assets
+│   ├── components/       # Vue components
+│   ├── layouts/          # Layout components
+│   ├── pages/            # Page components (auto-routing)
+│   └── app.vue           # Root Vue component
 ├── node_modules/          # Node.js dependencies (auto-generated)
-├── public/               # Static assets
+├── public/               # Static assets (favicon.ico, robots.txt)
 ├── .nuxt/                # Nuxt build output (auto-generated)
-├── nuxt.config.ts        # Nuxt configuration
+├── nuxt.config.ts        # Nuxt configuration with Tailwind CSS 4
 ├── package.json          # Node.js dependencies and scripts
+├── package-lock.json     # Dependency lock file
 ├── tsconfig.json         # TypeScript configuration
+├── .gitignore            # Git ignore rules
 └── README.md             # Frontend documentation
 ```
 

@@ -1,6 +1,36 @@
-# Nuxt Minimal Starter
+# Sistema I2A2 - Frontend
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Frontend do Sistema de Análise de Notas Fiscais com IA, construído com Nuxt.js 4, Vue 3, TypeScript, Tailwind CSS e DaisyUI.
+
+## Funcionalidades
+
+- **Navegação por Sidebar**: Menu lateral responsivo com navegação principal
+- **Página de Notas Fiscais**: Visualização em formato tabular similar ao Excel com:
+  - Filtros por tipo, status e período
+  - Busca por número, CNPJ ou razão social
+  - Ações de visualizar, editar e excluir
+  - Seleção múltipla para ações em lote
+  - Paginação
+- **Toggle Dark/Light Mode**: Alternância de tema no canto superior direito
+- **Temas Customizados**: Temas light e dark personalizados com DaisyUI
+- **Interface Responsiva**: Adaptável para desktop e mobile
+
+## Estrutura de Páginas
+
+- `/` - Painel principal com estatísticas e consultas
+- `/invoices` - Lista de notas fiscais
+- `/invoices/[id]` - Detalhes de uma nota fiscal específica
+- `/upload` - Upload de arquivos XML
+- `/reports` - Geração de relatórios
+- `/analytics` - Análises e insights
+
+## Tecnologias
+
+- **Nuxt.js 4** - Framework Vue.js com SSR/SSG
+- **Vue 3** - Framework JavaScript reativo
+- **TypeScript** - Tipagem estática
+- **Tailwind CSS 4** - Framework CSS utilitário
+- **DaisyUI** - Componentes UI para Tailwind CSS
 
 ## Setup
 

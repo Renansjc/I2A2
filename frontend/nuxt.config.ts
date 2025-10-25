@@ -1,6 +1,5 @@
 import tailwindcss from "@tailwindcss/vite";
 
-
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -8,6 +7,13 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
   css: ["./app/assets/css/main.css"],
+  app: {
+    head: {
+      htmlAttrs: {
+        'data-theme': 'light'
+      }
+    }
+  }
 })
 
 
