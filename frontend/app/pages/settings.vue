@@ -557,7 +557,7 @@
 import { ref } from "vue";
 
 definePageMeta({
-  layout: "default",
+  layout: "default"
 });
 
 // Reactive state

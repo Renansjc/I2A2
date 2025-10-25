@@ -155,4 +155,6 @@
 definePageMeta({
   layout: 'default'
 })
+
+// Dashboard page setup - Supabase configurado e pronto para uso
 </script>

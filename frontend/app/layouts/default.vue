@@ -68,6 +68,7 @@
                 Configurações
               </NuxtLink>
             </li>
+
           </ul>
         </aside>
       </div>
@@ -92,15 +93,27 @@
             <div class="dropdown dropdown-end">
               <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
                 <div class="w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                  <span v-if="userInfo?.initials" class="text-primary font-semibold text-sm">
+                    {{ userInfo.initials }}
+                  </span>
+                  <svg v-else class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </div>
               <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 border border-base-300">
-                <li><a class="text-base-content">Perfil</a></li>
-                <li><a class="text-base-content">Configurações</a></li>
-                <li><a class="text-base-content">Sair</a></li>
+                <li class="menu-title">
+                  <span class="text-xs">{{ userInfo?.name }}</span>
+                  <span class="text-xs text-base-content/50">{{ getRoleDisplayName(userInfo?.role) }}</span>
+                </li>
+                <li><a class="text-base-content">Perfil (Em breve)</a></li>
+                <li><NuxtLink to="/settings" class="text-base-content">Configurações</NuxtLink></li>
+                <li><hr class="my-1"></li>
+                <li>
+                  <button @click="handleSignOut" class="text-base-content/50" disabled>
+                    <span>Sair (Desabilitado)</span>
+                  </button>
+                </li>
               </ul>
             </div>
           </div>
@@ -124,4 +137,32 @@
 
 <script setup lang="ts">
 // Layout setup for executive interface
+
+// Mock user info for development
+const userInfo = ref({
+  name: 'Administrador',
+  initials: 'AD',
+  role: 'ceo'
+})
+
+const isSigningOut = ref(false)
+
+const getRoleDisplayName = (role: string) => {
+  const roleNames = {
+    'ceo': 'CEO',
+    'cfo': 'CFO',
+    'coo': 'COO',
+    'finance_director': 'Diretor Financeiro',
+    'finance_manager': 'Gerente Financeiro',
+    'controller': 'Controller',
+    'analyst': 'Analista Financeiro',
+    'other': 'Outro'
+  }
+  return roleNames[role as keyof typeof roleNames] || 'Usuário'
+}
+
+// Methods
+const handleSignOut = async () => {
+  console.log('Sign out (funcionalidade desabilitada)')
+}
 </script>
