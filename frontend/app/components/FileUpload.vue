@@ -1,35 +1,37 @@
 <template>
-  <div class="space-y-4">
-    <!-- Drag and Drop Area -->
+  <div class="space-y-6">
+    <!-- Simplified Drag and Drop Area -->
     <div
-      class="border-2 border-dashed rounded-lg p-8 text-center transition-colors"
+      class="border-2 border-dashed rounded-xl p-12 text-center transition-all duration-200"
       :class="{
-        'border-primary bg-primary/10': isDragOver,
-        'border-base-300 hover:border-primary/50': !isDragOver,
-        'border-error bg-error/10': hasError
+        'border-primary bg-primary/5 scale-105': isDragOver,
+        'border-base-300 hover:border-primary/50 hover:bg-base-50': !isDragOver && !hasError,
+        'border-error bg-error/5': hasError
       }"
       @dragover.prevent="handleDragOver"
       @dragleave.prevent="handleDragLeave"
       @drop.prevent="handleDrop"
     >
-      <div class="space-y-4">
-        <div class="mx-auto w-16 h-16 text-base-content/50">
-          <svg fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+      <div class="space-y-6">
+        <!-- Upload Icon -->
+        <div class="mx-auto w-20 h-20 text-primary/60">
+          <svg fill="currentColor" viewBox="0 0 24 24" class="w-full h-full">
+            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
           </svg>
         </div>
         
+        <!-- Main Message -->
         <div>
-          <h3 class="text-lg font-semibold">Enviar Arquivos XML</h3>
-          <p class="text-base-content/70">
-            Arraste e solte seus arquivos XML NF-e ou NFS-e aqui, ou clique para navegar
-          </p>
-          <p class="text-sm text-base-content/50 mt-2">
-            Máximo: 10MB por arquivo • Processamento automático com IA
+          <h3 class="text-2xl font-bold text-base-content mb-2">
+            {{ isDragOver ? 'Solte os arquivos aqui' : 'Envie seus arquivos XML' }}
+          </h3>
+          <p class="text-base-content/70 text-lg">
+            {{ isDragOver ? 'Processamento automático com IA' : 'Arraste e solte ou clique para selecionar' }}
           </p>
         </div>
         
-        <div class="space-y-2">
+        <!-- Upload Button -->
+        <div class="space-y-3">
           <input
             ref="fileInput"
             type="file"
@@ -39,278 +41,207 @@
             @change="handleFileSelect"
           />
           <button
-            class="btn btn-primary"
+            class="btn btn-primary btn-lg"
             :disabled="isUploading"
             @click="($refs.fileInput as HTMLInputElement)?.click()"
           >
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M8 4a3 3 0 00-6 0v4a5 5 0 0010 0V4a3 3 0 00-6 0v4a1 1 0 102 0V4a1 1 0 10-2 0v4a3 3 0 106 0V4a5 5 0 00-10 0z" clip-rule="evenodd"></path>
+            <svg v-if="!isUploading" class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
             </svg>
-            {{ isUploading ? 'Processando...' : 'Escolher Arquivos' }}
+            <span v-if="isUploading" class="loading loading-spinner loading-md mr-2"></span>
+            {{ isUploading ? 'Enviando...' : 'Selecionar Arquivos' }}
           </button>
-          <p class="text-sm text-base-content/50">
-            Formatos suportados: .xml (NF-e, NFS-e)
-          </p>
+          
+          <!-- File Format Info -->
+          <div class="flex items-center justify-center space-x-4 text-sm text-base-content/60">
+            <span class="flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              NF-e e NFS-e
+            </span>
+            <span>•</span>
+            <span class="flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+              </svg>
+              Máx. 10MB
+            </span>
+            <span>•</span>
+            <span class="flex items-center">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Processamento IA
+            </span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- File List -->
-    <div v-if="files.length > 0" class="space-y-3">
+    <!-- Simplified File List -->
+    <div v-if="files.length > 0" class="space-y-4">
       <div class="flex justify-between items-center">
-        <h4 class="font-semibold">Arquivos Selecionados ({{ files.length }})</h4>
+        <h4 class="text-lg font-semibold">Arquivos ({{ files.length }})</h4>
         <div class="text-sm text-base-content/60">
           Total: {{ formatFileSize(totalFileSize) }}
         </div>
       </div>
       
-      <div class="space-y-2">
+      <div class="space-y-3">
         <div
           v-for="(file, index) in files"
           :key="file.id || index"
-          class="flex items-center justify-between p-3 bg-base-200 rounded-lg transition-all"
+          class="card bg-base-100 shadow-sm border transition-all"
           :class="{
-            'border-l-4 border-success': file.status === 'completed',
-            'border-l-4 border-error': file.status === 'error',
-            'border-l-4 border-warning': file.status === 'uploading'
+            'border-success bg-success/5': file.status === 'completed',
+            'border-error bg-error/5': file.status === 'error',
+            'border-warning bg-warning/5': file.status === 'uploading',
+            'border-base-300': file.status === 'pending'
           }"
         >
-          <div class="flex items-center space-x-3 flex-1">
-            <div class="w-8 h-8 bg-primary/20 rounded flex items-center justify-center">
-              <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
-              </svg>
-            </div>
-            
-            <div class="flex-1 min-w-0">
-              <p class="font-medium truncate">{{ file.name }}</p>
-              <div class="flex items-center space-x-2 text-sm text-base-content/70">
-                <span>{{ formatFileSize(file.size) }}</span>
-                <span>•</span>
-                <span>{{ getFileType(file.name) }}</span>
-                <span v-if="file.metadata?.nome_emitente" class="text-primary">
-                  • {{ file.metadata.nome_emitente }}
-                </span>
-              </div>
-              <div v-if="file.metadata?.valor_total" class="text-sm text-success">
-                Valor: {{ formatCurrency(file.metadata.valor_total) }}
-              </div>
-            </div>
-          </div>
-          
-          <div class="flex items-center space-x-3">
-            <!-- Validation Status -->
-            <div
-              v-if="file.status === 'validating'"
-              class="flex items-center space-x-2 text-info"
-            >
-              <span class="loading loading-spinner loading-sm"></span>
-              <span class="text-sm">Validando XML...</span>
-            </div>
-
-            <!-- Upload Progress -->
-            <div
-              v-else-if="file.status === 'uploading'"
-              class="flex items-center space-x-2"
-            >
-              <div class="radial-progress text-primary" :style="`--value:${file.progress}`" role="progressbar">
-                <span class="text-xs">{{ file.progress }}%</span>
-              </div>
-              <span class="text-sm text-base-content/70">{{ file.currentStep || 'Enviando...' }}</span>
-              <button
-                class="btn btn-ghost btn-xs text-error"
-                @click="cancelUpload(file)"
-                title="Cancelar upload"
-              >
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                </svg>
-              </button>
-            </div>
-
-            <!-- Cancelled Status -->
-            <div
-              v-else-if="file.status === 'cancelled'"
-              class="flex items-center space-x-2 text-warning"
-            >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-              </svg>
-              <div class="text-right">
-                <div class="text-sm font-medium">Cancelado</div>
-                <div class="text-xs text-base-content/50">Upload interrompido</div>
-              </div>
-            </div>
-            
-            <!-- Completed Status -->
-            <div
-              v-else-if="file.status === 'completed'"
-              class="flex items-center space-x-2 text-success"
-            >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-              </svg>
-              <div class="text-right">
-                <div class="text-sm font-medium">Processando</div>
-                <div class="text-xs text-base-content/50">ID: {{ file.documentId?.slice(0, 8) }}...</div>
-              </div>
-            </div>
-            
-            <!-- Error Status -->
-            <div
-              v-else-if="file.status === 'error'"
-              class="flex items-center space-x-2 text-error"
-            >
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-              </svg>
-              <div class="text-right">
-                <div class="text-sm font-medium">Erro</div>
-                <div class="text-xs text-base-content/50" :title="file.errorMessage">
-                  {{ file.errorMessage?.slice(0, 30) }}...
+          <div class="card-body p-4">
+            <div class="flex items-center justify-between">
+              <!-- File Info -->
+              <div class="flex items-center space-x-3 flex-1">
+                <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                  <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                  </svg>
+                </div>
+                
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold truncate text-base">{{ file.name }}</p>
+                  <div class="flex items-center space-x-2 text-sm text-base-content/70">
+                    <span>{{ formatFileSize(file.size) }}</span>
+                    <span>•</span>
+                    <span class="badge badge-outline badge-sm">{{ getFileType(file.name) }}</span>
+                    <span v-if="file.metadata?.nome_emitente" class="text-primary font-medium">
+                      • {{ file.metadata.nome_emitente }}
+                    </span>
+                  </div>
+                  <div v-if="file.metadata?.valor_total" class="text-sm text-success font-medium mt-1">
+                    Valor: {{ formatCurrency(file.metadata.valor_total) }}
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="flex items-center space-x-1">
-              <!-- Preview Button -->
-              <button
-                v-if="file.status !== 'uploading'"
-                class="btn btn-ghost btn-xs"
-                @click="previewFile(file)"
-                title="Visualizar conteúdo"
-              >
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
-                  <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
-                </svg>
-              </button>
-
-              <!-- Validate Button -->
-              <button
-                v-if="file.status === 'pending'"
-                class="btn btn-ghost btn-xs"
-                @click="validateSingleFile(file)"
-                title="Validar XML"
-              >
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                </svg>
-              </button>
-
-              <!-- Remove Button -->
-              <button
-                class="btn btn-ghost btn-xs text-error"
-                :disabled="file.status === 'uploading'"
-                @click="removeFile(index)"
-                title="Remover arquivo"
-              >
-                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                </svg>
-              </button>
+          
+              <!-- Status and Actions -->
+              <div class="flex items-center space-x-3">
+                <!-- Upload Progress -->
+                <div v-if="file.status === 'uploading'" class="flex items-center space-x-3">
+                  <div class="radial-progress text-primary" :style="`--value:${file.progress}`" role="progressbar">
+                    <span class="text-xs font-bold">{{ file.progress }}%</span>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-medium">Enviando...</div>
+                    <div class="text-xs text-base-content/60">{{ file.currentStep || 'Processando...' }}</div>
+                  </div>
+                  <button
+                    class="btn btn-ghost btn-sm text-error"
+                    @click="cancelUpload(file)"
+                    title="Cancelar"
+                  >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                  </button>
+                </div>
+                
+                <!-- Completed Status -->
+                <div v-else-if="file.status === 'completed'" class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-success/20 rounded-full flex items-center justify-center">
+                    <svg class="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-medium text-success">Enviado com sucesso</div>
+                    <div class="text-xs text-base-content/60">Processamento iniciado</div>
+                  </div>
+                </div>
+                
+                <!-- Error Status -->
+                <div v-else-if="file.status === 'error'" class="flex items-center space-x-3">
+                  <div class="w-10 h-10 bg-error/20 rounded-full flex items-center justify-center">
+                    <svg class="w-5 h-5 text-error" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-sm font-medium text-error">Erro no envio</div>
+                    <div class="text-xs text-base-content/60" :title="file.errorMessage">
+                      {{ file.errorMessage?.slice(0, 40) }}...
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Pending Status -->
+                <div v-else class="flex items-center space-x-2">
+                  <button
+                    class="btn btn-ghost btn-sm"
+                    @click="removeFile(index)"
+                    title="Remover arquivo"
+                  >
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Upload Actions -->
-      <div class="flex justify-between items-center pt-4">
-        <div class="flex items-center space-x-2">
+      <!-- Simplified Upload Actions -->
+      <div class="flex justify-between items-center pt-6">
+        <div class="flex items-center space-x-4">
           <button
             class="btn btn-ghost"
             :disabled="isUploading"
             @click="clearFiles"
           >
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
             Limpar Tudo
           </button>
-          <div v-if="uploadStats.total > 0" class="text-sm text-base-content/60">
-            {{ uploadStats.completed }}/{{ uploadStats.total }} concluídos
+          
+          <div v-if="uploadStats.total > 0" class="stats stats-horizontal shadow-sm">
+            <div class="stat py-2 px-4">
+              <div class="stat-title text-xs">Total</div>
+              <div class="stat-value text-sm">{{ uploadStats.total }}</div>
+            </div>
+            <div class="stat py-2 px-4">
+              <div class="stat-title text-xs">Concluídos</div>
+              <div class="stat-value text-sm text-success">{{ uploadStats.completed }}</div>
+            </div>
+            <div v-if="uploadStats.failed > 0" class="stat py-2 px-4">
+              <div class="stat-title text-xs">Erros</div>
+              <div class="stat-value text-sm text-error">{{ uploadStats.failed }}</div>
+            </div>
           </div>
         </div>
         
-        <div class="space-x-2">
-          <button
-            class="btn btn-secondary"
-            :disabled="files.length === 0 || isUploading"
-            @click="validateFiles"
-          >
-            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            Validar XML
-          </button>
-          <button
-            class="btn btn-primary"
-            :disabled="files.length === 0 || isUploading || hasActiveUploads"
-            @click="uploadFiles"
-          >
-            <span v-if="isUploading" class="loading loading-spinner loading-sm mr-2"></span>
-            <svg v-else class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-            </svg>
-            {{ isUploading ? 'Enviando...' : 'Enviar Arquivos' }}
-          </button>
-        </div>
+        <button
+          class="btn btn-primary btn-lg"
+          :disabled="files.length === 0 || isUploading || hasActiveUploads"
+          @click="uploadFiles"
+        >
+          <span v-if="isUploading" class="loading loading-spinner loading-md mr-2"></span>
+          <svg v-else class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" />
+          </svg>
+          {{ isUploading ? 'Enviando...' : 'Enviar Todos os Arquivos' }}
+        </button>
       </div>
     </div>
 
-    <!-- Upload Results -->
-    <div v-if="uploadResults.length > 0" class="card bg-base-100 shadow">
-      <div class="card-body">
-        <div class="flex justify-between items-center mb-4">
-          <h4 class="card-title">Resultados do Envio</h4>
-          <button 
-            class="btn btn-ghost btn-sm"
-            @click="clearResults"
-          >
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-            </svg>
-            Limpar
-          </button>
-        </div>
-        <div class="space-y-2">
-          <div
-            v-for="result in uploadResults"
-            :key="result.filename"
-            class="alert"
-            :class="{
-              'alert-success': result.status === 'success',
-              'alert-error': result.status === 'error',
-              'alert-warning': result.status === 'warning',
-              'alert-info': result.status === 'info'
-            }"
-          >
-            <div class="flex-1">
-              <div class="flex justify-between items-start">
-                <h5 class="font-semibold">{{ result.filename }}</h5>
-                <div v-if="result.documentId" class="text-xs text-base-content/50">
-                  ID: {{ result.documentId.slice(0, 8) }}...
-                </div>
-              </div>
-              <p class="text-sm">{{ result.message }}</p>
-              <div v-if="result.metadata" class="text-xs text-base-content/60 mt-1">
-                <span v-if="result.metadata.nome_emitente">{{ result.metadata.nome_emitente }}</span>
-                <span v-if="result.metadata.valor_total"> • {{ formatCurrency(result.metadata.valor_total) }}</span>
-              </div>
-            </div>
-            <div v-if="result.documentId" class="flex space-x-2">
-              <button 
-                class="btn btn-ghost btn-xs"
-                @click="viewDocument(result.documentId)"
-              >
-                Ver Detalhes
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Error Display -->
-    <div v-if="hasError" class="alert alert-error">
+    <!-- Simplified Error Display -->
+    <div v-if="hasError" class="alert alert-error shadow-lg">
       <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
       </svg>
@@ -325,76 +256,33 @@
       </button>
     </div>
 
-    <!-- File Preview Modal -->
-    <div v-if="previewModal.show" class="modal modal-open">
-      <div class="modal-box w-11/12 max-w-5xl">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-bold text-lg">Preview: {{ previewModal.filename }}</h3>
-          <button class="btn btn-sm btn-circle btn-ghost" @click="closePreview">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-            </svg>
-          </button>
-        </div>
-
-        <!-- File Info -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <div class="stat bg-base-200 rounded">
-            <div class="stat-title">Tamanho</div>
-            <div class="stat-value text-sm">{{ formatFileSize(previewModal.size || 0) }}</div>
-          </div>
-          <div class="stat bg-base-200 rounded">
-            <div class="stat-title">Tipo</div>
-            <div class="stat-value text-sm">{{ previewModal.documentType || 'XML' }}</div>
-          </div>
-          <div class="stat bg-base-200 rounded">
-            <div class="stat-title">Status</div>
-            <div class="stat-value text-sm capitalize">{{ previewModal.status }}</div>
-          </div>
-        </div>
-
-        <!-- Validation Results -->
-        <div v-if="previewModal.validationResult" class="mb-4">
-          <div class="alert" :class="{
-            'alert-success': previewModal.validationResult.isValid && previewModal.validationResult.errors.length === 0,
-            'alert-warning': previewModal.validationResult.isValid && previewModal.validationResult.warnings.length > 0,
-            'alert-error': !previewModal.validationResult.isValid || previewModal.validationResult.errors.length > 0
-          }">
-            <div>
-              <h4 class="font-semibold">Resultado da Validação</h4>
-              <p class="text-sm">
-                {{ previewModal.validationResult.isValid ? 'XML válido' : 'XML com problemas' }}
-                - Tipo: {{ previewModal.validationResult.documentType }}
-              </p>
-              <div v-if="previewModal.validationResult.warnings.length > 0" class="mt-2">
-                <p class="text-sm font-medium">Avisos:</p>
-                <ul class="text-xs list-disc list-inside">
-                  <li v-for="warning in previewModal.validationResult.warnings" :key="warning">{{ warning }}</li>
-                </ul>
-              </div>
-              <div v-if="previewModal.validationResult.errors.length > 0" class="mt-2">
-                <p class="text-sm font-medium">Erros:</p>
-                <ul class="text-xs list-disc list-inside">
-                  <li v-for="error in previewModal.validationResult.errors" :key="error">{{ error }}</li>
-                </ul>
-              </div>
+    <!-- Success Messages -->
+    <div v-if="uploadResults.length > 0" class="space-y-2">
+      <div
+        v-for="result in uploadResults"
+        :key="result.filename"
+        class="alert shadow-sm"
+        :class="{
+          'alert-success': result.status === 'success',
+          'alert-error': result.status === 'error',
+          'alert-warning': result.status === 'warning'
+        }"
+      >
+        <div class="flex-1">
+          <div class="flex justify-between items-start">
+            <h5 class="font-semibold">{{ result.filename }}</h5>
+            <div v-if="result.documentId" class="text-xs text-base-content/50">
+              ID: {{ result.documentId.slice(0, 8) }}...
             </div>
           </div>
+          <p class="text-sm">{{ result.message }}</p>
         </div>
-
-        <!-- XML Content Preview -->
-        <div class="bg-base-200 rounded p-4 max-h-96 overflow-auto">
-          <pre class="text-xs whitespace-pre-wrap break-words">{{ previewModal.content || 'Carregando...' }}</pre>
-        </div>
-
-        <div class="modal-action">
-          <button class="btn btn-ghost" @click="closePreview">Fechar</button>
+        <div v-if="result.documentId" class="flex space-x-2">
           <button 
-            v-if="previewModal.file && previewModal.file.status === 'pending'"
-            class="btn btn-primary"
-            @click="validateSingleFile(previewModal.file); closePreview()"
+            class="btn btn-ghost btn-xs"
+            @click="viewDocument(result.documentId)"
           >
-            Validar XML
+            Ver Detalhes
           </button>
         </div>
       </div>
@@ -416,24 +304,17 @@ interface FileMetadata {
 }
 
 interface FileItem {
-  id?: string
+  id: string
   name: string
   size: number
   file: File
-  status: 'pending' | 'uploading' | 'completed' | 'error' | 'validating' | 'cancelled'
+  status: 'pending' | 'uploading' | 'completed' | 'error'
   progress: number
   documentId?: string
   currentStep?: string
   errorMessage?: string
   metadata?: FileMetadata
   uploadController?: AbortController
-  previewData?: string
-  validationResult?: {
-    isValid: boolean
-    documentType: string
-    warnings: string[]
-    errors: string[]
-  }
 }
 
 interface UploadResult {
@@ -466,17 +347,7 @@ const uploadResults = ref<UploadResult[]>([])
 const errorMessage = ref<string>('')
 const hasError = ref(false)
 
-// Preview modal state
-const previewModal = ref({
-  show: false,
-  filename: '',
-  content: '',
-  size: 0,
-  status: '',
-  documentType: '',
-  validationResult: null as FileItem['validationResult'] | null,
-  file: null as FileItem | null
-})
+// Simplified state - removed preview modal and complex validation
 
 // Use API composable for consistent configuration
 const { apiBaseUrl } = useApi()
@@ -523,7 +394,7 @@ const handleFileSelect = (e: Event) => {
   if (target) target.value = ''
 }
 
-// Add files to the list
+// Simplified file addition
 const addFiles = (newFiles: File[]) => {
   clearError()
   
@@ -563,15 +434,6 @@ const addFiles = (newFiles: File[]) => {
       })
     }
   })
-  
-  // Auto-validate new files individually
-  if (xmlFiles.length > 0) {
-    setTimeout(async () => {
-      for (const file of files.value.filter(f => f.status === 'pending')) {
-        await validateSingleFile(file)
-      }
-    }, 100)
-  }
 }
 
 // Remove file from list
@@ -617,144 +479,6 @@ const generateFileId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
 
-// Validate single file
-const validateSingleFile = async (fileItem: FileItem) => {
-  fileItem.status = 'validating'
-  
-  try {
-    const text = await fileItem.file.text()
-    
-    const validationResult = {
-      isValid: true,
-      documentType: 'XML',
-      warnings: [] as string[],
-      errors: [] as string[]
-    }
-    
-    // Basic XML validation
-    if (!text.includes('<?xml') || !text.includes('<')) {
-      validationResult.isValid = false
-      validationResult.errors.push('Formato XML inválido - não é um arquivo XML válido')
-      fileItem.validationResult = validationResult
-      fileItem.status = 'error'
-      return
-    }
-    
-    // Check for NF-e or NFS-e indicators
-    const isNFe = text.includes('NFe') || text.includes('nfeProc') || text.includes('infNFe')
-    const isNFSe = text.includes('NFSe') || text.includes('nfse') || text.includes('RPS')
-    
-    // Extract basic metadata for preview
-    const metadata: FileMetadata = {}
-    
-    if (isNFe) {
-      validationResult.documentType = 'NF-e'
-      
-      // Try to extract basic NF-e info
-      const emitMatch = text.match(/<xNome[^>]*>([^<]+)<\/xNome>/)
-      if (emitMatch) metadata.nome_emitente = emitMatch[1]
-      
-      const cnpjMatch = text.match(/<CNPJ[^>]*>([^<]+)<\/CNPJ>/)
-      if (cnpjMatch) metadata.cnpj_emitente = cnpjMatch[1]
-      
-      const valorMatch = text.match(/<vNF[^>]*>([^<]+)<\/vNF>/)
-      if (valorMatch && valorMatch[1]) metadata.valor_total = parseFloat(valorMatch[1])
-      
-      metadata.document_type = 'NFE'
-      
-      // Additional NF-e validations
-      if (!text.includes('<infNFe')) {
-        validationResult.warnings.push('Estrutura NF-e pode estar incompleta')
-      }
-      
-    } else if (isNFSe) {
-      validationResult.documentType = 'NFS-e'
-      metadata.document_type = 'NFSE'
-      metadata.nome_emitente = 'Prestador de Serviços'
-      
-      // Additional NFS-e validations
-      if (!text.includes('<InfNfse') && !text.includes('<InfRps')) {
-        validationResult.warnings.push('Estrutura NFS-e pode estar incompleta')
-      }
-      
-    } else {
-      validationResult.documentType = 'XML Genérico'
-      validationResult.warnings.push('Formato XML não reconhecido como NF-e ou NFS-e')
-    }
-    
-    // Check file size
-    if (fileItem.size > 5 * 1024 * 1024) { // 5MB
-      validationResult.warnings.push('Arquivo muito grande - pode demorar para processar')
-    }
-    
-    // Update file with metadata and validation
-    fileItem.metadata = metadata
-    fileItem.validationResult = validationResult
-    fileItem.status = 'pending'
-    
-  } catch (error) {
-    fileItem.validationResult = {
-      isValid: false,
-      documentType: 'Erro',
-      warnings: [],
-      errors: ['Falha ao ler arquivo - arquivo pode estar corrompido']
-    }
-    fileItem.status = 'error'
-  }
-}
-
-// Validate all XML files
-const validateFiles = async () => {
-  clearError()
-  uploadResults.value = []
-  
-  const pendingFiles = files.value.filter(f => f.status === 'pending')
-  
-  for (const fileItem of pendingFiles) {
-    await validateSingleFile(fileItem)
-    
-    // Add to results
-    if (fileItem.validationResult) {
-      const result = fileItem.validationResult
-      uploadResults.value.push({
-        filename: fileItem.name,
-        status: result.isValid ? (result.warnings.length > 0 ? 'warning' : 'success') : 'error',
-        message: result.isValid 
-          ? `Formato ${result.documentType} válido detectado${result.warnings.length > 0 ? ' com avisos' : ''}`
-          : `Erro de validação: ${result.errors.join(', ')}`,
-        metadata: fileItem.metadata
-      })
-    }
-  }
-}
-
-// Preview file content
-const previewFile = async (fileItem: FileItem) => {
-  try {
-    const content = await fileItem.file.text()
-    
-    previewModal.value = {
-      show: true,
-      filename: fileItem.name,
-      content: content.length > 10000 ? content.substring(0, 10000) + '\n\n... (conteúdo truncado)' : content,
-      size: fileItem.size,
-      status: fileItem.status,
-      documentType: fileItem.validationResult?.documentType || 'XML',
-      validationResult: fileItem.validationResult,
-      file: fileItem
-    }
-  } catch (error) {
-    showError('Erro ao ler arquivo para preview')
-  }
-}
-
-// Close preview modal
-const closePreview = () => {
-  previewModal.value.show = false
-  previewModal.value.content = ''
-  previewModal.value.file = null
-}
-
 // Cancel upload
 const cancelUpload = (fileItem: FileItem) => {
   if (fileItem.uploadController) {
@@ -785,16 +509,16 @@ const uploadFiles = async () => {
     fileItem.currentStep = 'Preparando upload...'
     
     try {
-      // Create FormData for file upload
+      // Create FormData for file upload (MVP format)
       const formData = new FormData()
-      formData.append('arquivo', fileItem.file)
+      formData.append('files', fileItem.file)
       
       // Update progress
       fileItem.progress = 20
       fileItem.currentStep = 'Enviando arquivo...'
       
-      // Upload to backend API with abort signal
-      const response = await fetch(`${apiBaseUrl}/agentes/upload-xml`, {
+      // Upload to MVP backend API with abort signal
+      const response = await fetch(`${apiBaseUrl}/api/v1/documents/upload`, {
         method: 'POST',
         body: formData,
         signal: fileItem.uploadController.signal,
@@ -822,28 +546,20 @@ const uploadFiles = async () => {
       fileItem.progress = 100
       fileItem.currentStep = 'Concluído'
       fileItem.status = 'completed'
-      fileItem.documentId = result.id_processamento
       
-      // Update file metadata with response data
-      if (result.documento) {
-        fileItem.metadata = {
-          ...fileItem.metadata,
-          nome_emitente: result.documento.fornecedor,
-          valor_total: result.documento.valor_total,
-          document_type: result.documento.tipo_documento
-        }
-      }
+      // MVP response format - get first document ID
+      const documentId = result.document_ids?.[0] || 'unknown'
+      fileItem.documentId = documentId
       
       uploadResults.value.push({
         filename: fileItem.name,
         status: 'success',
-        message: 'Arquivo enviado com sucesso! Processamento iniciado pelos agentes IA.',
-        documentId: result.id_processamento,
-        metadata: fileItem.metadata
+        message: result.message || 'Arquivo enviado com sucesso! Processamento iniciado pelos agentes IA.',
+        documentId: documentId
       })
       
       // Emit event for parent components
-      emit('documentUploaded', result.id_processamento, fileItem.name)
+      emit('documentUploaded', documentId, fileItem.name)
       
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {

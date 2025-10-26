@@ -1,19 +1,26 @@
 # AI Agents Invoice Analysis System - Backend Dependencies
 # Successfully tested on Python 3.13.9 on Windows
-# Last updated: 2025-10-25
+# Last updated: 2025-10-26 - MVP Setup leveraging alternative project
 
 # Web Framework
 fastapi==0.120.0
 uvicorn[standard]==0.38.0
 python-multipart==0.0.20
 
-# Multi-Agent Framework
+# Multi-Agent Framework (from alternative project)
 crewai==1.2.0
 langchain==1.0.2
+langchain-openai==0.0.5
 langchain-community==0.4
 
-# OpenAI Integration
+# OpenAI Integration (enhanced for MVP)
 openai>=1.73.0,<2.0.0
+
+# OCR Processing (from alternative project for XML/PDF processing)
+pytesseract==0.3.10
+pdf2image==1.17.0
+opencv-python==4.9.0.80
+Pillow==10.2.0
 
 # XML Processing & Schema Validation
 lxml==6.0.2
