@@ -134,7 +134,7 @@ class RealDimensionalTester:
                     'id': document_id,
                     'filename': xml_file.name,
                     'file_size': xml_file.stat().st_size,
-                    'document_type': 'NFE',
+                    'document_type': metadata.get('document_type', 'NFE'),
                     'xml_content': xml_content
                 }
                 
@@ -165,35 +165,107 @@ class RealDimensionalTester:
             from lxml import etree
             
             root = etree.fromstring(xml_content.encode('utf-8'))
+            
+            # Detect document type (NFe vs NFSe)
+            document_type = 'NFE'  # Default
+            
+            # Check for NFSe indicators - improved detection
+            nfse_indicators = [
+                # Root element checks
+                root.tag.lower() == 'nfse',
+                'nfse' in root.tag.lower(),
+                
+                # Namespace checks
+                'nfse' in str(root.nsmap) if root.nsmap else False,
+                'http://www.sped.fazenda.gov.br/nfse' in str(root.nsmap.values()) if root.nsmap else False,
+                
+                # Element checks (using xpath for local-name or direct namespace)
+                len(root.xpath('.//*[local-name()="NFSe"]')) > 0 if hasattr(root, 'xpath') else False,
+                len(root.xpath('.//*[local-name()="infNFSe"]')) > 0 if hasattr(root, 'xpath') else False,
+                len(root.xpath('.//*[local-name()="DPS"]')) > 0 if hasattr(root, 'xpath') else False,
+                len(root.xpath('.//*[local-name()="CompNfse"]')) > 0 if hasattr(root, 'xpath') else False,
+                len(root.xpath('.//*[local-name()="RPS"]')) > 0 if hasattr(root, 'xpath') else False,
+                
+                # Fallback namespace-aware search
+                root.find('.//NFSe') is not None or root.find('.//{http://www.sped.fazenda.gov.br/nfse}NFSe') is not None,
+                root.find('.//infNFSe') is not None or root.find('.//{http://www.sped.fazenda.gov.br/nfse}infNFSe') is not None,
+                root.find('.//DPS') is not None or root.find('.//{http://www.sped.fazenda.gov.br/nfse}DPS') is not None,
+                
+                # Content checks
+                'nfse' in xml_content.lower(),
+                'infnfse' in xml_content.lower(),
+                'servico' in xml_content.lower() and 'prestador' in xml_content.lower()
+            ]
+            
+            if any(nfse_indicators):
+                document_type = 'NFSE'
+            
             metadata = {
                 'filename': filename,
-                'document_type': 'NFE'
+                'document_type': document_type
             }
             
-            # Try to extract basic info
+            # Try to extract basic info based on document type
             try:
-                # Extract emitente CNPJ
-                emit = root.find('.//{http://www.portalfiscal.inf.br/nfe}emit')
-                if emit is not None:
-                    cnpj_elem = emit.find('.//{http://www.portalfiscal.inf.br/nfe}CNPJ')
-                    if cnpj_elem is not None:
-                        metadata['emitente_cnpj'] = cnpj_elem.text
+                if document_type == 'NFE':
+                    # Extract NFe data
+                    emit = root.find('.//{http://www.portalfiscal.inf.br/nfe}emit')
+                    if emit is not None:
+                        cnpj_elem = emit.find('.//{http://www.portalfiscal.inf.br/nfe}CNPJ')
+                        if cnpj_elem is not None:
+                            metadata['emitente_cnpj'] = cnpj_elem.text
+                        
+                        nome_elem = emit.find('.//{http://www.portalfiscal.inf.br/nfe}xNome')
+                        if nome_elem is not None:
+                            metadata['emitente_nome'] = nome_elem.text
                     
-                    nome_elem = emit.find('.//{http://www.portalfiscal.inf.br/nfe}xNome')
-                    if nome_elem is not None:
-                        metadata['emitente_nome'] = nome_elem.text
+                    # Extract document key
+                    inf_nfe = root.find('.//{http://www.portalfiscal.inf.br/nfe}infNFe')
+                    if inf_nfe is not None:
+                        chave = inf_nfe.get('Id', '').replace('NFe', '')
+                        if chave:
+                            metadata['chave_nfe'] = chave
+                    
+                    # Extract total value
+                    total_elem = root.find('.//{http://www.portalfiscal.inf.br/nfe}vNF')
+                    if total_elem is not None:
+                        metadata['valor_total'] = float(total_elem.text or 0)
                 
-                # Extract document key
-                inf_nfe = root.find('.//{http://www.portalfiscal.inf.br/nfe}infNFe')
-                if inf_nfe is not None:
-                    chave = inf_nfe.get('Id', '').replace('NFe', '')
-                    if chave:
-                        metadata['chave_nfe'] = chave
-                
-                # Extract total value
-                total_elem = root.find('.//{http://www.portalfiscal.inf.br/nfe}vNF')
-                if total_elem is not None:
-                    metadata['valor_total'] = float(total_elem.text or 0)
+                else:  # NFSE
+                    # Extract NFSe data - try multiple patterns
+                    
+                    # Pattern 1: SPED NFSe format (like our file)
+                    emit = root.find('.//{http://www.sped.fazenda.gov.br/nfse}emit')
+                    if emit is not None:
+                        cnpj_elem = emit.find('.//{http://www.sped.fazenda.gov.br/nfse}CNPJ')
+                        if cnpj_elem is not None:
+                            metadata['emitente_cnpj'] = cnpj_elem.text
+                        
+                        nome_elem = emit.find('.//{http://www.sped.fazenda.gov.br/nfse}xNome')
+                        if nome_elem is not None:
+                            metadata['emitente_nome'] = nome_elem.text
+                    
+                    # Pattern 2: Common NFSe patterns (fallback)
+                    if 'emitente_cnpj' not in metadata:
+                        prestador = root.find('.//*[local-name()="Prestador"]')
+                        if prestador is not None:
+                            cnpj_elem = prestador.find('.//*[local-name()="Cnpj"]')
+                            if cnpj_elem is not None:
+                                metadata['emitente_cnpj'] = cnpj_elem.text
+                            
+                            nome_elem = prestador.find('.//*[local-name()="RazaoSocial"]')
+                            if nome_elem is not None:
+                                metadata['emitente_nome'] = nome_elem.text
+                    
+                    # Extract service value - try multiple patterns
+                    valor_elem = root.find('.//{http://www.sped.fazenda.gov.br/nfse}vLiq')
+                    if valor_elem is not None:
+                        metadata['valor_total'] = float(valor_elem.text or 0)
+                    else:
+                        # Fallback to common patterns
+                        valor_elem = root.find('.//*[local-name()="ValorServicos"]')
+                        if valor_elem is not None:
+                            metadata['valor_total'] = float(valor_elem.text or 0)
                 
             except Exception as e:
                 logger.warning("Failed to extract metadata", error=str(e))
@@ -214,11 +286,12 @@ class RealDimensionalTester:
             processing_start = datetime.now()
             
             try:
-                # Process through dimensional coordinator
+                # Process through dimensional coordinator using detected document type
+                document_type = doc.get('metadata', {}).get('document_type', 'NFE')
                 result = await self.coordinator.process_document_pipeline(
                     doc['xml_content'],
                     doc['document_id'],
-                    'NFE'
+                    document_type
                 )
                 
                 processing_end = datetime.now()

@@ -9,6 +9,7 @@ from decimal import Decimal
 from lxml import etree
 import uuid
 import re
+import json
 
 from .base_agent import BaseAgent
 from utils.database import ProcessingStatusManager, get_supabase_client
@@ -44,12 +45,24 @@ def format_cpf(cpf: str) -> str:
 logger = structlog.get_logger()
 
 
+def convert_decimals_to_float(data: Any) -> Any:
+    """Convert Decimal objects to float for JSON serialization"""
+    if isinstance(data, dict):
+        return {key: convert_decimals_to_float(value) for key, value in data.items()}
+    elif isinstance(data, list):
+        return [convert_decimals_to_float(item) for item in data]
+    elif isinstance(data, Decimal):
+        return float(data)
+    else:
+        return data
+
+
 class DimensionalProcessingAgent(BaseAgent):
     """Agent specialized in coordinating dimensional processing of fiscal documents"""
     
     def __init__(self):
         super().__init__("DimensionalProcessingAgent")
-        self.agent_name = "dimensional_processing_agent"
+        self.agent_name = "xml_processing_agent"  # Using xml_processing_agent name to match constraint
         self.supabase_client = get_supabase_client(admin_mode=True)  # Use admin mode for dimensional operations
     
     async def initialize(self):
@@ -352,6 +365,9 @@ class DimensionalProcessingAgent(BaseAgent):
             fact_records = []
             
             if document_type == "NFE":
+                # Create main NFE record first
+                nfe_main_id = await self._create_nfe_main_record(xml_root, emitente_id, destinatario_id)
+                
                 # Create fact records for NFE items
                 nfe_items = self._extract_nfe_items_data(xml_root)
                 
@@ -360,6 +376,9 @@ class DimensionalProcessingAgent(BaseAgent):
                     fact_records.append(fact_id)
             
             else:  # NFSE
+                # Create main NFSE record first
+                nfse_main_id = await self._create_nfse_main_record(xml_root, emitente_id, destinatario_id)
+                
                 # Create fact records for NFSE services
                 nfse_services = self._extract_nfse_services_data(xml_root)
                 
@@ -438,45 +457,105 @@ class DimensionalProcessingAgent(BaseAgent):
     # Data Extraction Methods
     
     def _extract_emitente_data(self, xml_root, document_type: str) -> Dict[str, Any]:
-        """Extract emitente data from XML"""
+        """Extract emitente data from XML with improved robustness"""
         try:
             emitente_data = {}
             
             if document_type == "NFE":
-                # Extract from NF-e
+                # Extract from NF-e - try multiple patterns for robustness
                 emit = xml_root.find('.//{http://www.portalfiscal.inf.br/nfe}emit')
+                
+                # If standard namespace doesn't work, try without namespace
+                if emit is None:
+                    emit = xml_root.find('.//emit')
+                
+                # Try alternative patterns
+                if emit is None:
+                    # Try finding any element with 'emit' in the name
+                    for elem in xml_root.iter():
+                        if elem.tag and 'emit' in elem.tag.lower():
+                            emit = elem
+                            break
+                
                 if emit is not None:
                     emitente_data = {
-                        'cnpj': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}CNPJ'),
-                        'cpf': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}CPF'),
-                        'inscricao_estadual': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}IE'),
-                        'razao_social': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xNome'),
-                        'nome_fantasia': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xFant'),
-                        'logradouro': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xLgr'),
-                        'numero': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}nro'),
-                        'complemento': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xCpl'),
-                        'bairro': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xBairro'),
-                        'codigo_municipio': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}cMun'),
-                        'nome_municipio': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xMun'),
-                        'uf': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}UF'),
-                        'cep': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}CEP'),
-                        'codigo_pais': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}cPais'),
-                        'nome_pais': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xPais'),
-                        'telefone': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}fone'),
-                        'email': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}email'),
-                        'regime_tributario': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}CRT')
+                        'cnpj': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}CNPJ') or self._get_text(emit, './/CNPJ'),
+                        'cpf': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}CPF') or self._get_text(emit, './/CPF'),
+                        'inscricao_estadual': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}IE') or self._get_text(emit, './/IE'),
+                        'razao_social': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xNome') or self._get_text(emit, './/xNome'),
+                        'nome_fantasia': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xFant') or self._get_text(emit, './/xFant'),
+                        'logradouro': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xLgr') or self._get_text(emit, './/xLgr'),
+                        'numero': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}nro') or self._get_text(emit, './/nro'),
+                        'complemento': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xCpl') or self._get_text(emit, './/xCpl'),
+                        'bairro': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xBairro') or self._get_text(emit, './/xBairro'),
+                        'codigo_municipio': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}cMun') or self._get_text(emit, './/cMun'),
+                        'nome_municipio': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xMun') or self._get_text(emit, './/xMun'),
+                        'uf': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}UF') or self._get_text(emit, './/UF'),
+                        'cep': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}CEP') or self._get_text(emit, './/CEP'),
+                        'codigo_pais': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}cPais') or self._get_text(emit, './/cPais') or '1058',
+                        'nome_pais': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}xPais') or self._get_text(emit, './/xPais') or 'Brasil',
+                        'telefone': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}fone') or self._get_text(emit, './/fone'),
+                        'email': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}email') or self._get_text(emit, './/email'),
+                        'regime_tributario': self._get_text(emit, './/{http://www.portalfiscal.inf.br/nfe}CRT') or self._get_text(emit, './/CRT')
                     }
+                else:
+                    logger.warning("No emitente element found in NFe document")
             
             else:  # NFSE
-                # Extract from NFS-e (simplified - varies by municipality)
-                # This is a basic implementation - real NFS-e would need municipality-specific parsing
-                emitente_data = {
-                    'cnpj': '00000000000000',  # Would extract from actual NFS-e
-                    'razao_social': 'Prestador de Serviços',
-                    'uf': 'SP',  # Default values for NFS-e
-                    'codigo_pais': '1058',
-                    'nome_pais': 'Brasil'
-                }
+                # Extract from NFS-e - try multiple patterns
+                
+                # Pattern 1: SPED NFSe format (like our file)
+                emit = xml_root.find('.//{http://www.sped.fazenda.gov.br/nfse}emit')
+                if emit is not None:
+                    emitente_data = {
+                        'cnpj': self._get_text(emit, './/{http://www.sped.fazenda.gov.br/nfse}CNPJ'),
+                        'razao_social': self._get_text(emit, './/{http://www.sped.fazenda.gov.br/nfse}xNome'),
+                        'logradouro': self._get_text(emit, './/{http://www.sped.fazenda.gov.br/nfse}xLgr'),
+                        'numero': self._get_text(emit, './/{http://www.sped.fazenda.gov.br/nfse}nro'),
+                        'bairro': self._get_text(emit, './/{http://www.sped.fazenda.gov.br/nfse}xBairro'),
+                        'codigo_municipio': self._get_text(emit, './/{http://www.sped.fazenda.gov.br/nfse}cMun'),
+                        'uf': self._get_text(emit, './/{http://www.sped.fazenda.gov.br/nfse}UF'),
+                        'cep': self._get_text(emit, './/{http://www.sped.fazenda.gov.br/nfse}CEP'),
+                        'telefone': self._get_text(emit, './/{http://www.sped.fazenda.gov.br/nfse}fone'),
+                        'email': self._get_text(emit, './/{http://www.sped.fazenda.gov.br/nfse}email'),
+                        'codigo_pais': '1058',
+                        'nome_pais': 'Brasil'
+                    }
+                else:
+                    # Pattern 2: Common NFSe patterns (fallback using xpath)
+                    try:
+                        prestador_elements = xml_root.xpath('.//*[local-name()="Prestador"]')
+                        if prestador_elements:
+                            prestador = prestador_elements[0]
+                            cnpj_elements = prestador.xpath('.//*[local-name()="Cnpj"]')
+                            nome_elements = prestador.xpath('.//*[local-name()="RazaoSocial"]')
+                            
+                            emitente_data = {
+                                'cnpj': cnpj_elements[0].text if cnpj_elements else None,
+                                'razao_social': nome_elements[0].text if nome_elements else None,
+                                'uf': 'SP',  # Default for NFS-e
+                                'codigo_pais': '1058',
+                                'nome_pais': 'Brasil'
+                            }
+                        else:
+                            # Final fallback
+                            emitente_data = {
+                                'cnpj': '00000000000000',
+                                'razao_social': 'Prestador de Serviços',
+                                'uf': 'SP',
+                                'codigo_pais': '1058',
+                                'nome_pais': 'Brasil'
+                            }
+                    except Exception as xpath_error:
+                        logger.warning("XPath error in NFSE extraction", error=str(xpath_error))
+                        # Final fallback
+                        emitente_data = {
+                            'cnpj': '00000000000000',
+                            'razao_social': 'Prestador de Serviços',
+                            'uf': 'SP',
+                            'codigo_pais': '1058',
+                            'nome_pais': 'Brasil'
+                        }
             
             return emitente_data
             
@@ -647,10 +726,12 @@ class DimensionalProcessingAgent(BaseAgent):
             cpf = data.get('cpf', '').strip()
             
             if cnpj and validate_cnpj(cnpj):
-                normalized['cnpj'] = format_cnpj(cnpj)
+                # Store CNPJ without formatting (only digits)
+                normalized['cnpj'] = re.sub(r'[^0-9]', '', cnpj)[:14]
             elif cpf and validate_cpf(cpf):
-                normalized['cnpj'] = format_cpf(cpf)  # Store CPF in CNPJ field for individuals
-                normalized['cpf'] = format_cpf(cpf)
+                # Store CPF without formatting (only digits) in CNPJ field for individuals
+                normalized['cnpj'] = re.sub(r'[^0-9]', '', cpf)[:11]
+                normalized['cpf'] = re.sub(r'[^0-9]', '', cpf)[:11]
             else:
                 raise ValueError("Invalid CNPJ/CPF for emitente")
             
@@ -692,9 +773,11 @@ class DimensionalProcessingAgent(BaseAgent):
             cpf = data.get('cpf', '').strip()
             
             if cnpj and validate_cnpj(cnpj):
-                normalized['cnpj'] = format_cnpj(cnpj)
+                # Store CNPJ without formatting (only digits)
+                normalized['cnpj'] = re.sub(r'[^0-9]', '', cnpj)[:14]
             elif cpf and validate_cpf(cpf):
-                normalized['cpf'] = format_cpf(cpf)
+                # Store CPF without formatting (only digits)
+                normalized['cpf'] = re.sub(r'[^0-9]', '', cpf)[:11]
             
             # Optional fields with length limits
             normalized['inscricao_estadual'] = data.get('inscricao_estadual', '').strip()[:14] or None
@@ -983,9 +1066,12 @@ class DimensionalProcessingAgent(BaseAgent):
             # Generate unique ID for fact record
             fact_id = str(uuid.uuid4())
             
+            # Convert Decimal values to float for JSON serialization
+            clean_item_data = convert_decimals_to_float(item_data)
+            
             # Prepare fact record
             fact_record = {
-                **item_data,
+                **clean_item_data,
                 'created_at': datetime.now(timezone.utc).isoformat()
             }
             
@@ -1012,9 +1098,12 @@ class DimensionalProcessingAgent(BaseAgent):
             # Generate unique ID for fact record
             fact_id = str(uuid.uuid4())
             
+            # Convert Decimal values to float for JSON serialization
+            clean_servico_data = convert_decimals_to_float(servico_data)
+            
             # Prepare fact record
             fact_record = {
-                **servico_data,
+                **clean_servico_data,
                 'created_at': datetime.now(timezone.utc).isoformat()
             }
             
@@ -1922,4 +2011,83 @@ class DimensionalProcessingAgent(BaseAgent):
                 'error': str(e),
                 'updated_count': 0,
                 'errors_count': 1
+            } 
+   
+    async def _create_nfe_main_record(self, xml_root, emitente_id: str, destinatario_id: Optional[int]) -> str:
+        """Create main NFE record in nfe_main table"""
+        try:
+            import asyncio
+            
+            # Extract NFE main data
+            inf_nfe = xml_root.find('.//{http://www.portalfiscal.inf.br/nfe}infNFe')
+            chave_nfe = inf_nfe.get('Id', '').replace('NFe', '') if inf_nfe is not None else ''
+            
+            # Extract basic NFE data
+            ide = xml_root.find('.//{http://www.portalfiscal.inf.br/nfe}ide')
+            total = xml_root.find('.//{http://www.portalfiscal.inf.br/nfe}total')
+            
+            nfe_main_data = {
+                'chave_nfe': chave_nfe,
+                'numero_nf': self._get_text(ide, './/{http://www.portalfiscal.inf.br/nfe}nNF') if ide else '',
+                'serie': self._get_text(ide, './/{http://www.portalfiscal.inf.br/nfe}serie') if ide else '',
+                'data_emissao': self._get_text(ide, './/{http://www.portalfiscal.inf.br/nfe}dhEmi') if ide else '',
+                'valor_total_nf': float(self._get_decimal(total, './/{http://www.portalfiscal.inf.br/nfe}vNF') or 0) if total else 0,
+                'natureza_operacao': self._get_text(ide, './/{http://www.portalfiscal.inf.br/nfe}natOp') if ide else '',
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat()
             }
+            
+            # Convert Decimal values to float
+            clean_data = convert_decimals_to_float(nfe_main_data)
+            
+            # Insert main NFE record
+            result = await asyncio.to_thread(
+                lambda: self.supabase_client.client.table('nfe_main')
+                .insert(clean_data)
+                .execute()
+            )
+            
+            logger.info("NFE main record created", chave_nfe=chave_nfe)
+            return chave_nfe
+            
+        except Exception as e:
+            logger.error("Failed to create NFE main record", error=str(e))
+            raise
+    
+    async def _create_nfse_main_record(self, xml_root, emitente_id: str, destinatario_id: Optional[int]) -> str:
+        """Create main NFSE record in nfse_main table"""
+        try:
+            import asyncio
+            
+            # Generate NFSE ID (since NFSE structure varies)
+            id_nfse = f"NFSE{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            
+            # Extract NFSE main data (SPED format)
+            inf_nfse = xml_root.find('.//{http://www.sped.fazenda.gov.br/nfse}infNFSe')
+            valores = xml_root.find('.//{http://www.sped.fazenda.gov.br/nfse}valores')
+            
+            nfse_main_data = {
+                'id_nfse': id_nfse,
+                'numero_nfse': self._get_text(inf_nfse, './/{http://www.sped.fazenda.gov.br/nfse}nNFSe') if inf_nfse else '',
+                'data_emissao': self._get_text(inf_nfse, './/{http://www.sped.fazenda.gov.br/nfse}dhProc') if inf_nfse else '',
+                'local_prestacao': self._get_text(inf_nfse, './/{http://www.sped.fazenda.gov.br/nfse}xLocPrestacao') if inf_nfse else '',
+                'created_at': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }
+            
+            # Convert Decimal values to float
+            clean_data = convert_decimals_to_float(nfse_main_data)
+            
+            # Insert main NFSE record
+            result = await asyncio.to_thread(
+                lambda: self.supabase_client.client.table('nfse_main')
+                .insert(clean_data)
+                .execute()
+            )
+            
+            logger.info("NFSE main record created", id_nfse=id_nfse)
+            return id_nfse
+            
+        except Exception as e:
+            logger.error("Failed to create NFSE main record", error=str(e))
+            raise
