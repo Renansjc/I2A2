@@ -1,0 +1,76 @@
+{
+  "test_results": [
+    {
+      "filename": "42251019791896002731550030004630421061735279.xml",
+      "file_size": 8792,
+      "timestamp": "2025-10-26T11:21:07.655319",
+      "success": false,
+      "processing_time": 0,
+      "extracted_data": {},
+      "errors": [
+        "{'message': 'new row for relation \"document_processing_status\" violates check constraint \"check_agent_processing_times\"', 'code': '23514', 'hint': None, 'details': 'Failing row contains (3b9e2ca4-31d0-4c26-adbb-c49cf3f3cdc9, 15d89943-5c88-4e10-8320-f03e79f458df, dimensional_processing_agent, failed, null, 2025-10-26 14:21:08.708094+00, {\\'message\\': \\'insert or update on table \"document_processing_stat..., 0, null, 2025-10-26 14:21:09.07642+00, 2025-10-26 14:21:08.708094+00).'}"
+      ]
+    },
+    {
+      "filename": "42054072257653110000170000000000000725050541353120.xml",
+      "file_size": 5655,
+      "timestamp": "2025-10-26T11:21:09.264635",
+      "success": false,
+      "processing_time": 0,
+      "extracted_data": {},
+      "errors": [
+        "{'message': 'new row for relation \"document_processing_status\" violates check constraint \"check_agent_processing_times\"', 'code': '23514', 'hint': None, 'details': 'Failing row contains (a9ccd48c-776c-448f-8bbc-8542a74e098d, b9af0ba8-65ec-407d-bacc-d81852407f26, dimensional_processing_agent, failed, null, 2025-10-26 14:21:09.868099+00, {\\'message\\': \\'insert or update on table \"document_processing_stat..., 0, null, 2025-10-26 14:21:10.327682+00, 2025-10-26 14:21:09.868099+00).'}"
+      ]
+    },
+    {
+      "filename": "42250884683481030599650010002189261654640539.xml",
+      "file_size": 7382,
+      "timestamp": "2025-10-26T11:21:10.537010",
+      "success": false,
+      "processing_time": 0,
+      "extracted_data": {},
+      "errors": [
+        "{'message': 'new row for relation \"document_processing_status\" violates check constraint \"check_agent_processing_times\"', 'code': '23514', 'hint': None, 'details': 'Failing row contains (3e51bfc1-18aa-4176-8ced-36056a073563, f9f68c39-640d-4062-a356-0306bc906f67, dimensional_processing_agent, failed, null, 2025-10-26 14:21:11.157755+00, {\\'message\\': \\'insert or update on table \"document_processing_stat..., 0, null, 2025-10-26 14:21:11.593615+00, 2025-10-26 14:21:11.157755+00).'}"
+      ]
+    },
+    {
+      "filename": "42250383261420001201550990003348371042993209-nfe.xml",
+      "file_size": 7385,
+      "timestamp": "2025-10-26T11:21:11.808935",
+      "success": false,
+      "processing_time": 0,
+      "extracted_data": {},
+      "errors": [
+        "{'message': 'new row for relation \"document_processing_status\" violates check constraint \"check_agent_processing_times\"', 'code': '23514', 'hint': None, 'details': 'Failing row contains (7b5a31e9-c0d9-4776-82cc-821b306ee07e, 468dd608-adaf-4ceb-b0f9-e10b623b6195, dimensional_processing_agent, failed, null, 2025-10-26 14:21:12.396503+00, {\\'message\\': \\'insert or update on table \"document_processing_stat..., 0, null, 2025-10-26 14:21:12.7816+00, 2025-10-26 14:21:12.396503+00).'}"
+      ]
+    },
+    {
+      "filename": "42250802314041001583650100000616501312602792.XML",
+      "file_size": 7267,
+      "timestamp": "2025-10-26T11:21:12.976692",
+      "success": false,
+      "processing_time": 0,
+      "extracted_data": {},
+      "errors": [
+        "{'message': 'new row for relation \"document_processing_status\" violates check constraint \"check_agent_processing_times\"', 'code': '23514', 'hint': None, 'details': 'Failing row contains (c85fcd8d-d1f2-4d3b-90d5-5de1f79cab9c, d0045219-4370-4ff9-8e93-e6532ed69424, dimensional_processing_agent, failed, null, 2025-10-26 14:21:13.545256+00, {\\'message\\': \\'insert or update on table \"document_processing_stat..., 0, null, 2025-10-26 14:21:13.946267+00, 2025-10-26 14:21:13.545256+00).'}"
+      ]
+    },
+    {
+      "filename": "exemplo.xml",
+      "file_size": 8204,
+      "timestamp": "2025-10-26T11:21:14.157787",
+      "success": false,
+      "processing_time": 0,
+      "extracted_data": {},
+      "errors": [
+        "{'message': 'new row for relation \"document_processing_status\" violates check constraint \"check_agent_processing_times\"', 'code': '23514', 'hint': None, 'details': 'Failing row contains (f206d387-3fe5-447c-900b-a68af5254963, 82c71c49-64e6-4b38-9366-01e5ae70f01d, dimensional_processing_agent, failed, null, 2025-10-26 14:21:14.727955+00, {\\'message\\': \\'insert or update on table \"document_processing_stat..., 0, null, 2025-10-26 14:21:15.146109+00, 2025-10-26 14:21:14.727955+00).'}"
+      ]
+    }
+  ],
+  "summary": {
+    "total_tests": 6,
+    "successful_tests": 0,
+    "failed_tests": 6,
+    "success_rate": 0.0
+  }
+}
