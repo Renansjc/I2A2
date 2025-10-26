@@ -197,7 +197,7 @@ class ErrorResponse(BaseModel):
     mensagem: str = Field(..., description="Mensagem de erro em português")
     detalhes: Optional[str] = Field(None, description="Detalhes adicionais do erro")
     sugestao_solucao: Optional[str] = Field(None, description="Sugestão para resolver o erro")
-    timestamp: datetime = Field(default_factory=datetime.now, description="Timestamp do erro")
+    timestamp: Optional[str] = Field(default=None, description="Timestamp do erro")
     id_rastreamento: Optional[str] = Field(None, description="ID para rastreamento do erro")
 
 # Status Response Schema

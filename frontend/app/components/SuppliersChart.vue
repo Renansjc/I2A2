@@ -10,8 +10,7 @@
         </h3>
         <div class="flex items-center gap-2">
           <select 
-            v-model="selectedPeriod" 
-            @change="loadSuppliersData"
+            v-model="selectedPeriod"
             class="select select-sm select-bordered"
           >
             <option value="last_30_days">Últimos 30 dias</option>
@@ -19,6 +18,23 @@
             <option value="last_6_months">Últimos 6 meses</option>
             <option value="last_12_months">Últimos 12 meses</option>
           </select>
+          <select 
+            v-model="suppliersLimit"
+            class="select select-sm select-bordered"
+          >
+            <option :value="5">Top 5</option>
+            <option :value="10">Top 10</option>
+            <option :value="20">Top 20</option>
+            <option :value="50">Top 50</option>
+          </select>
+          <div class="tooltip" data-tip="Atualização automática">
+            <input 
+              type="checkbox" 
+              v-model="autoRefreshEnabled"
+              @change="autoRefreshEnabled ? startAutoRefresh() : stopAutoRefresh()"
+              class="toggle toggle-sm toggle-primary"
+            />
+          </div>
           <button 
             @click="loadSuppliersData" 
             class="btn btn-sm btn-ghost"
@@ -54,7 +70,8 @@
         <div 
           v-for="(supplier, index) in suppliersData.top_suppliers" 
           :key="supplier.cnpj"
-          class="flex items-center justify-between p-3 bg-base-100 rounded-lg hover:bg-base-300 transition-colors"
+          class="flex items-center justify-between p-3 bg-base-100 rounded-lg hover:bg-base-300 transition-colors cursor-pointer"
+          @click="navigateToSupplierDetails(supplier.cnpj)"
         >
           <div class="flex items-center gap-3">
             <div class="avatar placeholder">
@@ -79,6 +96,29 @@
           </div>
         </div>
 
+        <!-- Monthly Trends -->
+        <div v-if="suppliersData.monthly_trend?.length > 0" class="mt-4">
+          <h4 class="font-semibold mb-3">Tendência Mensal</h4>
+          <div class="overflow-x-auto">
+            <table class="table table-sm bg-base-100">
+              <thead>
+                <tr>
+                  <th>Mês</th>
+                  <th>Fornecedores Ativos</th>
+                  <th>Valor Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="trend in suppliersData.monthly_trend" :key="trend.mes">
+                  <td>{{ formatMonth(trend.mes) }}</td>
+                  <td>{{ trend.fornecedores_ativos }}</td>
+                  <td>{{ formatCurrency(trend.valor_total_mes) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Summary Stats -->
         <div class="stats stats-horizontal bg-base-100 shadow mt-4">
           <div class="stat">
@@ -88,6 +128,10 @@
           <div class="stat">
             <div class="stat-title text-xs">Período</div>
             <div class="stat-desc text-xs">{{ suppliersData.periodo_analise }}</div>
+          </div>
+          <div v-if="lastUpdated" class="stat">
+            <div class="stat-title text-xs">Última Atualização</div>
+            <div class="stat-desc text-xs">{{ formatLastUpdated(lastUpdated) }}</div>
           </div>
         </div>
       </div>
@@ -130,6 +174,10 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 const suppliersData = ref<SuppliersResponse | null>(null)
 const selectedPeriod = ref('last_90_days')
+const suppliersLimit = ref(10)
+const lastUpdated = ref<Date | null>(null)
+const autoRefreshEnabled = ref(true)
+const autoRefreshInterval = ref<NodeJS.Timeout | null>(null)
 
 // Load suppliers data from API
 const loadSuppliersData = async () => {
@@ -141,14 +189,18 @@ const loadSuppliersData = async () => {
     const data = await apiCall<SuppliersResponse>('/api/v1/api/dashboard/suppliers', {
       query: {
         period: selectedPeriod.value,
-        limit: 10
-      }
+        limit: suppliersLimit.value
+      },
+      cache: true,
+      cacheTTL: 300000, // 5 minutes cache
+      retry: 3
     })
 
-    suppliersData.value = data as SuppliersResponse
+    suppliersData.value = data
+    lastUpdated.value = new Date()
   } catch (err: any) {
     console.error('Error loading suppliers data:', err)
-    error.value = err.data?.mensagem || 'Erro ao carregar dados de fornecedores'
+    error.value = err.message || err.data?.mensagem || 'Erro ao carregar dados de fornecedores'
   } finally {
     isLoading.value = false
   }
@@ -168,8 +220,60 @@ const formatCNPJ = (cnpj: string): string => {
   return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
 }
 
-// Load data on mount
+const formatMonth = (dateString: string): string => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('pt-BR', { 
+    year: 'numeric', 
+    month: 'short' 
+  })
+}
+
+const formatLastUpdated = (date: Date): string => {
+  return date.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// Navigation function
+const navigateToSupplierDetails = (cnpj: string) => {
+  // TODO: Implement navigation to supplier details page
+  console.log('Navigate to supplier details:', cnpj)
+  // navigateTo(`/suppliers/${cnpj}`)
+}
+
+// Auto-refresh functionality
+const startAutoRefresh = () => {
+  if (autoRefreshEnabled.value && !autoRefreshInterval.value) {
+    autoRefreshInterval.value = setInterval(() => {
+      loadSuppliersData()
+    }, 300000) // Refresh every 5 minutes
+  }
+}
+
+const stopAutoRefresh = () => {
+  if (autoRefreshInterval.value) {
+    clearInterval(autoRefreshInterval.value)
+    autoRefreshInterval.value = null
+  }
+}
+
+// Watch for changes to reload data
+watch([selectedPeriod, suppliersLimit], () => {
+  loadSuppliersData()
+})
+
+// Load data on mount and start auto-refresh
 onMounted(() => {
   loadSuppliersData()
+  startAutoRefresh()
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+  stopAutoRefresh()
 })
 </script>

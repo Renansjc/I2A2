@@ -1,7 +1,6 @@
 import { ref, computed } from "vue";
 import type { DashboardStats, RecentActivity } from "~/types/dashboard";
 import { useApi } from "./useApi";
-import { useApi } from "./useApi";
 
 export const useDashboard = () => {
   // Reactive state
@@ -90,53 +89,57 @@ export const useDashboard = () => {
       error.value = null;
 
       // Use API composable for proper base URL
-      const { apiCall } = useApi()
+      const { apiCall } = useApi();
 
       // Load real data from dimensional APIs and activities
-      const [financialData, suppliersData, metricsData, activitiesData] = await Promise.allSettled([
-        apiCall('/api/v1/api/dashboard/financial-summary', {
-          query: { period: 'last_90_days' }
-        }),
-        apiCall('/api/v1/api/dashboard/suppliers', {
-          query: { period: 'last_90_days', limit: 5 }
-        }),
-        apiCall('/api/v1/api/dashboard/metrics', {
-          query: { period: 'last_90_days' }
-        }),
-        apiCall('/api/v1/api/activity/recent', {
-          query: { limit: 10, hours: 24 }
-        })
-      ]);
+      const [financialData, suppliersData, metricsData, activitiesData] =
+        await Promise.allSettled([
+          apiCall("/api/v1/api/dashboard/financial-summary", {
+            query: { period: "last_90_days" },
+          }),
+          apiCall("/api/v1/api/dashboard/suppliers", {
+            query: { period: "last_90_days", limit: 5 },
+          }),
+          apiCall("/api/v1/api/dashboard/metrics", {
+            query: { period: "last_90_days" },
+          }),
+          apiCall("/api/v1/api/activity/recent", {
+            query: { limit: 10, hours: 24 },
+          }),
+        ]);
 
       // Update stats with real data
-      if (financialData.status === 'fulfilled') {
+      if (financialData.status === "fulfilled") {
         const financial = financialData.value as any;
         stats.value.totalInvoices = financial.total_invoices || 0;
         stats.value.totalValue = Number(financial.total_value) || 0;
       }
 
-      if (suppliersData.status === 'fulfilled') {
+      if (suppliersData.status === "fulfilled") {
         const suppliers = suppliersData.value as any;
         stats.value.activeSuppliers = suppliers.total_suppliers || 0;
       }
 
-      if (metricsData.status === 'fulfilled') {
+      if (metricsData.status === "fulfilled") {
         const metrics = metricsData.value as any;
         // Calculate fiscal efficiency based on data quality and processing success
-        stats.value.fiscalEfficiency = (metrics.kpis?.confiabilidade_dados || 0.95) * 100;
+        stats.value.fiscalEfficiency =
+          (metrics.kpis?.confiabilidade_dados || 0.95) * 100;
       }
 
       // Update activities with real data
-      if (activitiesData.status === 'fulfilled') {
+      if (activitiesData.status === "fulfilled") {
         const activities = activitiesData.value as any;
         if (activities.activities && activities.activities.length > 0) {
-          recentActivities.value = activities.activities.map((activity: any) => ({
-            id: activity.id,
-            type: activity.type as RecentActivity['type'],
-            title: activity.title,
-            description: activity.description,
-            timestamp: new Date(activity.timestamp)
-          }));
+          recentActivities.value = activities.activities.map(
+            (activity: any) => ({
+              id: activity.id,
+              type: activity.type as RecentActivity["type"],
+              title: activity.title,
+              description: activity.description,
+              timestamp: new Date(activity.timestamp),
+            })
+          );
         } else {
           // Use mock activities if no real activities available
           recentActivities.value = [...mockActivities];
@@ -147,13 +150,17 @@ export const useDashboard = () => {
       }
 
       // If no real data available, fall back to mock data
-      if (stats.value.totalInvoices === 0 && stats.value.totalValue === 0 && stats.value.activeSuppliers === 0) {
+      if (
+        stats.value.totalInvoices === 0 &&
+        stats.value.totalValue === 0 &&
+        stats.value.activeSuppliers === 0
+      ) {
         stats.value = { ...mockStats };
       }
     } catch (err: any) {
       console.error("Dashboard data loading error:", err);
       error.value = err.data?.mensagem || "Erro ao carregar dados do dashboard";
-      
+
       // Fall back to mock data on error
       stats.value = { ...mockStats };
       recentActivities.value = [...mockActivities];
@@ -165,30 +172,38 @@ export const useDashboard = () => {
   const refreshStats = async () => {
     try {
       // Get real-time system status
-      const { apiCall } = useApi()
-      const systemStatus = await apiCall('/api/v1/api/activity/system-status');
-      
+      const { apiCall } = useApi();
+      const systemStatus = await apiCall("/api/v1/api/activity/system-status");
+
       if (systemStatus) {
         const status = systemStatus as any;
-        
+
         // Update stats with real system data
         if (status.processing_stats) {
-          stats.value.totalInvoices = status.processing_stats.total_documents || stats.value.totalInvoices;
-          stats.value.fiscalEfficiency = status.processing_stats.success_rate || stats.value.fiscalEfficiency;
+          stats.value.totalInvoices =
+            status.processing_stats.total_documents ||
+            stats.value.totalInvoices;
+          stats.value.fiscalEfficiency =
+            status.processing_stats.success_rate ||
+            stats.value.fiscalEfficiency;
         }
-        
+
         // Get latest financial data for value updates
-        const financialData = await apiCall('/api/v1/api/dashboard/financial-summary', {
-          query: { period: 'last_90_days' }
-        });
-        
+        const financialData = await apiCall(
+          "/api/v1/api/dashboard/financial-summary",
+          {
+            query: { period: "last_90_days" },
+          }
+        );
+
         if (financialData) {
           const financial = financialData as any;
-          stats.value.totalValue = Number(financial.total_value) || stats.value.totalValue;
+          stats.value.totalValue =
+            Number(financial.total_value) || stats.value.totalValue;
         }
       }
     } catch (err) {
-      console.warn('Error refreshing stats, using current values:', err);
+      console.warn("Error refreshing stats, using current values:", err);
       // Keep current values on error
     }
   };

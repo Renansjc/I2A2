@@ -1,7 +1,6 @@
 import { ref, computed } from "vue";
 import type { RecentActivity } from "~/types/dashboard";
 import { useApi } from "./useApi";
-import { useApi } from "./useApi";
 
 export interface SystemStatus {
   system_health: {

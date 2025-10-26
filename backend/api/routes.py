@@ -690,6 +690,7 @@ async def _processar_xml_background(
             document_id, "error", str(e)
         )
 
+
 async def _extract_basic_metadata(xml_content: str, document_type: str) -> Optional[Dict[str, Any]]:
     """Extract basic metadata from XML content for immediate response"""
     try:
@@ -988,7 +989,7 @@ async def list_documents(
         from utils.database import FileUploadManager
         
         # Use temporary user ID until proper auth is implemented
-        user_id = current_user or "00000000-0000-0000-0000-000000000000"
+        user_id = None  # Use None for development with admin mode
         
         # Validate parameters
         if limit > 1000:
@@ -1001,7 +1002,8 @@ async def list_documents(
             user_id=user_id,
             skip=skip,
             limit=limit + 1,  # Get one extra to check if there's a next page
-            status_filter=status_filter
+            status_filter=status_filter,
+            admin_mode=True  # Use admin mode for development
         )
         
         # Check if there's a next page
@@ -1059,10 +1061,10 @@ async def get_document_details(
         from utils.database import FileUploadManager
         
         # Use temporary user ID until proper auth is implemented
-        user_id = current_user or "00000000-0000-0000-0000-000000000000"
+        user_id = None  # Use None for development with admin mode
         
         # Get document from database
-        document = await FileUploadManager.get_document_by_id(document_id, user_id)
+        document = await FileUploadManager.get_document_by_id(document_id, user_id, admin_mode=True)
         
         if not document:
             raise HTTPException(
@@ -1115,6 +1117,7 @@ async def get_document_details(
             ).dict()
         )
 
+
 @router.get("/api/documents/{document_id}/status", response_model=DocumentStatusResponse)
 async def get_document_processing_status(
     document_id: str,
@@ -1125,10 +1128,10 @@ async def get_document_processing_status(
         from utils.database import FileUploadManager, ProcessingStatusManager
         
         # Use temporary user ID until proper auth is implemented
-        user_id = current_user or "00000000-0000-0000-0000-000000000000"
+        user_id = None  # Use None for development with admin mode
         
-        # Verify document exists and belongs to user
-        document = await FileUploadManager.get_document_by_id(document_id, user_id)
+        # Verify document exists (use admin mode for development)
+        document = await FileUploadManager.get_document_by_id(document_id, user_id, admin_mode=True)
         if not document:
             raise HTTPException(
                 status_code=404,
@@ -1141,7 +1144,7 @@ async def get_document_processing_status(
             )
         
         # Get agent processing statuses
-        agent_statuses_data = await ProcessingStatusManager.get_document_processing_status(document_id)
+        agent_statuses_data = await ProcessingStatusManager.get_document_processing_status(document_id, admin_mode=True)
         agent_statuses = []
         for status_data in agent_statuses_data:
             agent_statuses.append(AgentStatus(
@@ -1154,7 +1157,7 @@ async def get_document_processing_status(
             ))
         
         # Get processing results
-        results_data = await ProcessingStatusManager.get_processing_results(document_id)
+        results_data = await ProcessingStatusManager.get_processing_results(document_id, admin_mode=True)
         processing_results = []
         for result_data in results_data:
             processing_results.append(ProcessingResult(
@@ -1266,7 +1269,28 @@ async def upload_arquivo_xml(
             document_type = "NFSE"
         
         # Use temporary user ID until proper auth is implemented
-        user_id = current_user or "00000000-0000-0000-0000-000000000000"
+        # Use a fixed system user ID for development (this user should exist in auth.users)
+        user_id = "11111111-1111-1111-1111-111111111111"
+        
+        # Check if file already exists (duplicate detection)
+        existing_file = await FileUploadManager.check_file_exists(conteudo_xml, admin_mode=True)
+        if existing_file:
+            logger.info(
+                "Duplicate file detected",
+                filename=arquivo.filename,
+                existing_document_id=existing_file.get('document_id'),
+                existing_filename=existing_file.get('original_filename')
+            )
+            raise HTTPException(
+                status_code=409,  # Conflict
+                detail=ErrorResponse(
+                    codigo_erro="ARQUIVO_DUPLICADO",
+                    mensagem="Arquivo já existe na fila de processamento",
+                    detalhes=f"O arquivo '{arquivo.filename}' já foi enviado anteriormente como '{existing_file.get('original_filename')}'",
+                    sugestao_solucao="Verifique a lista de documentos ou aguarde o processamento do arquivo existente",
+                    timestamp=datetime.now().isoformat()
+                ).dict()
+            )
         
         logger.info(
             "Starting XML file upload process",
@@ -1282,7 +1306,8 @@ async def upload_arquivo_xml(
             filename=arquivo.filename,
             file_size=file_size,
             document_type=document_type,
-            xml_content=conteudo_xml
+            xml_content=conteudo_xml,
+            admin_mode=True  # Use admin mode to bypass RLS for uploads
         )
         
         # Create file metadata record
@@ -1290,7 +1315,8 @@ async def upload_arquivo_xml(
             document_id=document_id,
             original_filename=arquivo.filename,
             mime_type="application/xml",
-            xml_content=conteudo_xml
+            xml_content=conteudo_xml,
+            admin_mode=True  # Use admin mode to bypass RLS
         )
         
         # Upload file to Supabase Storage
@@ -1320,10 +1346,10 @@ async def upload_arquivo_xml(
             "sql_agent",
             "report_agent"
         ]
-        await ProcessingStatusManager.initialize_agent_statuses(document_id, agent_names)
+        await ProcessingStatusManager.initialize_agent_statuses(document_id, agent_names, admin_mode=True)
         
         # Update document status to processing
-        await FileUploadManager.update_processing_status(document_id, "processing")
+        await FileUploadManager.update_processing_status(document_id, "processing", admin_mode=True)
         
         # Start background processing
         background_tasks.add_task(
@@ -1339,7 +1365,7 @@ async def upload_arquivo_xml(
         
         # Create document metadata record
         if metadata:
-            await FileUploadManager.create_document_metadata(document_id, metadata)
+            await FileUploadManager.create_document_metadata(document_id, metadata, admin_mode=True)
         
         # Return immediate response
         response_data = {
@@ -1390,19 +1416,24 @@ async def upload_arquivo_xml(
                 codigo_erro="ERRO_UPLOAD_XML",
                 mensagem="Erro ao fazer upload do arquivo XML",
                 detalhes=str(e),
-                sugestao_solucao="Verifique se o arquivo não está corrompido e tente novamente"
+                sugestao_solucao="Verifique se o arquivo não está corrompido e tente novamente",
+                timestamp=datetime.now().isoformat()
             ).dict()
         )
 
-# Include dimensional routers in main router (using mock for now)
-# router.include_router(dimensional_router)
-# router.include_router(query_router)
+# Include real dimensional routers
+router.include_router(dimensional_router)
+router.include_router(query_router)
 
-# Include mock dimensional routers for testing
-from .mock_dimensional_routes import mock_dimensional_router, mock_activity_router
-router.include_router(mock_dimensional_router)
-router.include_router(mock_activity_router)
+# Include mock dimensional routers for testing (commented out - using real data now)
+# from .mock_dimensional_routes import mock_dimensional_router, mock_activity_router
+# router.include_router(mock_dimensional_router)
+# router.include_router(mock_activity_router)
 
-# Include activity router
+# Include activity router (using mock for now due to datetime serialization issues)
 # from .activity_routes import activity_router
 # router.include_router(activity_router)
+
+# Include mock activity router temporarily
+from .mock_dimensional_routes import mock_activity_router
+router.include_router(mock_activity_router)

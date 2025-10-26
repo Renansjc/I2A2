@@ -8,10 +8,9 @@
           </svg>
           Análise de Tendências
         </h3>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
           <select 
-            v-model="selectedTrendType" 
-            @change="loadTrendsData"
+            v-model="selectedTrendType"
             class="select select-sm select-bordered"
           >
             <option value="volume">Volume de Documentos</option>
@@ -19,14 +18,29 @@
             <option value="fornecedores">Fornecedores Ativos</option>
           </select>
           <select 
-            v-model="selectedPeriod" 
-            @change="loadTrendsData"
+            v-model="selectedPeriod"
             class="select select-sm select-bordered"
           >
             <option value="last_6_months">Últimos 6 meses</option>
             <option value="last_12_months">Últimos 12 meses</option>
             <option value="current_year">Ano atual</option>
+            <option value="last_24_months">Últimos 24 meses</option>
           </select>
+          <div class="tooltip" data-tip="Mostrar projeções">
+            <input 
+              type="checkbox" 
+              v-model="showProjections"
+              class="toggle toggle-sm toggle-secondary"
+            />
+          </div>
+          <div class="tooltip" data-tip="Atualização automática">
+            <input 
+              type="checkbox" 
+              v-model="autoRefreshEnabled"
+              @change="autoRefreshEnabled ? startAutoRefresh() : stopAutoRefresh()"
+              class="toggle toggle-sm toggle-primary"
+            />
+          </div>
           <button 
             @click="loadTrendsData" 
             class="btn btn-sm btn-ghost"
@@ -99,13 +113,71 @@
                   </td>
                   <td>
                     <span 
-                      v-if="index > 0" 
-                      :class="getVariationClass(calculateVariation(trendsData.trend_data[index - 1].valor, point.valor))"
+                      v-if="index > 0 && trendsData?.trend_data" 
+                      :class="getVariationClass(calculateVariation(trendsData.trend_data[index - 1]?.valor || 0, point.valor))"
                       class="badge badge-sm"
                     >
-                      {{ formatVariation(calculateVariation(trendsData.trend_data[index - 1].valor, point.valor)) }}
+                      {{ formatVariation(calculateVariation(trendsData.trend_data[index - 1]?.valor || 0, point.valor)) }}
                     </span>
                     <span v-else class="text-xs opacity-50">-</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Seasonality Analysis -->
+        <div v-if="seasonalityData.length > 0">
+          <h4 class="font-semibold mb-3">Análise de Sazonalidade</h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div 
+              v-for="season in seasonalityData" 
+              :key="season.period"
+              class="stat bg-base-100 rounded-lg shadow-sm"
+            >
+              <div class="stat-title text-xs">{{ season.period }}</div>
+              <div class="stat-value text-sm" :class="getSeasonalityClass(season.variation)">
+                {{ season.variation >= 0 ? '+' : '' }}{{ season.variation.toFixed(1) }}%
+              </div>
+              <div class="stat-desc text-xs">{{ season.description }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projections -->
+        <div v-if="showProjections && projectionData.length > 0">
+          <h4 class="font-semibold mb-3">Projeções Baseadas em Dados Históricos</h4>
+          <div class="overflow-x-auto">
+            <table class="table table-sm bg-base-100">
+              <thead>
+                <tr>
+                  <th>Período Projetado</th>
+                  <th>Valor Estimado</th>
+                  <th>Confiança</th>
+                  <th>Tendência</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="projection in projectionData" :key="projection.periodo">
+                  <td>{{ formatMonth(projection.periodo) }}</td>
+                  <td>
+                    <span v-if="selectedTrendType === 'valor'">
+                      {{ formatCurrency(projection.valor_estimado) }}
+                    </span>
+                    <span v-else>
+                      {{ formatNumber(projection.valor_estimado) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="badge badge-sm" :class="getConfidenceClass(projection.confianca)">
+                      {{ (projection.confianca * 100).toFixed(0) }}%
+                    </div>
+                  </td>
+                  <td>
+                    <div class="badge badge-sm" :class="getTrendClass(projection.tendencia)">
+                      {{ projection.tendencia }}
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -141,8 +213,18 @@
             <div class="stat-value text-sm">{{ trendsData.trend_data?.length || 0 }}</div>
           </div>
           <div class="stat">
+            <div class="stat-title text-xs">Taxa de Crescimento</div>
+            <div class="stat-value text-sm" :class="getGrowthClass(trendsData.growth_rate)">
+              {{ trendsData.growth_rate >= 0 ? '+' : '' }}{{ trendsData.growth_rate.toFixed(1) }}%
+            </div>
+          </div>
+          <div class="stat">
             <div class="stat-title text-xs">Período</div>
             <div class="stat-desc text-xs">{{ trendsData.periodo_analise }}</div>
+          </div>
+          <div v-if="lastUpdated" class="stat">
+            <div class="stat-title text-xs">Última Atualização</div>
+            <div class="stat-desc text-xs">{{ formatLastUpdated(lastUpdated) }}</div>
           </div>
         </div>
       </div>
@@ -180,6 +262,10 @@ const error = ref<string | null>(null)
 const trendsData = ref<TrendsResponse | null>(null)
 const selectedPeriod = ref('last_12_months')
 const selectedTrendType = ref('volume')
+const lastUpdated = ref<Date | null>(null)
+const autoRefreshEnabled = ref(true)
+const autoRefreshInterval = ref<NodeJS.Timeout | null>(null)
+const showProjections = ref(false)
 
 // Load trends data from API
 const loadTrendsData = async () => {
@@ -187,17 +273,22 @@ const loadTrendsData = async () => {
     isLoading.value = true
     error.value = null
 
-    const data = await $fetch<TrendsResponse>('/api/v1/api/dashboard/trends', {
+    const { apiCall } = useApi()
+    const data = await apiCall<TrendsResponse>('/api/v1/api/dashboard/trends', {
       query: {
         period: selectedPeriod.value,
         trend_type: selectedTrendType.value
-      }
+      },
+      cache: true,
+      cacheTTL: 600000, // 10 minutes cache for trends
+      retry: 3
     })
 
-    trendsData.value = data as TrendsResponse
+    trendsData.value = data
+    lastUpdated.value = new Date()
   } catch (err: any) {
     console.error('Error loading trends data:', err)
-    error.value = err.data?.mensagem || 'Erro ao carregar dados de tendências'
+    error.value = err.message || err.data?.mensagem || 'Erro ao carregar dados de tendências'
   } finally {
     isLoading.value = false
   }
@@ -257,8 +348,125 @@ const getTrendTypeLabel = (trendType: string): string => {
   return labels[trendType] || trendType
 }
 
-// Load data on mount
+const formatLastUpdated = (date: Date): string => {
+  return date.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+const getGrowthClass = (growthRate: number): string => {
+  if (growthRate > 10) return 'text-success'
+  if (growthRate > 0) return 'text-info'
+  if (growthRate > -10) return 'text-warning'
+  return 'text-error'
+}
+
+const getSeasonalityClass = (variation: number): string => {
+  if (variation > 15) return 'text-success'
+  if (variation > 0) return 'text-info'
+  if (variation > -15) return 'text-warning'
+  return 'text-error'
+}
+
+const getConfidenceClass = (confidence: number): string => {
+  if (confidence > 0.8) return 'badge-success'
+  if (confidence > 0.6) return 'badge-warning'
+  return 'badge-error'
+}
+
+const getTrendClass = (trend: string): string => {
+  if (trend === 'crescimento') return 'badge-success'
+  if (trend === 'estável') return 'badge-info'
+  return 'badge-warning'
+}
+
+// Computed properties for seasonality and projections
+const seasonalityData = computed(() => {
+  if (!trendsData.value?.trend_data || trendsData.value.trend_data.length < 4) return []
+  
+  // Simple seasonality analysis based on quarterly data
+  const quarters = ['Q1', 'Q2', 'Q3', 'Q4']
+  const trendData = trendsData.value.trend_data
+  const quarterlyData = quarters.map((quarter, index) => {
+    const quarterPoints = trendData.filter((_, i) => i % 4 === index)
+    const average = quarterPoints.reduce((sum, point) => sum + point.valor, 0) / quarterPoints.length
+    const overallAverage = trendData.reduce((sum, point) => sum + point.valor, 0) / trendData.length
+    const variation = ((average - overallAverage) / overallAverage) * 100
+    
+    return {
+      period: quarter,
+      variation,
+      description: variation > 0 ? 'Acima da média' : 'Abaixo da média'
+    }
+  })
+  
+  return quarterlyData
+})
+
+const projectionData = computed(() => {
+  if (!showProjections.value || !trendsData.value?.trend_data || trendsData.value.trend_data.length < 3) return []
+  
+  // Simple linear projection for next 3 months
+  const data = trendsData.value.trend_data
+  const lastThreePoints = data.slice(-3)
+  
+  if (lastThreePoints.length < 3) return []
+  
+  const trend = ((lastThreePoints[2]?.valor || 0) - (lastThreePoints[0]?.valor || 0)) / 2
+  const lastPoint = data[data.length - 1]
+  
+  if (!lastPoint) return []
+  
+  const projections = []
+  for (let i = 1; i <= 3; i++) {
+    const lastDate = new Date(lastPoint.periodo)
+    const projectionDate = new Date(lastDate.getFullYear(), lastDate.getMonth() + i, 1)
+    const projectedValue = lastPoint.valor + (trend * i)
+    
+    projections.push({
+      periodo: projectionDate.toISOString(),
+      valor_estimado: Math.max(0, projectedValue),
+      confianca: Math.max(0.3, 0.9 - (i * 0.2)), // Decreasing confidence
+      tendencia: trend > 0 ? 'crescimento' : trend < 0 ? 'declínio' : 'estável'
+    })
+  }
+  
+  return projections
+})
+
+// Auto-refresh functionality
+const startAutoRefresh = () => {
+  if (autoRefreshEnabled.value && !autoRefreshInterval.value) {
+    autoRefreshInterval.value = setInterval(() => {
+      loadTrendsData()
+    }, 600000) // Refresh every 10 minutes
+  }
+}
+
+const stopAutoRefresh = () => {
+  if (autoRefreshInterval.value) {
+    clearInterval(autoRefreshInterval.value)
+    autoRefreshInterval.value = null
+  }
+}
+
+// Watch for changes to reload data
+watch([selectedPeriod, selectedTrendType], () => {
+  loadTrendsData()
+})
+
+// Load data on mount and start auto-refresh
 onMounted(() => {
   loadTrendsData()
+  startAutoRefresh()
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+  stopAutoRefresh()
 })
 </script>

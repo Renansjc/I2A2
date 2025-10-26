@@ -8,10 +8,15 @@
           </svg>
           Análise de Produtos
         </h3>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+          <input 
+            v-model="searchQuery"
+            type="text"
+            placeholder="Buscar produtos..."
+            class="input input-sm input-bordered"
+          />
           <select 
-            v-model="selectedCategory" 
-            @change="loadProductsData"
+            v-model="selectedCategory"
             class="select select-sm select-bordered"
           >
             <option value="">Todas as categorias</option>
@@ -20,8 +25,7 @@
             </option>
           </select>
           <select 
-            v-model="selectedPeriod" 
-            @change="loadProductsData"
+            v-model="selectedPeriod"
             class="select select-sm select-bordered"
           >
             <option value="last_30_days">Últimos 30 dias</option>
@@ -29,6 +33,22 @@
             <option value="last_6_months">Últimos 6 meses</option>
             <option value="last_12_months">Últimos 12 meses</option>
           </select>
+          <select 
+            v-model="productsLimit"
+            class="select select-sm select-bordered"
+          >
+            <option :value="10">Top 10</option>
+            <option :value="20">Top 20</option>
+            <option :value="50">Top 50</option>
+          </select>
+          <div class="tooltip" data-tip="Atualização automática">
+            <input 
+              type="checkbox" 
+              v-model="autoRefreshEnabled"
+              @change="autoRefreshEnabled ? startAutoRefresh() : stopAutoRefresh()"
+              class="toggle toggle-sm toggle-primary"
+            />
+          </div>
           <button 
             @click="loadProductsData" 
             class="btn btn-sm btn-ghost"
@@ -82,9 +102,10 @@
           <h4 class="font-semibold mb-3">Top Produtos por Valor</h4>
           <div class="space-y-2">
             <div 
-              v-for="(product, index) in productsData.top_products_by_value" 
+              v-for="(product, index) in filteredProducts" 
               :key="product.codigo_produto"
-              class="flex items-center justify-between p-3 bg-base-100 rounded-lg hover:bg-base-300 transition-colors"
+              class="flex items-center justify-between p-3 bg-base-100 rounded-lg hover:bg-base-300 transition-colors cursor-pointer"
+              @click="navigateToProductDetails(product.codigo_produto)"
             >
               <div class="flex items-center gap-3">
                 <div class="avatar placeholder">
@@ -125,8 +146,16 @@
             <div class="stat-value text-lg">{{ Object.keys(productsData.categories_distribution).length }}</div>
           </div>
           <div class="stat">
+            <div class="stat-title text-xs">Exibindo</div>
+            <div class="stat-value text-lg">{{ filteredProducts.length }}</div>
+          </div>
+          <div class="stat">
             <div class="stat-title text-xs">Período</div>
             <div class="stat-desc text-xs">{{ productsData.periodo_analise }}</div>
+          </div>
+          <div v-if="lastUpdated" class="stat">
+            <div class="stat-title text-xs">Última Atualização</div>
+            <div class="stat-desc text-xs">{{ formatLastUpdated(lastUpdated) }}</div>
           </div>
         </div>
       </div>
@@ -176,6 +205,11 @@ const productsData = ref<ProductsResponse | null>(null)
 const selectedPeriod = ref('last_90_days')
 const selectedCategory = ref('')
 const availableCategories = ref<string[]>([])
+const productsLimit = ref(10)
+const lastUpdated = ref<Date | null>(null)
+const autoRefreshEnabled = ref(true)
+const autoRefreshInterval = ref<NodeJS.Timeout | null>(null)
+const searchQuery = ref('')
 
 // Load products data from API
 const loadProductsData = async () => {
@@ -185,26 +219,31 @@ const loadProductsData = async () => {
 
     const query: any = {
       period: selectedPeriod.value,
-      limit: 10
+      limit: productsLimit.value
     }
 
     if (selectedCategory.value) {
       query.category = selectedCategory.value
     }
 
-    const data = await $fetch<ProductsResponse>('/api/v1/api/dashboard/products', {
-      query
+    const { apiCall } = useApi()
+    const data = await apiCall<ProductsResponse>('/api/v1/api/dashboard/products', {
+      query,
+      cache: true,
+      cacheTTL: 300000, // 5 minutes cache
+      retry: 3
     })
 
-    productsData.value = data as ProductsResponse
+    productsData.value = data
+    lastUpdated.value = new Date()
     
     // Update available categories
-    if ((data as ProductsResponse).categories_distribution) {
-      availableCategories.value = Object.keys((data as ProductsResponse).categories_distribution)
+    if (data.categories_distribution) {
+      availableCategories.value = Object.keys(data.categories_distribution)
     }
   } catch (err: any) {
     console.error('Error loading products data:', err)
-    error.value = err.data?.mensagem || 'Erro ao carregar dados de produtos'
+    error.value = err.message || err.data?.mensagem || 'Erro ao carregar dados de produtos'
   } finally {
     isLoading.value = false
   }
@@ -227,8 +266,74 @@ const formatQuantity = (value: number): string => {
   }).format(value)
 }
 
-// Load data on mount
+const formatLastUpdated = (date: Date): string => {
+  return date.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// Navigation function
+const navigateToProductDetails = (productCode: string) => {
+  // TODO: Implement navigation to product details page
+  console.log('Navigate to product details:', productCode)
+  // navigateTo(`/products/${productCode}`)
+}
+
+// Computed property for filtered products
+const filteredProducts = computed(() => {
+  if (!productsData.value?.top_products_by_value) return []
+  
+  let products = productsData.value.top_products_by_value
+  
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    products = products.filter(product => 
+      product.descricao.toLowerCase().includes(query) ||
+      product.codigo_produto.toLowerCase().includes(query) ||
+      product.categoria?.toLowerCase().includes(query) ||
+      product.ncm?.includes(query)
+    )
+  }
+  
+  return products
+})
+
+// Auto-refresh functionality
+const startAutoRefresh = () => {
+  if (autoRefreshEnabled.value && !autoRefreshInterval.value) {
+    autoRefreshInterval.value = setInterval(() => {
+      loadProductsData()
+    }, 300000) // Refresh every 5 minutes
+  }
+}
+
+const stopAutoRefresh = () => {
+  if (autoRefreshInterval.value) {
+    clearInterval(autoRefreshInterval.value)
+    autoRefreshInterval.value = null
+  }
+}
+
+// Watch for changes to reload data
+watch([selectedPeriod, selectedCategory, productsLimit], () => {
+  loadProductsData()
+})
+
+// Search is handled by computed property, no debouncing needed
+// The computed property automatically updates when searchQuery changes
+
+// Load data on mount and start auto-refresh
 onMounted(() => {
   loadProductsData()
+  startAutoRefresh()
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+  stopAutoRefresh()
 })
 </script>

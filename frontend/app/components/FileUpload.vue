@@ -41,7 +41,7 @@
           <button
             class="btn btn-primary"
             :disabled="isUploading"
-            @click="$refs.fileInput?.click()"
+            @click="($refs.fileInput as HTMLInputElement)?.click()"
           >
             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M8 4a3 3 0 00-6 0v4a5 5 0 0010 0V4a3 3 0 00-6 0v4a1 1 0 102 0V4a1 1 0 10-2 0v4a3 3 0 106 0V4a5 5 0 00-10 0z" clip-rule="evenodd"></path>
@@ -99,15 +99,47 @@
           </div>
           
           <div class="flex items-center space-x-3">
+            <!-- Validation Status -->
+            <div
+              v-if="file.status === 'validating'"
+              class="flex items-center space-x-2 text-info"
+            >
+              <span class="loading loading-spinner loading-sm"></span>
+              <span class="text-sm">Validando XML...</span>
+            </div>
+
             <!-- Upload Progress -->
             <div
-              v-if="file.status === 'uploading'"
+              v-else-if="file.status === 'uploading'"
               class="flex items-center space-x-2"
             >
               <div class="radial-progress text-primary" :style="`--value:${file.progress}`" role="progressbar">
                 <span class="text-xs">{{ file.progress }}%</span>
               </div>
               <span class="text-sm text-base-content/70">{{ file.currentStep || 'Enviando...' }}</span>
+              <button
+                class="btn btn-ghost btn-xs text-error"
+                @click="cancelUpload(file)"
+                title="Cancelar upload"
+              >
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Cancelled Status -->
+            <div
+              v-else-if="file.status === 'cancelled'"
+              class="flex items-center space-x-2 text-warning"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+              </svg>
+              <div class="text-right">
+                <div class="text-sm font-medium">Cancelado</div>
+                <div class="text-xs text-base-content/50">Upload interrompido</div>
+              </div>
             </div>
             
             <!-- Completed Status -->
@@ -140,16 +172,45 @@
               </div>
             </div>
             
-            <!-- Remove Button -->
-            <button
-              class="btn btn-ghost btn-sm"
-              :disabled="file.status === 'uploading'"
-              @click="removeFile(index)"
-            >
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-              </svg>
-            </button>
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-1">
+              <!-- Preview Button -->
+              <button
+                v-if="file.status !== 'uploading'"
+                class="btn btn-ghost btn-xs"
+                @click="previewFile(file)"
+                title="Visualizar conteúdo"
+              >
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                  <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                </svg>
+              </button>
+
+              <!-- Validate Button -->
+              <button
+                v-if="file.status === 'pending'"
+                class="btn btn-ghost btn-xs"
+                @click="validateSingleFile(file)"
+                title="Validar XML"
+              >
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+              </button>
+
+              <!-- Remove Button -->
+              <button
+                class="btn btn-ghost btn-xs text-error"
+                :disabled="file.status === 'uploading'"
+                @click="removeFile(index)"
+                title="Remover arquivo"
+              >
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -263,11 +324,87 @@
         </svg>
       </button>
     </div>
+
+    <!-- File Preview Modal -->
+    <div v-if="previewModal.show" class="modal modal-open">
+      <div class="modal-box w-11/12 max-w-5xl">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-lg">Preview: {{ previewModal.filename }}</h3>
+          <button class="btn btn-sm btn-circle btn-ghost" @click="closePreview">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- File Info -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div class="stat bg-base-200 rounded">
+            <div class="stat-title">Tamanho</div>
+            <div class="stat-value text-sm">{{ formatFileSize(previewModal.size || 0) }}</div>
+          </div>
+          <div class="stat bg-base-200 rounded">
+            <div class="stat-title">Tipo</div>
+            <div class="stat-value text-sm">{{ previewModal.documentType || 'XML' }}</div>
+          </div>
+          <div class="stat bg-base-200 rounded">
+            <div class="stat-title">Status</div>
+            <div class="stat-value text-sm capitalize">{{ previewModal.status }}</div>
+          </div>
+        </div>
+
+        <!-- Validation Results -->
+        <div v-if="previewModal.validationResult" class="mb-4">
+          <div class="alert" :class="{
+            'alert-success': previewModal.validationResult.isValid && previewModal.validationResult.errors.length === 0,
+            'alert-warning': previewModal.validationResult.isValid && previewModal.validationResult.warnings.length > 0,
+            'alert-error': !previewModal.validationResult.isValid || previewModal.validationResult.errors.length > 0
+          }">
+            <div>
+              <h4 class="font-semibold">Resultado da Validação</h4>
+              <p class="text-sm">
+                {{ previewModal.validationResult.isValid ? 'XML válido' : 'XML com problemas' }}
+                - Tipo: {{ previewModal.validationResult.documentType }}
+              </p>
+              <div v-if="previewModal.validationResult.warnings.length > 0" class="mt-2">
+                <p class="text-sm font-medium">Avisos:</p>
+                <ul class="text-xs list-disc list-inside">
+                  <li v-for="warning in previewModal.validationResult.warnings" :key="warning">{{ warning }}</li>
+                </ul>
+              </div>
+              <div v-if="previewModal.validationResult.errors.length > 0" class="mt-2">
+                <p class="text-sm font-medium">Erros:</p>
+                <ul class="text-xs list-disc list-inside">
+                  <li v-for="error in previewModal.validationResult.errors" :key="error">{{ error }}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- XML Content Preview -->
+        <div class="bg-base-200 rounded p-4 max-h-96 overflow-auto">
+          <pre class="text-xs whitespace-pre-wrap break-words">{{ previewModal.content || 'Carregando...' }}</pre>
+        </div>
+
+        <div class="modal-action">
+          <button class="btn btn-ghost" @click="closePreview">Fechar</button>
+          <button 
+            v-if="previewModal.file && previewModal.file.status === 'pending'"
+            class="btn btn-primary"
+            @click="validateSingleFile(previewModal.file); closePreview()"
+          >
+            Validar XML
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useApi } from '~/composables/useApi'
 
 interface FileMetadata {
   nome_emitente?: string
@@ -283,12 +420,20 @@ interface FileItem {
   name: string
   size: number
   file: File
-  status: 'pending' | 'uploading' | 'completed' | 'error'
+  status: 'pending' | 'uploading' | 'completed' | 'error' | 'validating' | 'cancelled'
   progress: number
   documentId?: string
   currentStep?: string
   errorMessage?: string
   metadata?: FileMetadata
+  uploadController?: AbortController
+  previewData?: string
+  validationResult?: {
+    isValid: boolean
+    documentType: string
+    warnings: string[]
+    errors: string[]
+  }
 }
 
 interface UploadResult {
@@ -321,9 +466,20 @@ const uploadResults = ref<UploadResult[]>([])
 const errorMessage = ref<string>('')
 const hasError = ref(false)
 
-// Runtime config for API base URL
-const config = useRuntimeConfig()
-const apiBaseUrl = config.public.apiBaseUrl || 'http://localhost:8000'
+// Preview modal state
+const previewModal = ref({
+  show: false,
+  filename: '',
+  content: '',
+  size: 0,
+  status: '',
+  documentType: '',
+  validationResult: null as FileItem['validationResult'] | null,
+  file: null as FileItem | null
+})
+
+// Use API composable for consistent configuration
+const { apiBaseUrl } = useApi()
 
 // Computed properties
 const totalFileSize = computed(() => {
@@ -408,18 +564,24 @@ const addFiles = (newFiles: File[]) => {
     }
   })
   
-  // Auto-validate new files
+  // Auto-validate new files individually
   if (xmlFiles.length > 0) {
-    setTimeout(() => validateFiles(), 100)
+    setTimeout(async () => {
+      for (const file of files.value.filter(f => f.status === 'pending')) {
+        await validateSingleFile(file)
+      }
+    }, 100)
   }
 }
 
 // Remove file from list
 const removeFile = (index: number) => {
   const file = files.value[index]
+  if (!file) return
+  
   if (file.status === 'uploading') {
-    // TODO: Cancel upload if possible
-    return
+    // Cancel upload if in progress
+    cancelUpload(file)
   }
   files.value.splice(index, 1)
 }
@@ -455,74 +617,152 @@ const generateFileId = (): string => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
 
-// Validate XML files
+// Validate single file
+const validateSingleFile = async (fileItem: FileItem) => {
+  fileItem.status = 'validating'
+  
+  try {
+    const text = await fileItem.file.text()
+    
+    const validationResult = {
+      isValid: true,
+      documentType: 'XML',
+      warnings: [] as string[],
+      errors: [] as string[]
+    }
+    
+    // Basic XML validation
+    if (!text.includes('<?xml') || !text.includes('<')) {
+      validationResult.isValid = false
+      validationResult.errors.push('Formato XML inválido - não é um arquivo XML válido')
+      fileItem.validationResult = validationResult
+      fileItem.status = 'error'
+      return
+    }
+    
+    // Check for NF-e or NFS-e indicators
+    const isNFe = text.includes('NFe') || text.includes('nfeProc') || text.includes('infNFe')
+    const isNFSe = text.includes('NFSe') || text.includes('nfse') || text.includes('RPS')
+    
+    // Extract basic metadata for preview
+    const metadata: FileMetadata = {}
+    
+    if (isNFe) {
+      validationResult.documentType = 'NF-e'
+      
+      // Try to extract basic NF-e info
+      const emitMatch = text.match(/<xNome[^>]*>([^<]+)<\/xNome>/)
+      if (emitMatch) metadata.nome_emitente = emitMatch[1]
+      
+      const cnpjMatch = text.match(/<CNPJ[^>]*>([^<]+)<\/CNPJ>/)
+      if (cnpjMatch) metadata.cnpj_emitente = cnpjMatch[1]
+      
+      const valorMatch = text.match(/<vNF[^>]*>([^<]+)<\/vNF>/)
+      if (valorMatch && valorMatch[1]) metadata.valor_total = parseFloat(valorMatch[1])
+      
+      metadata.document_type = 'NFE'
+      
+      // Additional NF-e validations
+      if (!text.includes('<infNFe')) {
+        validationResult.warnings.push('Estrutura NF-e pode estar incompleta')
+      }
+      
+    } else if (isNFSe) {
+      validationResult.documentType = 'NFS-e'
+      metadata.document_type = 'NFSE'
+      metadata.nome_emitente = 'Prestador de Serviços'
+      
+      // Additional NFS-e validations
+      if (!text.includes('<InfNfse') && !text.includes('<InfRps')) {
+        validationResult.warnings.push('Estrutura NFS-e pode estar incompleta')
+      }
+      
+    } else {
+      validationResult.documentType = 'XML Genérico'
+      validationResult.warnings.push('Formato XML não reconhecido como NF-e ou NFS-e')
+    }
+    
+    // Check file size
+    if (fileItem.size > 5 * 1024 * 1024) { // 5MB
+      validationResult.warnings.push('Arquivo muito grande - pode demorar para processar')
+    }
+    
+    // Update file with metadata and validation
+    fileItem.metadata = metadata
+    fileItem.validationResult = validationResult
+    fileItem.status = 'pending'
+    
+  } catch (error) {
+    fileItem.validationResult = {
+      isValid: false,
+      documentType: 'Erro',
+      warnings: [],
+      errors: ['Falha ao ler arquivo - arquivo pode estar corrompido']
+    }
+    fileItem.status = 'error'
+  }
+}
+
+// Validate all XML files
 const validateFiles = async () => {
   clearError()
   uploadResults.value = []
   
-  for (const fileItem of files.value) {
-    try {
-      const text = await fileItem.file.text()
-      
-      // Basic XML validation
-      if (!text.includes('<?xml') || !text.includes('<')) {
-        uploadResults.value.push({
-          filename: fileItem.name,
-          status: 'error',
-          message: 'Formato XML inválido - não é um arquivo XML válido'
-        })
-        continue
-      }
-      
-      // Check for NF-e or NFS-e indicators
-      const isNFe = text.includes('NFe') || text.includes('nfeProc') || text.includes('infNFe')
-      const isNFSe = text.includes('NFSe') || text.includes('nfse') || text.includes('RPS')
-      
-      // Extract basic metadata for preview
-      const metadata: FileMetadata = {}
-      
-      if (isNFe) {
-        // Try to extract basic NF-e info
-        const emitMatch = text.match(/<xNome[^>]*>([^<]+)<\/xNome>/)
-        if (emitMatch) metadata.nome_emitente = emitMatch[1]
-        
-        const cnpjMatch = text.match(/<CNPJ[^>]*>([^<]+)<\/CNPJ>/)
-        if (cnpjMatch) metadata.cnpj_emitente = cnpjMatch[1]
-        
-        const valorMatch = text.match(/<vNF[^>]*>([^<]+)<\/vNF>/)
-        if (valorMatch) metadata.valor_total = parseFloat(valorMatch[1])
-        
-        metadata.document_type = 'NFE'
-      } else if (isNFSe) {
-        metadata.document_type = 'NFSE'
-        metadata.nome_emitente = 'Prestador de Serviços'
-      }
-      
-      // Update file with metadata
-      fileItem.metadata = metadata
-      
-      if (!isNFe && !isNFSe) {
-        uploadResults.value.push({
-          filename: fileItem.name,
-          status: 'warning',
-          message: 'Formato XML não reconhecido como NF-e ou NFS-e, mas será processado'
-        })
-      } else {
-        uploadResults.value.push({
-          filename: fileItem.name,
-          status: 'success',
-          message: `Formato ${isNFe ? 'NF-e' : 'NFS-e'} válido detectado`,
-          metadata
-        })
-      }
-    } catch (error) {
+  const pendingFiles = files.value.filter(f => f.status === 'pending')
+  
+  for (const fileItem of pendingFiles) {
+    await validateSingleFile(fileItem)
+    
+    // Add to results
+    if (fileItem.validationResult) {
+      const result = fileItem.validationResult
       uploadResults.value.push({
         filename: fileItem.name,
-        status: 'error',
-        message: 'Falha ao ler arquivo - arquivo pode estar corrompido'
+        status: result.isValid ? (result.warnings.length > 0 ? 'warning' : 'success') : 'error',
+        message: result.isValid 
+          ? `Formato ${result.documentType} válido detectado${result.warnings.length > 0 ? ' com avisos' : ''}`
+          : `Erro de validação: ${result.errors.join(', ')}`,
+        metadata: fileItem.metadata
       })
     }
   }
+}
+
+// Preview file content
+const previewFile = async (fileItem: FileItem) => {
+  try {
+    const content = await fileItem.file.text()
+    
+    previewModal.value = {
+      show: true,
+      filename: fileItem.name,
+      content: content.length > 10000 ? content.substring(0, 10000) + '\n\n... (conteúdo truncado)' : content,
+      size: fileItem.size,
+      status: fileItem.status,
+      documentType: fileItem.validationResult?.documentType || 'XML',
+      validationResult: fileItem.validationResult,
+      file: fileItem
+    }
+  } catch (error) {
+    showError('Erro ao ler arquivo para preview')
+  }
+}
+
+// Close preview modal
+const closePreview = () => {
+  previewModal.value.show = false
+  previewModal.value.content = ''
+  previewModal.value.file = null
+}
+
+// Cancel upload
+const cancelUpload = (fileItem: FileItem) => {
+  if (fileItem.uploadController) {
+    fileItem.uploadController.abort()
+  }
+  fileItem.status = 'cancelled'
+  fileItem.progress = 0
+  fileItem.currentStep = 'Cancelado'
 }
 
 // Upload files to Supabase via backend API
@@ -537,6 +777,9 @@ const uploadFiles = async () => {
   const pendingFiles = files.value.filter(f => f.status === 'pending')
   
   for (const fileItem of pendingFiles) {
+    // Create abort controller for cancellation
+    fileItem.uploadController = new AbortController()
+    
     fileItem.status = 'uploading'
     fileItem.progress = 0
     fileItem.currentStep = 'Preparando upload...'
@@ -550,10 +793,11 @@ const uploadFiles = async () => {
       fileItem.progress = 20
       fileItem.currentStep = 'Enviando arquivo...'
       
-      // Upload to backend API
+      // Upload to backend API with abort signal
       const response = await fetch(`${apiBaseUrl}/agentes/upload-xml`, {
         method: 'POST',
         body: formData,
+        signal: fileItem.uploadController.signal,
         headers: {
           // Don't set Content-Type, let browser set it with boundary for FormData
         }
@@ -564,6 +808,12 @@ const uploadFiles = async () => {
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
+        
+        // Handle duplicate file error specifically
+        if (response.status === 409 && errorData.detail?.codigo_erro === 'ARQUIVO_DUPLICADO') {
+          throw new Error(`Arquivo duplicado: ${errorData.detail.mensagem}`)
+        }
+        
         throw new Error(errorData.detail?.mensagem || `HTTP ${response.status}: ${response.statusText}`)
       }
       
@@ -596,15 +846,32 @@ const uploadFiles = async () => {
       emit('documentUploaded', result.id_processamento, fileItem.name)
       
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        // Upload was cancelled
+        fileItem.status = 'cancelled'
+        fileItem.progress = 0
+        fileItem.currentStep = 'Cancelado'
+        continue
+      }
+      
       fileItem.status = 'error'
       fileItem.progress = 0
       fileItem.currentStep = ''
       fileItem.errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
       
+      // Determine error type for better user feedback
+      let errorStatus: 'error' | 'success' | 'warning' | 'info' = 'error'
+      let errorMessage = `Falha no envio: ${fileItem.errorMessage}`
+      
+      if (fileItem.errorMessage?.includes('Arquivo duplicado')) {
+        errorStatus = 'warning'
+        errorMessage = `Arquivo já existe: ${fileItem.errorMessage.replace('Arquivo duplicado: ', '')}`
+      }
+      
       uploadResults.value.push({
         filename: fileItem.name,
-        status: 'error',
-        message: `Falha no envio: ${fileItem.errorMessage}`
+        status: errorStatus,
+        message: errorMessage
       })
       
       console.error('Upload error:', error)
@@ -633,7 +900,8 @@ const uploadFiles = async () => {
 }
 
 // Navigation and actions
-const viewDocument = (documentId: string) => {
+const viewDocument = (documentId: string | undefined) => {
+  if (!documentId) return
   // Navigate to document details page
   navigateTo(`/documents/${documentId}`)
 }

@@ -10,8 +10,7 @@
         </h3>
         <div class="flex items-center gap-2">
           <select 
-            v-model="selectedPeriod" 
-            @change="loadFinancialData"
+            v-model="selectedPeriod"
             class="select select-sm select-bordered"
           >
             <option value="last_30_days">Últimos 30 dias</option>
@@ -20,6 +19,14 @@
             <option value="last_12_months">Últimos 12 meses</option>
             <option value="current_year">Ano atual</option>
           </select>
+          <div class="tooltip" data-tip="Atualização automática">
+            <input 
+              type="checkbox" 
+              v-model="autoRefreshEnabled"
+              @change="autoRefreshEnabled ? startAutoRefresh() : stopAutoRefresh()"
+              class="toggle toggle-sm toggle-primary"
+            />
+          </div>
           <button 
             @click="loadFinancialData" 
             class="btn btn-sm btn-ghost"
@@ -141,7 +148,12 @@
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
           </svg>
-          <span>Período analisado: {{ financialData.periodo_analise }}</span>
+          <div>
+            <div>Período analisado: {{ financialData.periodo_analise }}</div>
+            <div v-if="lastUpdated" class="text-xs opacity-70 mt-1">
+              Última atualização: {{ formatLastUpdated(lastUpdated) }}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -186,23 +198,29 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 const financialData = ref<FinancialSummaryResponse | null>(null)
 const selectedPeriod = ref('last_90_days')
+const lastUpdated = ref<Date | null>(null)
 
-// Load financial data from API
+// Load financial data from API using enhanced composable
 const loadFinancialData = async () => {
   try {
     isLoading.value = true
     error.value = null
 
-    const data = await $fetch<FinancialSummaryResponse>('/api/v1/api/dashboard/financial-summary', {
+    const { apiCall } = useApi()
+    const data = await apiCall<FinancialSummaryResponse>('/api/v1/api/dashboard/financial-summary', {
       query: {
         period: selectedPeriod.value
-      }
+      },
+      cache: true,
+      cacheTTL: 300000, // 5 minutes cache
+      retry: 3
     })
 
-    financialData.value = data as FinancialSummaryResponse
+    financialData.value = data
+    lastUpdated.value = new Date()
   } catch (err: any) {
     console.error('Error loading financial data:', err)
-    error.value = err.data?.mensagem || 'Erro ao carregar dados financeiros'
+    error.value = err.message || err.data?.mensagem || 'Erro ao carregar dados financeiros'
   } finally {
     isLoading.value = false
   }
@@ -230,8 +248,48 @@ const formatMonth = (dateString: string): string => {
   })
 }
 
-// Load data on mount
+const formatLastUpdated = (date: Date): string => {
+  return date.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// Auto-refresh functionality
+const autoRefreshInterval = ref<NodeJS.Timeout | null>(null)
+const autoRefreshEnabled = ref(true)
+
+const startAutoRefresh = () => {
+  if (autoRefreshEnabled.value && !autoRefreshInterval.value) {
+    autoRefreshInterval.value = setInterval(() => {
+      loadFinancialData()
+    }, 300000) // Refresh every 5 minutes
+  }
+}
+
+const stopAutoRefresh = () => {
+  if (autoRefreshInterval.value) {
+    clearInterval(autoRefreshInterval.value)
+    autoRefreshInterval.value = null
+  }
+}
+
+// Watch for period changes to reload data
+watch(selectedPeriod, () => {
+  loadFinancialData()
+})
+
+// Load data on mount and start auto-refresh
 onMounted(() => {
   loadFinancialData()
+  startAutoRefresh()
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+  stopAutoRefresh()
 })
 </script>
