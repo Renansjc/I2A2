@@ -222,7 +222,7 @@ export const useReports = () => {
     error.value = null
     
     try {
-      const response = await $fetch('/api/reports')
+      const response = await $fetch('/api/reports') as { success: boolean; data: any[] }
       
       if (response.success) {
         reports.value = response.data.map((report: any) => ({
@@ -269,7 +269,7 @@ export const useReports = () => {
 
   const loadDownloadHistory = async () => {
     try {
-      const response = await $fetch('/api/reports/downloads')
+      const response = await $fetch('/api/reports/downloads') as { success: boolean; data: any[] }
       
       if (response.success) {
         downloads.value = response.data.map((download: any) => ({
@@ -308,7 +308,7 @@ export const useReports = () => {
       const response = await $fetch('/api/reports', {
         method: 'POST',
         body: config
-      })
+      }) as { success: boolean; data: any; message?: string }
       
       if (response.success) {
         const newReport: ReportHistory = {
