@@ -110,13 +110,13 @@ class DimensionalProcessingAgent(BaseAgent):
             # Extract and process destinatario data (if present)
             destinatario_id = await self.process_destinatario_data(root, document_type)
             
-            # Extract and process products/services data
+            # Extract and process products/services data with AI categorization
             if document_type == "NFE":
-                produtos_ids = await self.process_produtos_data(root)
+                produtos_ids = await self.process_produtos_data_enhanced(root)
                 servicos_ids = []
             else:  # NFSE
                 produtos_ids = []
-                servicos_ids = await self.process_servicos_data(root)
+                servicos_ids = await self.process_servicos_data_enhanced(root)
             
             # Create fact records
             fact_records = await self.create_fact_records(
@@ -1140,82 +1140,67 @@ class DimensionalProcessingAgent(BaseAgent):
     
     async def integrate_with_categorization_agent(self, produtos_data: List[Dict[str, Any]], servicos_data: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Integrate with AI Categorization Agent for enhanced categorization
+        Integrate with Enhanced AI Categorization Service with caching and fallback
         
         Args:
             produtos_data: List of product data to categorize
             servicos_data: List of service data to categorize
             
         Returns:
-            Enhanced categorization results
+            Enhanced categorization results with caching and confidence validation
         """
         try:
-            from .ai_categorization_agent import LLMEnhancedAICategorizationAgent
+            from utils.enhanced_categorization import EnhancedCategorizationService
             
-            categorization_agent = LLMEnhancedAICategorizationAgent()
-            await categorization_agent.initialize()
+            categorization_service = EnhancedCategorizationService()
             
             enhanced_produtos = []
             enhanced_servicos = []
             
-            # Categorize products
-            for produto in produtos_data:
-                try:
-                    # Create mock XML content for categorization agent
-                    mock_xml = self._create_mock_xml_for_categorization([produto], "product")
-                    
-                    categorization_result = await categorization_agent.categorize_document(
-                        mock_xml, {'document_type': 'NFE'}
-                    )
-                    
-                    # Apply categorization results to product
-                    if categorization_result.get('categorized_items'):
-                        categorized_item = categorization_result['categorized_items'][0]
-                        produto['categoria'] = categorized_item.get('category', produto.get('categoria'))
-                        produto['subcategoria'] = categorized_item.get('subcategory', produto.get('subcategoria'))
-                        produto['categorization_confidence'] = categorized_item.get('confidence', 0.8)
-                    
-                    enhanced_produtos.append(produto)
-                    
-                except Exception as e:
-                    logger.warning(f"Failed to categorize product {produto.get('codigo_produto')}", error=str(e))
-                    # Fall back to basic categorization
-                    enhanced_produtos.append(await self._apply_basic_categorization(produto))
+            # Categorize products with enhanced service
+            if produtos_data:
+                enhanced_produtos = await categorization_service.categorize_items(
+                    produtos_data, item_type='product'
+                )
             
-            # Categorize services
-            for servico in servicos_data:
-                try:
-                    # Create mock XML content for categorization agent
-                    mock_xml = self._create_mock_xml_for_categorization([servico], "service")
-                    
-                    categorization_result = await categorization_agent.categorize_document(
-                        mock_xml, {'document_type': 'NFSE'}
-                    )
-                    
-                    # Apply categorization results to service
-                    if categorization_result.get('categorized_items'):
-                        categorized_item = categorization_result['categorized_items'][0]
-                        servico['categoria'] = categorized_item.get('category', servico.get('categoria'))
-                        servico['subcategoria'] = categorized_item.get('subcategory', servico.get('subcategoria'))
-                        servico['categorization_confidence'] = categorized_item.get('confidence', 0.8)
-                    
-                    enhanced_servicos.append(servico)
-                    
-                except Exception as e:
-                    logger.warning(f"Failed to categorize service {servico.get('codigo_servico')}", error=str(e))
-                    # Fall back to basic categorization
-                    enhanced_servicos.append(await self._apply_basic_service_categorization(servico))
+            # Categorize services with enhanced service
+            if servicos_data:
+                enhanced_servicos = await categorization_service.categorize_items(
+                    servicos_data, item_type='service'
+                )
             
-            await categorization_agent.cleanup()
+            # Determine overall categorization method
+            methods = []
+            if enhanced_produtos:
+                methods.extend([p.get('categorization_method', 'unknown') for p in enhanced_produtos])
+            if enhanced_servicos:
+                methods.extend([s.get('categorization_method', 'unknown') for s in enhanced_servicos])
+            
+            # Determine primary method used
+            if any('ai_enhanced' in method for method in methods):
+                primary_method = 'ai_enhanced_with_cache'
+            elif any('cached' in method for method in methods):
+                primary_method = 'cached_categorization'
+            else:
+                primary_method = 'fallback_categorization'
+            
+            logger.info(
+                "Enhanced categorization integration completed",
+                produtos_count=len(enhanced_produtos),
+                servicos_count=len(enhanced_servicos),
+                primary_method=primary_method
+            )
             
             return {
                 'enhanced_produtos': enhanced_produtos,
                 'enhanced_servicos': enhanced_servicos,
-                'categorization_method': 'ai_enhanced'
+                'categorization_method': primary_method,
+                'cache_enabled': True,
+                'fallback_enabled': True
             }
             
         except Exception as e:
-            logger.error("Failed to integrate with categorization agent", error=str(e))
+            logger.error("Failed to integrate with enhanced categorization service", error=str(e))
             # Fall back to basic categorization
             enhanced_produtos = [await self._apply_basic_categorization(p) for p in produtos_data]
             enhanced_servicos = [await self._apply_basic_service_categorization(s) for s in servicos_data]
@@ -1223,7 +1208,10 @@ class DimensionalProcessingAgent(BaseAgent):
             return {
                 'enhanced_produtos': enhanced_produtos,
                 'enhanced_servicos': enhanced_servicos,
-                'categorization_method': 'basic_fallback'
+                'categorization_method': 'basic_fallback_emergency',
+                'cache_enabled': False,
+                'fallback_enabled': True,
+                'error': str(e)
             }
     
     def _create_mock_xml_for_categorization(self, items: List[Dict[str, Any]], item_type: str) -> str:
@@ -1280,7 +1268,7 @@ class DimensionalProcessingAgent(BaseAgent):
     
     async def process_produtos_data_enhanced(self, xml_root) -> List[str]:
         """
-        Enhanced product processing with AI categorization integration
+        Enhanced product processing with AI categorization integration, caching, and confidence validation
         """
         try:
             produtos_data = self._extract_produtos_data(xml_root)
@@ -1288,24 +1276,56 @@ class DimensionalProcessingAgent(BaseAgent):
             if not produtos_data:
                 return []
             
-            # Integrate with AI Categorization Agent
+            # Integrate with Enhanced AI Categorization Service
             categorization_results = await self.integrate_with_categorization_agent(produtos_data, [])
             enhanced_produtos = categorization_results['enhanced_produtos']
             
             produtos_ids = []
+            low_confidence_items = []
+            
             for produto in enhanced_produtos:
-                # Normalize product data
+                # Validate categorization confidence
+                confidence = produto.get('categorization_confidence', 0.0)
+                method = produto.get('categorization_method', 'unknown')
+                
+                # Flag low confidence items for potential manual review
+                if confidence < 0.6:
+                    low_confidence_items.append({
+                        'codigo_produto': produto.get('codigo_produto'),
+                        'descricao': produto.get('descricao'),
+                        'categoria': produto.get('categoria'),
+                        'confidence': confidence,
+                        'method': method
+                    })
+                
+                # Normalize product data with enhanced categorization
                 produto = self._normalize_produto_data(produto)
+                
+                # Add categorization metadata
+                produto['categorization_confidence'] = confidence
+                produto['categorization_method'] = method
+                produto['categorization_timestamp'] = datetime.now(timezone.utc).isoformat()
                 
                 # Upsert product record with enhanced categorization
                 codigo_produto = await self._upsert_produto(produto)
                 produtos_ids.append(codigo_produto)
             
+            # Log categorization summary
+            cache_hits = sum(1 for p in enhanced_produtos if p.get('cache_hit', False))
+            ai_categorizations = sum(1 for p in enhanced_produtos if 'ai_enhanced' in p.get('categorization_method', ''))
+            
             logger.info(
                 "Enhanced products data processed",
                 produtos_count=len(produtos_ids),
-                categorization_method=categorization_results['categorization_method']
+                categorization_method=categorization_results['categorization_method'],
+                cache_hits=cache_hits,
+                ai_categorizations=ai_categorizations,
+                low_confidence_count=len(low_confidence_items)
             )
+            
+            # Store low confidence items for manual review if any
+            if low_confidence_items:
+                await self._store_low_confidence_items(low_confidence_items, 'product')
             
             return produtos_ids
             
@@ -1316,7 +1336,7 @@ class DimensionalProcessingAgent(BaseAgent):
     
     async def process_servicos_data_enhanced(self, xml_root) -> List[str]:
         """
-        Enhanced service processing with AI categorization integration
+        Enhanced service processing with AI categorization integration, caching, and confidence validation
         """
         try:
             servicos_data = self._extract_servicos_data(xml_root)
@@ -1324,24 +1344,56 @@ class DimensionalProcessingAgent(BaseAgent):
             if not servicos_data:
                 return []
             
-            # Integrate with AI Categorization Agent
+            # Integrate with Enhanced AI Categorization Service
             categorization_results = await self.integrate_with_categorization_agent([], servicos_data)
             enhanced_servicos = categorization_results['enhanced_servicos']
             
             servicos_ids = []
+            low_confidence_items = []
+            
             for servico in enhanced_servicos:
-                # Normalize service data
+                # Validate categorization confidence
+                confidence = servico.get('categorization_confidence', 0.0)
+                method = servico.get('categorization_method', 'unknown')
+                
+                # Flag low confidence items for potential manual review
+                if confidence < 0.6:
+                    low_confidence_items.append({
+                        'codigo_servico': servico.get('codigo_servico'),
+                        'descricao': servico.get('descricao'),
+                        'categoria': servico.get('categoria'),
+                        'confidence': confidence,
+                        'method': method
+                    })
+                
+                # Normalize service data with enhanced categorization
                 servico = self._normalize_servico_data(servico)
+                
+                # Add categorization metadata
+                servico['categorization_confidence'] = confidence
+                servico['categorization_method'] = method
+                servico['categorization_timestamp'] = datetime.now(timezone.utc).isoformat()
                 
                 # Upsert service record with enhanced categorization
                 codigo_servico = await self._upsert_servico(servico)
                 servicos_ids.append(codigo_servico)
             
+            # Log categorization summary
+            cache_hits = sum(1 for s in enhanced_servicos if s.get('cache_hit', False))
+            ai_categorizations = sum(1 for s in enhanced_servicos if 'ai_enhanced' in s.get('categorization_method', ''))
+            
             logger.info(
                 "Enhanced services data processed",
                 servicos_count=len(servicos_ids),
-                categorization_method=categorization_results['categorization_method']
+                categorization_method=categorization_results['categorization_method'],
+                cache_hits=cache_hits,
+                ai_categorizations=ai_categorizations,
+                low_confidence_count=len(low_confidence_items)
             )
+            
+            # Store low confidence items for manual review if any
+            if low_confidence_items:
+                await self._store_low_confidence_items(low_confidence_items, 'service')
             
             return servicos_ids
             
@@ -1528,3 +1580,346 @@ class DimensionalProcessingAgent(BaseAgent):
             
         except Exception as e:
             return {'recovery_successful': False, 'error': str(e)}
+    
+    # Enhanced Categorization Support Methods
+    
+    async def _store_low_confidence_items(self, items: List[Dict[str, Any]], item_type: str) -> None:
+        """Store low confidence categorization items for manual review"""
+        try:
+            import asyncio
+            
+            for item in items:
+                review_record = {
+                    'item_type': item_type,
+                    'item_code': item.get('codigo_produto') or item.get('codigo_servico'),
+                    'item_description': item.get('descricao', ''),
+                    'suggested_category': item.get('categoria'),
+                    'suggested_subcategory': item.get('subcategoria'),
+                    'confidence_score': item.get('confidence', 0.0),
+                    'categorization_method': item.get('method', 'unknown'),
+                    'status': 'pending_review',
+                    'created_at': datetime.now(timezone.utc).isoformat()
+                }
+                
+                await asyncio.to_thread(
+                    lambda: self.supabase_client.client.table('manual_categorization_queue')
+                    .insert(review_record)
+                    .execute()
+                )
+            
+            logger.info(
+                "Low confidence items stored for manual review",
+                item_type=item_type,
+                count=len(items)
+            )
+            
+        except Exception as e:
+            logger.warning("Failed to store low confidence items", error=str(e))
+    
+    async def apply_manual_categorization_override(
+        self, 
+        item_code: str, 
+        item_type: str, 
+        new_category: str, 
+        new_subcategory: str,
+        reviewer_id: str = None
+    ) -> Dict[str, Any]:
+        """
+        Apply manual categorization override for an item
+        
+        Args:
+            item_code: Code of the item to override
+            item_type: Type of item ('product' or 'service')
+            new_category: New category to assign
+            new_subcategory: New subcategory to assign
+            reviewer_id: ID of the person making the override
+            
+        Returns:
+            Result of the override operation
+        """
+        try:
+            import asyncio
+            
+            # Update the dimensional table
+            table_name = 'dim_produtos' if item_type == 'product' else 'dim_servicos'
+            key_field = 'codigo_produto' if item_type == 'product' else 'codigo_servico'
+            
+            update_data = {
+                'categoria': new_category,
+                'subcategoria': new_subcategory,
+                'categorization_confidence': 1.0,  # Manual override gets full confidence
+                'categorization_method': 'manual_override',
+                'categorization_timestamp': datetime.now(timezone.utc).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }
+            
+            # Update dimensional table
+            result = await asyncio.to_thread(
+                lambda: self.supabase_client.client.table(table_name)
+                .update(update_data)
+                .eq(key_field, item_code)
+                .execute()
+            )
+            
+            if not result.data:
+                return {
+                    'success': False,
+                    'error': f'Item {item_code} not found in {table_name}'
+                }
+            
+            # Update manual review queue if exists
+            await asyncio.to_thread(
+                lambda: self.supabase_client.client.table('manual_categorization_queue')
+                .update({
+                    'status': 'completed',
+                    'final_category': new_category,
+                    'final_subcategory': new_subcategory,
+                    'reviewer_id': reviewer_id,
+                    'reviewed_at': datetime.now(timezone.utc).isoformat()
+                })
+                .eq('item_code', item_code)
+                .eq('item_type', item_type)
+                .execute()
+            )
+            
+            # Invalidate cache for this item to ensure fresh categorization
+            from utils.enhanced_categorization import EnhancedCategorizationService
+            categorization_service = EnhancedCategorizationService()
+            
+            # Create item data for cache invalidation
+            item_data = {
+                'codigo_produto' if item_type == 'product' else 'codigo_servico': item_code,
+                'descricao': result.data[0].get('descricao', ''),
+                'type': item_type
+            }
+            
+            await categorization_service.cache_manager.invalidate_cache_for_item(item_data)
+            
+            logger.info(
+                "Manual categorization override applied",
+                item_code=item_code,
+                item_type=item_type,
+                new_category=new_category,
+                new_subcategory=new_subcategory,
+                reviewer_id=reviewer_id
+            )
+            
+            return {
+                'success': True,
+                'item_code': item_code,
+                'item_type': item_type,
+                'new_category': new_category,
+                'new_subcategory': new_subcategory,
+                'cache_invalidated': True
+            }
+            
+        except Exception as e:
+            logger.error("Failed to apply manual categorization override", error=str(e))
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
+    async def get_categorization_performance_metrics(self) -> Dict[str, Any]:
+        """Get comprehensive categorization performance metrics"""
+        try:
+            from utils.enhanced_categorization import EnhancedCategorizationService
+            
+            categorization_service = EnhancedCategorizationService()
+            stats = await categorization_service.get_categorization_statistics()
+            
+            # Add dimensional processing specific metrics
+            import asyncio
+            
+            # Get manual review queue statistics
+            pending_reviews = await asyncio.to_thread(
+                lambda: self.supabase_client.client.table('manual_categorization_queue')
+                .select('*', count='exact')
+                .eq('status', 'pending_review')
+                .execute()
+            )
+            
+            completed_reviews = await asyncio.to_thread(
+                lambda: self.supabase_client.client.table('manual_categorization_queue')
+                .select('*', count='exact')
+                .eq('status', 'completed')
+                .execute()
+            )
+            
+            # Get categorization distribution from dimensional tables
+            produtos_categories = await asyncio.to_thread(
+                lambda: self.supabase_client.client.table('dim_produtos')
+                .select('categoria, subcategoria')
+                .execute()
+            )
+            
+            servicos_categories = await asyncio.to_thread(
+                lambda: self.supabase_client.client.table('dim_servicos')
+                .select('categoria, subcategoria')
+                .execute()
+            )
+            
+            # Calculate category distributions
+            product_category_dist = {}
+            for item in produtos_categories.data:
+                category = item.get('categoria', 'Unknown')
+                product_category_dist[category] = product_category_dist.get(category, 0) + 1
+            
+            service_category_dist = {}
+            for item in servicos_categories.data:
+                category = item.get('categoria', 'Unknown')
+                service_category_dist[category] = service_category_dist.get(category, 0) + 1
+            
+            stats['dimensional_processing_metrics'] = {
+                'pending_manual_reviews': pending_reviews.count,
+                'completed_manual_reviews': completed_reviews.count,
+                'product_category_distribution': product_category_dist,
+                'service_category_distribution': service_category_dist,
+                'total_products_categorized': len(produtos_categories.data),
+                'total_services_categorized': len(servicos_categories.data)
+            }
+            
+            return stats
+            
+        except Exception as e:
+            logger.error("Failed to get categorization performance metrics", error=str(e))
+            return {
+                'error': str(e),
+                'dimensional_processing_metrics': {}
+            }
+    
+    async def bulk_recategorize_by_pattern(
+        self, 
+        pattern: str, 
+        new_category: str, 
+        new_subcategory: str,
+        item_type: str = 'both',
+        reviewer_id: str = None
+    ) -> Dict[str, Any]:
+        """
+        Bulk recategorize items matching a description pattern
+        
+        Args:
+            pattern: Pattern to match in item descriptions (case-insensitive)
+            new_category: New category to assign
+            new_subcategory: New subcategory to assign
+            item_type: Type of items to update ('product', 'service', or 'both')
+            reviewer_id: ID of the person making the bulk change
+            
+        Returns:
+            Results of bulk recategorization
+        """
+        try:
+            import asyncio
+            
+            updated_items = []
+            errors = []
+            
+            # Update products if requested
+            if item_type in ['product', 'both']:
+                try:
+                    # Find matching products
+                    produtos_result = await asyncio.to_thread(
+                        lambda: self.supabase_client.client.table('dim_produtos')
+                        .select('codigo_produto, descricao')
+                        .ilike('descricao', f'%{pattern}%')
+                        .execute()
+                    )
+                    
+                    # Update matching products
+                    for produto in produtos_result.data:
+                        update_result = await self.apply_manual_categorization_override(
+                            produto['codigo_produto'],
+                            'product',
+                            new_category,
+                            new_subcategory,
+                            reviewer_id
+                        )
+                        
+                        if update_result['success']:
+                            updated_items.append({
+                                'type': 'product',
+                                'code': produto['codigo_produto'],
+                                'description': produto['descricao']
+                            })
+                        else:
+                            errors.append({
+                                'type': 'product',
+                                'code': produto['codigo_produto'],
+                                'error': update_result['error']
+                            })
+                            
+                except Exception as e:
+                    errors.append({
+                        'type': 'product_batch',
+                        'error': str(e)
+                    })
+            
+            # Update services if requested
+            if item_type in ['service', 'both']:
+                try:
+                    # Find matching services
+                    servicos_result = await asyncio.to_thread(
+                        lambda: self.supabase_client.client.table('dim_servicos')
+                        .select('codigo_servico, descricao')
+                        .ilike('descricao', f'%{pattern}%')
+                        .execute()
+                    )
+                    
+                    # Update matching services
+                    for servico in servicos_result.data:
+                        update_result = await self.apply_manual_categorization_override(
+                            servico['codigo_servico'],
+                            'service',
+                            new_category,
+                            new_subcategory,
+                            reviewer_id
+                        )
+                        
+                        if update_result['success']:
+                            updated_items.append({
+                                'type': 'service',
+                                'code': servico['codigo_servico'],
+                                'description': servico['descricao']
+                            })
+                        else:
+                            errors.append({
+                                'type': 'service',
+                                'code': servico['codigo_servico'],
+                                'error': update_result['error']
+                            })
+                            
+                except Exception as e:
+                    errors.append({
+                        'type': 'service_batch',
+                        'error': str(e)
+                    })
+            
+            logger.info(
+                "Bulk recategorization completed",
+                pattern=pattern,
+                new_category=new_category,
+                new_subcategory=new_subcategory,
+                updated_count=len(updated_items),
+                errors_count=len(errors)
+            )
+            
+            return {
+                'success': len(errors) == 0,
+                'pattern': pattern,
+                'new_category': new_category,
+                'new_subcategory': new_subcategory,
+                'updated_items': updated_items,
+                'updated_count': len(updated_items),
+                'errors': errors,
+                'errors_count': len(errors)
+            }
+            
+        except Exception as e:
+            logger.error("Failed to perform bulk recategorization", error=str(e))
+            return {
+                'success': False,
+                'error': str(e),
+                'updated_count': 0,
+                'errors_count': 1
+            }

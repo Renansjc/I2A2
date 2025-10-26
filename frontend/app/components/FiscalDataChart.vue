@@ -225,12 +225,98 @@ const pieSegments = computed(() => {
   return segments
 })
 
+// Load real data based on chart type
+const loadChartData = async () => {
+  try {
+    isLoading.value = true;
+
+    let data: ChartDataItem[] = [];
+
+    switch (props.dataType) {
+      case 'revenue':
+        // Load financial trends data
+        const trendsResponse = await $fetch('/api/v1/api/dashboard/trends', {
+          query: { period: 'last_6_months', trend_type: 'valor' }
+        });
+        if (trendsResponse && trendsResponse.trend_data) {
+          data = trendsResponse.trend_data.map((item: any) => ({
+            label: new Date(item.periodo).toLocaleDateString('pt-BR', { month: 'short' }),
+            value: Number(item.valor)
+          }));
+        }
+        break;
+
+      case 'suppliers':
+        // Load top suppliers data
+        const suppliersResponse = await $fetch('/api/v1/api/dashboard/suppliers', {
+          query: { period: 'last_90_days', limit: 5 }
+        });
+        if (suppliersResponse && suppliersResponse.top_suppliers) {
+          data = suppliersResponse.top_suppliers.map((supplier: any) => ({
+            label: supplier.razao_social.substring(0, 15) + (supplier.razao_social.length > 15 ? '...' : ''),
+            value: Number(supplier.valor_total)
+          }));
+        }
+        break;
+
+      case 'categories':
+        // Load product categories data
+        const productsResponse = await $fetch('/api/v1/api/dashboard/products', {
+          query: { period: 'last_90_days' }
+        });
+        if (productsResponse && productsResponse.categories_distribution) {
+          data = Object.entries(productsResponse.categories_distribution).map(([category, dist]: [string, any]) => ({
+            label: category,
+            value: dist.total_produtos
+          }));
+        }
+        break;
+
+      case 'regions':
+        // Load suppliers by state (mock data for now)
+        const regionResponse = { items: [
+          { uf: 'SP' }, { uf: 'SP' }, { uf: 'RJ' }, { uf: 'MG' }, { uf: 'RS' },
+          { uf: 'SP' }, { uf: 'RJ' }, { uf: 'PR' }, { uf: 'SC' }, { uf: 'GO' }
+        ] };
+        if (regionResponse && regionResponse.items) {
+          const stateCount: Record<string, number> = {};
+          regionResponse.items.forEach((emitente: any) => {
+            stateCount[emitente.uf] = (stateCount[emitente.uf] || 0) + 1;
+          });
+          
+          data = Object.entries(stateCount)
+            .sort(([,a], [,b]) => b - a)
+            .slice(0, 5)
+            .map(([state, count]) => ({
+              label: state,
+              value: count
+            }));
+        }
+        break;
+
+      default:
+        data = [];
+    }
+
+    // If no real data, use mock data as fallback
+    if (data.length === 0) {
+      data = mockData[props.dataType] || [];
+    }
+
+    chartData.value = data;
+  } catch (err: any) {
+    console.error('Error loading chart data:', err);
+    
+    // Fallback to mock data on error
+    chartData.value = mockData[props.dataType] || [];
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 // Initialize data
 onMounted(() => {
-  setTimeout(() => {
-    chartData.value = mockData[props.dataType] || []
-    isLoading.value = false
-  }, 1000)
+  loadChartData();
 })
 
 // Methods

@@ -52,6 +52,14 @@
               </NuxtLink>
             </li>
             <li>
+              <NuxtLink to="/search" class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-300 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                Busca Avançada
+              </NuxtLink>
+            </li>
+            <li>
               <NuxtLink to="/analytics" class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-300 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>

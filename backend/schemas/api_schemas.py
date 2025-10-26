@@ -2,7 +2,7 @@
 Pydantic schemas for API request/response validation in Portuguese
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from decimal import Decimal
@@ -50,16 +50,18 @@ class ConsultaNaturalRequest(BaseModel):
     nivel_executivo: Optional[NivelExecutivo] = Field(NivelExecutivo.GERENTE, description="Nível executivo para personalização")
     incluir_insights: bool = Field(True, description="Incluir insights de IA na resposta")
     
-    @validator('consulta')
+    @field_validator('consulta')
+    @classmethod
     def validar_consulta(cls, v):
         if not v.strip():
             raise ValueError('Consulta não pode estar vazia')
         return v.strip()
     
-    @validator('periodo_fim')
-    def validar_periodo(cls, v, values):
-        if v and 'periodo_inicio' in values and values['periodo_inicio']:
-            if v <= values['periodo_inicio']:
+    @field_validator('periodo_fim')
+    @classmethod
+    def validar_periodo(cls, v, info):
+        if v and info.data.get('periodo_inicio'):
+            if v <= info.data['periodo_inicio']:
                 raise ValueError('Data de fim deve ser posterior à data de início')
         return v
 
@@ -77,15 +79,17 @@ class RelatorioExecutivoRequest(BaseModel):
     filtros_adicionais: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Filtros específicos")
     contexto_empresarial: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Contexto empresarial")
     
-    @validator('titulo')
+    @field_validator('titulo')
+    @classmethod
     def validar_titulo(cls, v):
         if not v.strip():
             raise ValueError('Título não pode estar vazio')
         return v.strip()
     
-    @validator('periodo_fim')
-    def validar_periodo_relatorio(cls, v, values):
-        if 'periodo_inicio' in values and v <= values['periodo_inicio']:
+    @field_validator('periodo_fim')
+    @classmethod
+    def validar_periodo_relatorio(cls, v, info):
+        if info.data.get('periodo_inicio') and v <= info.data['periodo_inicio']:
             raise ValueError('Data de fim deve ser posterior à data de início')
         return v
 
@@ -100,7 +104,8 @@ class ProcessarXMLRequest(BaseModel):
     validar_regras_negocio: bool = Field(True, description="Validar regras de negócio")
     contexto_processamento: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Contexto adicional")
     
-    @validator('nome_arquivo')
+    @field_validator('nome_arquivo')
+    @classmethod
     def validar_nome_arquivo(cls, v):
         if not v.strip():
             raise ValueError('Nome do arquivo não pode estar vazio')
@@ -108,10 +113,11 @@ class ProcessarXMLRequest(BaseModel):
             raise ValueError('Arquivo deve ter extensão .xml')
         return v.strip()
     
-    @validator('conteudo_base64', 'url_arquivo')
-    def validar_fonte_arquivo(cls, v, values, field):
+    @field_validator('url_arquivo')
+    @classmethod
+    def validar_fonte_arquivo(cls, v, info):
         # Pelo menos uma fonte deve ser fornecida
-        if field.name == 'url_arquivo' and not v and not values.get('conteudo_base64'):
+        if not v and not info.data.get('conteudo_base64'):
             raise ValueError('Deve fornecer conteúdo_base64 ou url_arquivo')
         return v
 

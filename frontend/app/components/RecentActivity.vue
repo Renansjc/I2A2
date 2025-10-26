@@ -62,8 +62,8 @@ const props = withDefaults(defineProps<Props>(), {
   maxItems: 10
 })
 
-// Use dashboard composable for utility functions
-const { formatActivityTime, getActivityColorClass } = useDashboard()
+// Use system activities composable for utility functions
+const { formatActivityTime, getActivityColorClass } = useSystemActivities()
 
 // Computed property to limit displayed activities
 const displayedActivities = computed(() => {

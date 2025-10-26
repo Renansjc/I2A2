@@ -381,4 +381,3 @@ onMounted(() => {
   workflowHistory.value = [...mockHistory]
 })
 </script>
-</template>

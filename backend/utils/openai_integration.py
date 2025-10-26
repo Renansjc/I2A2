@@ -908,8 +908,8 @@ class TokenManager:
     def __init__(self):
         self.usage_history: List[Dict[str, Any]] = []
         self.rate_limits = {
-            'requests_per_minute': settings.OPENAI_RATE_LIMIT_RPM,
-            'tokens_per_minute': settings.OPENAI_RATE_LIMIT_TPM
+            'requests_per_minute': settings.openai_rate_limit_rpm,
+            'tokens_per_minute': settings.openai_rate_limit_tpm
         }
         self.current_usage = {'requests': 0, 'tokens': 0}
         self.last_reset = time.time()
@@ -962,7 +962,7 @@ class ResponseCache:
     def __init__(self):
         self.cache: Dict[str, Dict[str, Any]] = {}
         self.max_cache_size = 1000
-        self.cache_ttl = settings.OPENAI_CACHE_TTL
+        self.cache_ttl = settings.openai_cache_ttl
     
     def _generate_key(self, prompt: str, model: str, temperature: float) -> str:
         """Generate cache key"""
@@ -971,7 +971,7 @@ class ResponseCache:
     
     def get(self, prompt: str, model: str, temperature: float) -> Optional[str]:
         """Get cached response"""
-        if not settings.OPENAI_ENABLE_CACHING:
+        if not settings.openai_enable_caching:
             return None
         
         key = self._generate_key(prompt, model, temperature)
@@ -985,7 +985,7 @@ class ResponseCache:
     
     def set(self, prompt: str, model: str, temperature: float, response: str):
         """Cache response"""
-        if not settings.OPENAI_ENABLE_CACHING:
+        if not settings.openai_enable_caching:
             return
         
         key = self._generate_key(prompt, model, temperature)
@@ -1008,10 +1008,10 @@ class OpenAIIntegrationService:
         if not HAS_OPENAI:
             raise ImportError("OpenAI package not installed. Run: pip install openai")
         
-        if not settings.OPENAI_API_KEY:
+        if not settings.openai_api_key:
             raise ValueError("OPENAI_API_KEY not configured")
         
-        self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+        self.client = AsyncOpenAI(api_key=settings.openai_api_key)
         self.prompt_manager = PromptManager()
         self.context_manager = ContextManager()
         self.token_manager = TokenManager()
@@ -1029,9 +1029,9 @@ class OpenAIIntegrationService:
     ) -> LLMResponse:
         """Generate LLM completion with context and error handling"""
         
-        model = model or settings.OPENAI_DEFAULT_MODEL
-        max_tokens = max_tokens or settings.OPENAI_MAX_TOKENS
-        temperature = temperature if temperature is not None else settings.OPENAI_TEMPERATURE
+        model = model or settings.openai_default_model
+        max_tokens = max_tokens or settings.openai_max_tokens
+        temperature = temperature if temperature is not None else settings.openai_temperature
         
         # Format prompt
         formatted_prompt = self.prompt_manager.format_prompt(prompt_template, context)
@@ -1066,7 +1066,7 @@ class OpenAIIntegrationService:
                 ],
                 max_tokens=max_tokens,
                 temperature=temperature,
-                timeout=settings.OPENAI_TIMEOUT
+                timeout=settings.openai_timeout
             )
             
             processing_time = time.time() - start_time
@@ -1096,11 +1096,11 @@ class OpenAIIntegrationService:
             logger.error("Error generating completion", error=str(e), model=model)
             
             # Try fallback model if primary fails
-            if model != settings.OPENAI_FALLBACK_MODEL:
-                logger.info("Trying fallback model", fallback_model=settings.OPENAI_FALLBACK_MODEL)
+            if model != settings.openai_fallback_model:
+                logger.info("Trying fallback model", fallback_model=settings.openai_fallback_model)
                 return await self.generate_completion(
                     prompt_template, context, 
-                    model=settings.OPENAI_FALLBACK_MODEL,
+                    model=settings.openai_fallback_model,
                     max_tokens=max_tokens, temperature=temperature
                 )
             

@@ -20,14 +20,14 @@ from schemas.api_schemas import (
     DocumentDetailResponse, DocumentStatusResponse,
     AgentStatus, ProcessingResult
 )
-from utils.llm_service import OpenAIIntegrationService
+from utils.openai_integration import OpenAIIntegrationService
 from utils.validation import validador, ValidationError
 from utils.error_messages import gerador_mensagens, validador_regras_br, TipoErro
 from utils.security import sanitizador, validador_seguranca
 from utils.brazilian_formatting import formatador_brasileiro, validador_dados_br
 from utils.timezone_handler import gerenciador_timezone, processador_datas_fiscais
 from utils.brazilian_business_validation import validador_completo_br
-from agents.master_agent import EnhancedMasterAgent
+from agents.master_agent import MasterAgent
 from agents.xml_processing_agent import LLMEnhancedXMLProcessingAgent
 from agents.report_agent import LLMEnhancedReportAgent
 
@@ -36,9 +36,12 @@ logger = structlog.get_logger()
 # Create main router
 router = APIRouter()
 
+# Import dimensional routes
+from .dimensional_routes import dimensional_router, query_router
+
 # Initialize services
 llm_service = OpenAIIntegrationService()
-master_agent = EnhancedMasterAgent()
+master_agent = MasterAgent()
 xml_agent = LLMEnhancedXMLProcessingAgent()
 report_agent = LLMEnhancedReportAgent()
 
@@ -1390,3 +1393,16 @@ async def upload_arquivo_xml(
                 sugestao_solucao="Verifique se o arquivo não está corrompido e tente novamente"
             ).dict()
         )
+
+# Include dimensional routers in main router (using mock for now)
+# router.include_router(dimensional_router)
+# router.include_router(query_router)
+
+# Include mock dimensional routers for testing
+from .mock_dimensional_routes import mock_dimensional_router, mock_activity_router
+router.include_router(mock_dimensional_router)
+router.include_router(mock_activity_router)
+
+# Include activity router
+# from .activity_routes import activity_router
+# router.include_router(activity_router)

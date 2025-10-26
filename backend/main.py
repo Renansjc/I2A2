@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 import structlog
 from api.routes import router
 from utils.config import settings
-from utils.database import init_db
+# from utils.database import init_db
 
 # Configure structured logging
 structlog.configure(
@@ -36,8 +36,8 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     # Startup
     logger.info("Starting AI Agents Invoice Analysis System")
-    await init_db()
-    logger.info("Database initialized successfully")
+    # await init_db()
+    logger.info("System initialized successfully")
     
     yield
     
@@ -55,7 +55,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=settings.allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -82,8 +82,8 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
         "main:app",
-        host=settings.HOST,
-        port=settings.PORT,
-        reload=settings.DEBUG,
+        host=settings.host,
+        port=settings.port,
+        reload=settings.debug,
         log_level="info"
     )

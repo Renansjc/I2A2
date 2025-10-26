@@ -2,7 +2,7 @@
 Pydantic schemas for fiscal document data validation
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from decimal import Decimal
@@ -22,14 +22,14 @@ class EnderecoSchema(BaseModel):
     codigo_municipio: str = Field(..., description="Código do município")
     nome_municipio: str = Field(..., description="Nome do município")
     uf: str = Field(..., min_length=2, max_length=2, description="UF")
-    cep: str = Field(..., regex=r'^\d{5}-?\d{3}$', description="CEP")
+    cep: str = Field(..., pattern=r'^\d{5}-?\d{3}$', description="CEP")
     codigo_pais: Optional[str] = Field("1058", description="Código do país")
     nome_pais: Optional[str] = Field("Brasil", description="Nome do país")
 
 class FornecedorSchema(BaseModel):
     """Schema para fornecedores"""
-    cnpj: Optional[str] = Field(None, regex=r'^\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}$', description="CNPJ")
-    cpf: Optional[str] = Field(None, regex=r'^\d{3}\.\d{3}\.\d{3}-\d{2}$', description="CPF")
+    cnpj: Optional[str] = Field(None, pattern=r'^\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}$', description="CNPJ")
+    cpf: Optional[str] = Field(None, pattern=r'^\d{3}\.\d{3}\.\d{3}-\d{2}$', description="CPF")
     inscricao_estadual: Optional[str] = Field(None, description="Inscrição estadual")
     razao_social: str = Field(..., min_length=1, max_length=200, description="Razão social")
     nome_fantasia: Optional[str] = Field(None, max_length=200, description="Nome fantasia")
@@ -41,22 +41,24 @@ class FornecedorSchema(BaseModel):
     regiao: Optional[str] = Field(None, description="Região (gerada por IA)")
     relacionamento_comercial: Optional[str] = Field(None, description="Relacionamento comercial (gerado por IA)")
     
-    @validator('cnpj', 'cpf')
-    def validar_documento(cls, v, field):
+    @field_validator('cnpj', 'cpf')
+    @classmethod
+    def validar_documento(cls, v, info):
         if v is None:
             return v
         # Remove formatação para validação
         doc = v.replace('.', '').replace('-', '').replace('/', '')
-        if field.name == 'cnpj' and len(doc) != 14:
+        field_name = info.field_name
+        if field_name == 'cnpj' and len(doc) != 14:
             raise ValueError('CNPJ deve ter 14 dígitos')
-        elif field.name == 'cpf' and len(doc) != 11:
+        elif field_name == 'cpf' and len(doc) != 11:
             raise ValueError('CPF deve ter 11 dígitos')
         return v
 
 class DestinatarioSchema(BaseModel):
     """Schema para destinatários"""
-    cnpj: Optional[str] = Field(None, regex=r'^\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}$', description="CNPJ")
-    cpf: Optional[str] = Field(None, regex=r'^\d{3}\.\d{3}\.\d{3}-\d{2}$', description="CPF")
+    cnpj: Optional[str] = Field(None, pattern=r'^\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}$', description="CNPJ")
+    cpf: Optional[str] = Field(None, pattern=r'^\d{3}\.\d{3}\.\d{3}-\d{2}$', description="CPF")
     inscricao_estadual: Optional[str] = Field(None, description="Inscrição estadual")
     razao_social: str = Field(..., min_length=1, max_length=200, description="Razão social")
     endereco: EnderecoSchema = Field(..., description="Endereço")
@@ -68,9 +70,9 @@ class ProdutoSchema(BaseModel):
     codigo_produto: str = Field(..., description="Código do produto")
     ean: Optional[str] = Field(None, description="Código EAN")
     descricao: str = Field(..., min_length=1, max_length=500, description="Descrição do produto")
-    ncm: str = Field(..., regex=r'^\d{8}$', description="Código NCM")
+    ncm: str = Field(..., pattern=r'^\d{8}$', description="Código NCM")
     cest: Optional[str] = Field(None, description="Código CEST")
-    cfop: str = Field(..., regex=r'^\d{4}$', description="CFOP")
+    cfop: str = Field(..., pattern=r'^\d{4}$', description="CFOP")
     unidade_comercial: str = Field(..., description="Unidade comercial")
     unidade_tributavel: Optional[str] = Field(None, description="Unidade tributável")
     categoria: Optional[str] = Field(None, description="Categoria (gerada por IA)")
@@ -130,11 +132,11 @@ class ItemNFSESchema(BaseModel):
 
 class NFESchema(BaseModel):
     """Schema para NFE"""
-    chave_nfe: str = Field(..., regex=r'^\d{44}$', description="Chave da NFE")
+    chave_nfe: str = Field(..., pattern=r'^\d{44}$', description="Chave da NFE")
     numero_nf: str = Field(..., description="Número da NF")
     serie: str = Field(..., description="Série")
     data_emissao: datetime = Field(..., description="Data de emissão")
-    tipo_operacao: str = Field(..., regex=r'^[01]$', description="Tipo de operação (0=Entrada, 1=Saída)")
+    tipo_operacao: str = Field(..., pattern=r'^[01]$', description="Tipo de operação (0=Entrada, 1=Saída)")
     codigo_municipio: str = Field(..., description="Código do município")
     uf_emitente: str = Field(..., min_length=2, max_length=2, description="UF do emitente")
     natureza_operacao: str = Field(..., description="Natureza da operação")

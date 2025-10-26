@@ -1,5 +1,7 @@
 import { ref, computed } from "vue";
 import type { DashboardStats, RecentActivity } from "~/types/dashboard";
+import { useApi } from "./useApi";
+import { useApi } from "./useApi";
 
 export const useDashboard = () => {
   // Reactive state
@@ -87,33 +89,108 @@ export const useDashboard = () => {
       isLoading.value = true;
       error.value = null;
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Use API composable for proper base URL
+      const { apiCall } = useApi()
 
-      // In a real implementation, this would be an API call
-      // const response = await $fetch('/api/dashboard/stats')
-      // stats.value = response.stats
-      // recentActivities.value = response.activities
+      // Load real data from dimensional APIs and activities
+      const [financialData, suppliersData, metricsData, activitiesData] = await Promise.allSettled([
+        apiCall('/api/v1/api/dashboard/financial-summary', {
+          query: { period: 'last_90_days' }
+        }),
+        apiCall('/api/v1/api/dashboard/suppliers', {
+          query: { period: 'last_90_days', limit: 5 }
+        }),
+        apiCall('/api/v1/api/dashboard/metrics', {
+          query: { period: 'last_90_days' }
+        }),
+        apiCall('/api/v1/api/activity/recent', {
+          query: { limit: 10, hours: 24 }
+        })
+      ]);
 
-      // For now, use mock data
+      // Update stats with real data
+      if (financialData.status === 'fulfilled') {
+        const financial = financialData.value as any;
+        stats.value.totalInvoices = financial.total_invoices || 0;
+        stats.value.totalValue = Number(financial.total_value) || 0;
+      }
+
+      if (suppliersData.status === 'fulfilled') {
+        const suppliers = suppliersData.value as any;
+        stats.value.activeSuppliers = suppliers.total_suppliers || 0;
+      }
+
+      if (metricsData.status === 'fulfilled') {
+        const metrics = metricsData.value as any;
+        // Calculate fiscal efficiency based on data quality and processing success
+        stats.value.fiscalEfficiency = (metrics.kpis?.confiabilidade_dados || 0.95) * 100;
+      }
+
+      // Update activities with real data
+      if (activitiesData.status === 'fulfilled') {
+        const activities = activitiesData.value as any;
+        if (activities.activities && activities.activities.length > 0) {
+          recentActivities.value = activities.activities.map((activity: any) => ({
+            id: activity.id,
+            type: activity.type as RecentActivity['type'],
+            title: activity.title,
+            description: activity.description,
+            timestamp: new Date(activity.timestamp)
+          }));
+        } else {
+          // Use mock activities if no real activities available
+          recentActivities.value = [...mockActivities];
+        }
+      } else {
+        // Use mock activities on error
+        recentActivities.value = [...mockActivities];
+      }
+
+      // If no real data available, fall back to mock data
+      if (stats.value.totalInvoices === 0 && stats.value.totalValue === 0 && stats.value.activeSuppliers === 0) {
+        stats.value = { ...mockStats };
+      }
+    } catch (err: any) {
+      console.error("Dashboard data loading error:", err);
+      error.value = err.data?.mensagem || "Erro ao carregar dados do dashboard";
+      
+      // Fall back to mock data on error
       stats.value = { ...mockStats };
       recentActivities.value = [...mockActivities];
-    } catch (err) {
-      error.value = "Erro ao carregar dados do dashboard";
-      console.error("Dashboard data loading error:", err);
     } finally {
       isLoading.value = false;
     }
   };
 
   const refreshStats = async () => {
-    // Simulate real-time updates
-    stats.value.totalInvoices += Math.floor(Math.random() * 5);
-    stats.value.totalValue += Math.random() * 50000;
-    stats.value.fiscalEfficiency = Math.max(
-      85,
-      Math.min(100, stats.value.fiscalEfficiency + (Math.random() - 0.5) * 2)
-    );
+    try {
+      // Get real-time system status
+      const { apiCall } = useApi()
+      const systemStatus = await apiCall('/api/v1/api/activity/system-status');
+      
+      if (systemStatus) {
+        const status = systemStatus as any;
+        
+        // Update stats with real system data
+        if (status.processing_stats) {
+          stats.value.totalInvoices = status.processing_stats.total_documents || stats.value.totalInvoices;
+          stats.value.fiscalEfficiency = status.processing_stats.success_rate || stats.value.fiscalEfficiency;
+        }
+        
+        // Get latest financial data for value updates
+        const financialData = await apiCall('/api/v1/api/dashboard/financial-summary', {
+          query: { period: 'last_90_days' }
+        });
+        
+        if (financialData) {
+          const financial = financialData as any;
+          stats.value.totalValue = Number(financial.total_value) || stats.value.totalValue;
+        }
+      }
+    } catch (err) {
+      console.warn('Error refreshing stats, using current values:', err);
+      // Keep current values on error
+    }
   };
 
   const addActivity = (activity: Omit<RecentActivity, "id" | "timestamp">) => {

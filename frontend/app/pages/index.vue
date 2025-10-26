@@ -140,17 +140,22 @@
       <AgentStatus />
     </div>
 
-    <!-- Charts and Analytics -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <FiscalDataChart title="Receita Mensal" data-type="revenue" />
-      <FiscalDataChart title="Top Fornecedores" data-type="suppliers" />
+    <!-- Real Data Dashboard Components -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <FinancialSummary />
+      <TrendsAnalysis />
     </div>
 
-    <!-- Recent Activity and Additional Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Suppliers and Products Analysis -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <SuppliersChart />
+      <ProductsAnalysis />
+    </div>
+
+    <!-- Recent Activity and System Status -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <RecentActivity :activities="recentActivities" />
-      <FiscalDataChart title="Categorias de Produtos" data-type="categories" />
-      <FiscalDataChart title="Distribuição Regional" data-type="regions" />
+      <SystemStatusCard />
     </div>
 
     <!-- Quick Actions -->

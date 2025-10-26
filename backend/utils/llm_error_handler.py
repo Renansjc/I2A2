@@ -122,7 +122,7 @@ class LLMEnhancedErrorHandler:
             llm_response = await self.llm_service.generate_completion(
                 "error_analysis",
                 llm_context,
-                model=settings.OPENAI_DEFAULT_MODEL,
+                model=settings.openai_default_model,
                 temperature=0.1
             )
             
@@ -193,7 +193,7 @@ class LLMEnhancedErrorHandler:
             llm_response = await self.llm_service.generate_completion(
                 "admin_alert_generation",
                 llm_context,
-                model=settings.OPENAI_DEFAULT_MODEL,
+                model=settings.openai_default_model,
                 temperature=0.1
             )
             
@@ -457,7 +457,7 @@ class LLMEnhancedErrorHandler:
             llm_response = await self.llm_service.generate_completion(
                 "recovery_plan_generation",
                 llm_context,
-                model=settings.OPENAI_DEFAULT_MODEL,
+                model=settings.openai_default_model,
                 temperature=0.2
             )
             
@@ -596,7 +596,7 @@ class LLMEnhancedErrorHandler:
             llm_response = await self.llm_service.generate_completion(
                 "error_pattern_analysis",
                 llm_context,
-                model=settings.OPENAI_DEFAULT_MODEL,
+                model=settings.openai_default_model,
                 temperature=0.1
             )
             
