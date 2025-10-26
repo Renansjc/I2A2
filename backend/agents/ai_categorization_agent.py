@@ -17,6 +17,28 @@ class LLMEnhancedAICategorizationAgent(BaseAgent):
         super().__init__("LLMEnhancedAICategorizationAgent")
         self.agent_name = "ai_categorization_agent"
     
+    async def initialize(self):
+        """Initialize agent-specific resources"""
+        logger.info("Initializing AI Categorization Agent")
+        # Initialize any required resources here
+        pass
+    
+    async def cleanup(self):
+        """Cleanup agent-specific resources"""
+        logger.info("Cleaning up AI Categorization Agent")
+        # Cleanup any resources here
+        pass
+    
+    async def process(self, data: Any) -> Any:
+        """Process data - main agent functionality"""
+        if isinstance(data, dict) and 'xml_content' in data:
+            return await self.categorize_document(
+                data['xml_content'], 
+                data.get('context', {})
+            )
+        else:
+            raise ValueError("Invalid data format for AI categorization")
+    
     async def categorize_document(self, xml_content: str, context: Dict[str, Any]) -> Dict[str, Any]:
         """Categorize products and services in fiscal document"""
         try:
@@ -137,8 +159,8 @@ class LLMEnhancedAICategorizationAgent(BaseAgent):
         """Determine main category for item"""
         description = item.get("description", "").lower()
         
-        # Simple rule-based categorization (would use LLM)
-        if any(word in description for word in ["computador", "notebook", "eletrônico"]):
+        # Enhanced rule-based categorization for Brazilian products
+        if any(word in description for word in ["computador", "notebook", "eletrônico", "placa", "video", "geforce", "rtx", "gpu"]):
             return "Eletrônicos"
         elif any(word in description for word in ["móvel", "mesa", "cadeira"]):
             return "Móveis"
@@ -146,6 +168,14 @@ class LLMEnhancedAICategorizationAgent(BaseAgent):
             return "Serviços"
         elif any(word in description for word in ["material", "escritório", "papel"]):
             return "Material de Escritório"
+        elif any(word in description for word in ["tesoura", "churrasco", "utensílio", "cozinha"]):
+            return "Utensílios Domésticos"
+        elif any(word in description for word in ["overgrip", "esporte", "tênis", "absorb"]):
+            return "Artigos Esportivos"
+        elif any(word in description for word in ["medicamento", "remédio", "farmácia", "lacday", "cpr"]):
+            return "Medicamentos"
+        elif any(word in description for word in ["glp", "gás", "combustível", "energia"]):
+            return "Combustíveis e Energia"
         else:
             return "Outros"
     
@@ -153,12 +183,14 @@ class LLMEnhancedAICategorizationAgent(BaseAgent):
         """Determine subcategory for item"""
         description = item.get("description", "").lower()
         
-        # Simple subcategorization
+        # Enhanced subcategorization
         if category == "Eletrônicos":
             if "notebook" in description:
                 return "Computadores Portáteis"
             elif "desktop" in description:
                 return "Computadores Desktop"
+            elif any(word in description for word in ["placa", "video", "geforce", "rtx", "gpu"]):
+                return "Placas de Vídeo"
             else:
                 return "Eletrônicos Gerais"
         elif category == "Serviços":
@@ -168,6 +200,26 @@ class LLMEnhancedAICategorizationAgent(BaseAgent):
                 return "Manutenção"
             else:
                 return "Serviços Gerais"
+        elif category == "Utensílios Domésticos":
+            if any(word in description for word in ["tesoura", "churrasco"]):
+                return "Utensílios de Cozinha"
+            else:
+                return "Utensílios Gerais"
+        elif category == "Artigos Esportivos":
+            if "tênis" in description or "overgrip" in description:
+                return "Tênis"
+            else:
+                return "Esportes Gerais"
+        elif category == "Medicamentos":
+            if any(word in description for word in ["cpr", "comprimido"]):
+                return "Medicamentos Orais"
+            else:
+                return "Medicamentos Gerais"
+        elif category == "Combustíveis e Energia":
+            if "glp" in description or "gás" in description:
+                return "Gás GLP"
+            else:
+                return "Combustíveis Gerais"
         else:
             return f"{category} - Geral"
     

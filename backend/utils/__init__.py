@@ -1,1 +1,3 @@
-# Utility functions and helpers
+"""
+Utilities package for the AI Agents system
+"""

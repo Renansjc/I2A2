@@ -1,0 +1,3178 @@
+{
+  "test_results": [
+    {
+      "filename": "42054072257653110000170000000000000725050541353120.xml",
+      "file_size": 5655,
+      "timestamp": "2025-10-26T08:21:33.285809",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "document_type": "NFSE",
+            "document_summary": {
+              "supplier": "Prestador de Serviços",
+              "total_value": 0.0,
+              "emission_date": "2025-10-26T08:21:33.286809",
+              "document_key": "NFSE_20251026082133"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: Prestador de Serviços",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 0.00",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": false,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [],
+            "category_insights": [],
+            "patterns_detected": [],
+            "total_items": 0,
+            "unique_categories": 0,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.0,
+            "risk_factors": [],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: Prestador de Serviços",
+                "value": 0.0,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.286809",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: Prestador de Serviços\n            Valor total: R$ 0.00\n            Risco calculado: 0.00",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "0",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "0",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.287808",
+            "document_id": "NFSE_20251026082133",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 3,
+            "storage_timestamp": "2025-10-26T08:21:33.287808",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.001999,
+      "document_data": {
+        "document_type": "NFSE",
+        "document_summary": {
+          "supplier": "Prestador de Serviços",
+          "total_value": 0.0,
+          "emission_date": "2025-10-26T08:21:33.286809",
+          "document_key": "NFSE_20251026082133"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: Prestador de Serviços",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 0.00",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": false,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [],
+        "category_insights": [],
+        "patterns_detected": [],
+        "total_items": 0,
+        "unique_categories": 0,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: Prestador de Serviços",
+          "value": 0.0,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: Prestador de Serviços\n            Valor total: R$ 0.00\n            Risco calculado: 0.00",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "0",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "0",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.287808",
+        "document_id": "NFSE_20251026082133",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "42250383261420001201550990003348371042993209-nfe.xml",
+      "file_size": 7385,
+      "timestamp": "2025-10-26T08:21:33.287808",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.001,
+          "result": {
+            "document_type": "NFE",
+            "document_summary": {
+              "supplier": "BISTEK SUPERMERCADOS LTDA",
+              "total_value": 6.99,
+              "emission_date": "2025-03-16T15:34:24-03:00",
+              "document_key": "42250383261420001201550990003348371042993209"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: BISTEK SUPERMERCADOS LTDA",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 6.99",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": true,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [
+              {
+                "code": "3077756",
+                "description": "TESOURA PARA CHURRASCO 85 SELOS",
+                "ncm": "82130000",
+                "cfop": "1202",
+                "value": 6.99,
+                "type": "product",
+                "category": "Utensílios Domésticos",
+                "subcategory": "Utensílios de Cozinha",
+                "confidence": 0.85,
+                "categorization_method": "llm_enhanced"
+              }
+            ],
+            "category_insights": [
+              {
+                "type": "category_distribution",
+                "description": "Categoria mais comum: Utensílios Domésticos (1 itens)",
+                "confidence": 0.9
+              },
+              {
+                "type": "value_analysis",
+                "description": "Categoria com maior valor: Utensílios Domésticos (R$ 6.99)",
+                "confidence": 0.95
+              }
+            ],
+            "patterns_detected": [],
+            "total_items": 1,
+            "unique_categories": 1,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.0,
+            "risk_factors": [],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: BISTEK SUPERMERCADOS LTDA",
+                "value": 6.99,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.288808",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: BISTEK SUPERMERCADOS LTDA\n            Valor total: R$ 6.99\n            Risco calculado: 0.00",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 6.99",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "1",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "1",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.288808",
+            "document_id": "42250383261420001201550990003348371042993209",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 4,
+            "storage_timestamp": "2025-10-26T08:21:33.288808",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.001,
+      "document_data": {
+        "document_type": "NFE",
+        "document_summary": {
+          "supplier": "BISTEK SUPERMERCADOS LTDA",
+          "total_value": 6.99,
+          "emission_date": "2025-03-16T15:34:24-03:00",
+          "document_key": "42250383261420001201550990003348371042993209"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: BISTEK SUPERMERCADOS LTDA",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 6.99",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": true,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [
+          {
+            "code": "3077756",
+            "description": "TESOURA PARA CHURRASCO 85 SELOS",
+            "ncm": "82130000",
+            "cfop": "1202",
+            "value": 6.99,
+            "type": "product",
+            "category": "Utensílios Domésticos",
+            "subcategory": "Utensílios de Cozinha",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Utensílios Domésticos (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Utensílios Domésticos (R$ 6.99)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: BISTEK SUPERMERCADOS LTDA",
+          "value": 6.99,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: BISTEK SUPERMERCADOS LTDA\n            Valor total: R$ 6.99\n            Risco calculado: 0.00",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 6.99",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "1",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "1",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.288808",
+        "document_id": "42250383261420001201550990003348371042993209",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "42250802314041001583650100000616501312602792.XML",
+      "file_size": 7267,
+      "timestamp": "2025-10-26T08:21:33.288808",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "document_type": "NFE",
+            "document_summary": {
+              "supplier": "IGUASPORT LTDA",
+              "total_value": 39.99,
+              "emission_date": "2025-08-03T14:20:07-03:00",
+              "document_key": "42250802314041001583650100000616501312602792"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: IGUASPORT LTDA",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 39.99",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": true,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.001503,
+          "result": {
+            "categorized_items": [
+              {
+                "code": "797014",
+                "description": "TA OVERGRIP ABSORB BLUE",
+                "ncm": "39191090",
+                "cfop": "5102",
+                "value": 39.99,
+                "type": "product",
+                "category": "Artigos Esportivos",
+                "subcategory": "Tênis",
+                "confidence": 0.85,
+                "categorization_method": "llm_enhanced"
+              }
+            ],
+            "category_insights": [
+              {
+                "type": "category_distribution",
+                "description": "Categoria mais comum: Artigos Esportivos (1 itens)",
+                "confidence": 0.9
+              },
+              {
+                "type": "value_analysis",
+                "description": "Categoria com maior valor: Artigos Esportivos (R$ 39.99)",
+                "confidence": 0.95
+              }
+            ],
+            "patterns_detected": [],
+            "total_items": 1,
+            "unique_categories": 1,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.0,
+            "risk_factors": [],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: IGUASPORT LTDA",
+                "value": 39.99,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.290311",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: IGUASPORT LTDA\n            Valor total: R$ 39.99\n            Risco calculado: 0.00",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 39.99",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "1",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "1",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.290311",
+            "document_id": "42250802314041001583650100000616501312602792",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 4,
+            "storage_timestamp": "2025-10-26T08:21:33.290311",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.001503,
+      "document_data": {
+        "document_type": "NFE",
+        "document_summary": {
+          "supplier": "IGUASPORT LTDA",
+          "total_value": 39.99,
+          "emission_date": "2025-08-03T14:20:07-03:00",
+          "document_key": "42250802314041001583650100000616501312602792"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: IGUASPORT LTDA",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 39.99",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": true,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [
+          {
+            "code": "797014",
+            "description": "TA OVERGRIP ABSORB BLUE",
+            "ncm": "39191090",
+            "cfop": "5102",
+            "value": 39.99,
+            "type": "product",
+            "category": "Artigos Esportivos",
+            "subcategory": "Tênis",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Artigos Esportivos (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Artigos Esportivos (R$ 39.99)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: IGUASPORT LTDA",
+          "value": 39.99,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: IGUASPORT LTDA\n            Valor total: R$ 39.99\n            Risco calculado: 0.00",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 39.99",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "1",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "1",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.290311",
+        "document_id": "42250802314041001583650100000616501312602792",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "42250884683481030599650010002189261654640539.xml",
+      "file_size": 7382,
+      "timestamp": "2025-10-26T08:21:33.290927",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "document_type": "NFE",
+            "document_summary": {
+              "supplier": "CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+              "total_value": 44.3,
+              "emission_date": "2025-08-17T13:10:35-03:00",
+              "document_key": "42250884683481030599650010002189261654640539"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 44.30",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": true,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [
+              {
+                "code": "1000008025",
+                "description": "LACDAY C/30 CPR MAST 10000 FCC ALU",
+                "ncm": "21069030",
+                "cfop": "5102",
+                "value": 70.74,
+                "type": "product",
+                "category": "Medicamentos",
+                "subcategory": "Medicamentos Orais",
+                "confidence": 0.85,
+                "categorization_method": "llm_enhanced"
+              }
+            ],
+            "category_insights": [
+              {
+                "type": "category_distribution",
+                "description": "Categoria mais comum: Medicamentos (1 itens)",
+                "confidence": 0.9
+              },
+              {
+                "type": "value_analysis",
+                "description": "Categoria com maior valor: Medicamentos (R$ 70.74)",
+                "confidence": 0.95
+              }
+            ],
+            "patterns_detected": [],
+            "total_items": 1,
+            "unique_categories": 1,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.0,
+            "risk_factors": [],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+                "value": 44.3,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.292455",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: CIA LATINO AMERICANA DE MEDICAMENTOS (958)\n            Valor total: R$ 44.30\n            Risco calculado: 0.00",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 44.30",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "1",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "1",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.292455",
+            "document_id": "42250884683481030599650010002189261654640539",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 4,
+            "storage_timestamp": "2025-10-26T08:21:33.292455",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.001528,
+      "document_data": {
+        "document_type": "NFE",
+        "document_summary": {
+          "supplier": "CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+          "total_value": 44.3,
+          "emission_date": "2025-08-17T13:10:35-03:00",
+          "document_key": "42250884683481030599650010002189261654640539"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 44.30",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": true,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [
+          {
+            "code": "1000008025",
+            "description": "LACDAY C/30 CPR MAST 10000 FCC ALU",
+            "ncm": "21069030",
+            "cfop": "5102",
+            "value": 70.74,
+            "type": "product",
+            "category": "Medicamentos",
+            "subcategory": "Medicamentos Orais",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Medicamentos (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Medicamentos (R$ 70.74)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+          "value": 44.3,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: CIA LATINO AMERICANA DE MEDICAMENTOS (958)\n            Valor total: R$ 44.30\n            Risco calculado: 0.00",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 44.30",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "1",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "1",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.292455",
+        "document_id": "42250884683481030599650010002189261654640539",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "42251019791896002731550030004630421061735279.xml",
+      "file_size": 8792,
+      "timestamp": "2025-10-26T08:21:33.292455",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "document_type": "NFE",
+            "document_summary": {
+              "supplier": "SUPERGASBRAS ENERGIA LTDA",
+              "total_value": 124.4,
+              "emission_date": "2025-10-06T14:51:41-03:00",
+              "document_key": "42251019791896002731550030004630421061735279"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: SUPERGASBRAS ENERGIA LTDA",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 124.40",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": true,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [
+              {
+                "code": "000000000000096809",
+                "description": "ONU 1075 GLP 2.1 GLP GRANEL VENDA SGB",
+                "ncm": "27111910",
+                "cfop": "5656",
+                "value": 124.4,
+                "type": "product",
+                "category": "Combustíveis e Energia",
+                "subcategory": "Gás GLP",
+                "confidence": 0.85,
+                "categorization_method": "llm_enhanced"
+              }
+            ],
+            "category_insights": [
+              {
+                "type": "category_distribution",
+                "description": "Categoria mais comum: Combustíveis e Energia (1 itens)",
+                "confidence": 0.9
+              },
+              {
+                "type": "value_analysis",
+                "description": "Categoria com maior valor: Combustíveis e Energia (R$ 124.40)",
+                "confidence": 0.95
+              }
+            ],
+            "patterns_detected": [],
+            "total_items": 1,
+            "unique_categories": 1,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.0,
+            "risk_factors": [],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: SUPERGASBRAS ENERGIA LTDA",
+                "value": 124.4,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.294452",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: SUPERGASBRAS ENERGIA LTDA\n            Valor total: R$ 124.40\n            Risco calculado: 0.00",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 124.40",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "1",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "1",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.294452",
+            "document_id": "42251019791896002731550030004630421061735279",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 4,
+            "storage_timestamp": "2025-10-26T08:21:33.294452",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.001997,
+      "document_data": {
+        "document_type": "NFE",
+        "document_summary": {
+          "supplier": "SUPERGASBRAS ENERGIA LTDA",
+          "total_value": 124.4,
+          "emission_date": "2025-10-06T14:51:41-03:00",
+          "document_key": "42251019791896002731550030004630421061735279"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: SUPERGASBRAS ENERGIA LTDA",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 124.40",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": true,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [
+          {
+            "code": "000000000000096809",
+            "description": "ONU 1075 GLP 2.1 GLP GRANEL VENDA SGB",
+            "ncm": "27111910",
+            "cfop": "5656",
+            "value": 124.4,
+            "type": "product",
+            "category": "Combustíveis e Energia",
+            "subcategory": "Gás GLP",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Combustíveis e Energia (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Combustíveis e Energia (R$ 124.40)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: SUPERGASBRAS ENERGIA LTDA",
+          "value": 124.4,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: SUPERGASBRAS ENERGIA LTDA\n            Valor total: R$ 124.40\n            Risco calculado: 0.00",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 124.40",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "1",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "1",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.294452",
+        "document_id": "42251019791896002731550030004630421061735279",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "exemplo.xml",
+      "file_size": 8204,
+      "timestamp": "2025-10-26T08:21:33.294452",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.001001,
+          "result": {
+            "document_type": "NFE",
+            "document_summary": {
+              "supplier": "GK INFOSTORE SP",
+              "total_value": 5533.13,
+              "emission_date": "2025-09-15T09:55:59-03:00",
+              "document_key": "35250941797695000323550010000021281408322997"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: GK INFOSTORE SP",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 5533.13",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": true,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [
+              {
+                "code": "912-V531-092",
+                "description": "Placa de Video MSI GeForce RTX 5070 TI Ventus 3X OC 16GB GDDR7 256 bit - 912-V531-092",
+                "ncm": "85423190",
+                "cfop": "6101",
+                "value": 6534.1,
+                "type": "product",
+                "category": "Eletrônicos",
+                "subcategory": "Placas de Vídeo",
+                "confidence": 0.85,
+                "categorization_method": "llm_enhanced"
+              }
+            ],
+            "category_insights": [
+              {
+                "type": "category_distribution",
+                "description": "Categoria mais comum: Eletrônicos (1 itens)",
+                "confidence": 0.9
+              },
+              {
+                "type": "value_analysis",
+                "description": "Categoria com maior valor: Eletrônicos (R$ 6534.10)",
+                "confidence": 0.95
+              }
+            ],
+            "patterns_detected": [
+              {
+                "type": "high_value_items",
+                "description": "Identificados 1 itens de alto valor (>R$ 1.000)",
+                "items_count": 1,
+                "confidence": 0.9
+              }
+            ],
+            "total_items": 1,
+            "unique_categories": 1,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.1,
+            "risk_factors": [
+              "Medium value transaction"
+            ],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: GK INFOSTORE SP",
+                "value": 5533.13,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              },
+              {
+                "type": "high_value_alert",
+                "description": "Transação de alto valor detectada: R$ 5,533.13",
+                "recommendation": "Revisar aprovações e documentação adicional"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.295453",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: GK INFOSTORE SP\n            Valor total: R$ 5,533.13\n            Risco calculado: 0.10",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 5,533.13",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.10",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "1",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "1",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.295453",
+            "document_id": "35250941797695000323550010000021281408322997",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 5,
+            "storage_timestamp": "2025-10-26T08:21:33.296452",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.002,
+      "document_data": {
+        "document_type": "NFE",
+        "document_summary": {
+          "supplier": "GK INFOSTORE SP",
+          "total_value": 5533.13,
+          "emission_date": "2025-09-15T09:55:59-03:00",
+          "document_key": "35250941797695000323550010000021281408322997"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: GK INFOSTORE SP",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 5533.13",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": true,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [
+          {
+            "code": "912-V531-092",
+            "description": "Placa de Video MSI GeForce RTX 5070 TI Ventus 3X OC 16GB GDDR7 256 bit - 912-V531-092",
+            "ncm": "85423190",
+            "cfop": "6101",
+            "value": 6534.1,
+            "type": "product",
+            "category": "Eletrônicos",
+            "subcategory": "Placas de Vídeo",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Eletrônicos (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Eletrônicos (R$ 6534.10)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [
+          {
+            "type": "high_value_items",
+            "description": "Identificados 1 itens de alto valor (>R$ 1.000)",
+            "items_count": 1,
+            "confidence": 0.9
+          }
+        ],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: GK INFOSTORE SP",
+          "value": 5533.13,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        },
+        {
+          "type": "high_value_alert",
+          "description": "Transação de alto valor detectada: R$ 5,533.13",
+          "recommendation": "Revisar aprovações e documentação adicional"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: GK INFOSTORE SP\n            Valor total: R$ 5,533.13\n            Risco calculado: 0.10",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 5,533.13",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.10",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "1",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "1",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.295453",
+        "document_id": "35250941797695000323550010000021281408322997",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "42054072257653110000170000000000000725050541353120.xml",
+      "file_size": 5655,
+      "timestamp": "2025-10-26T08:21:33.296452",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "document_type": "NFSE",
+            "document_summary": {
+              "supplier": "Prestador de Serviços",
+              "total_value": 0.0,
+              "emission_date": "2025-10-26T08:21:33.296452",
+              "document_key": "NFSE_20251026082133"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: Prestador de Serviços",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 0.00",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": false,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [],
+            "category_insights": [],
+            "patterns_detected": [],
+            "total_items": 0,
+            "unique_categories": 0,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.0,
+            "risk_factors": [],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: Prestador de Serviços",
+                "value": 0.0,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.297451",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: Prestador de Serviços\n            Valor total: R$ 0.00\n            Risco calculado: 0.00",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "0",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "0",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.297451",
+            "document_id": "NFSE_20251026082133",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 3,
+            "storage_timestamp": "2025-10-26T08:21:33.297451",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.000999,
+      "document_data": {
+        "document_type": "NFSE",
+        "document_summary": {
+          "supplier": "Prestador de Serviços",
+          "total_value": 0.0,
+          "emission_date": "2025-10-26T08:21:33.296452",
+          "document_key": "NFSE_20251026082133"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: Prestador de Serviços",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 0.00",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": false,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [],
+        "category_insights": [],
+        "patterns_detected": [],
+        "total_items": 0,
+        "unique_categories": 0,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: Prestador de Serviços",
+          "value": 0.0,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: Prestador de Serviços\n            Valor total: R$ 0.00\n            Risco calculado: 0.00",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "0",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "0",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.297451",
+        "document_id": "NFSE_20251026082133",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "42250383261420001201550990003348371042993209-nfe.xml",
+      "file_size": 7385,
+      "timestamp": "2025-10-26T08:21:33.297451",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "document_type": "NFE",
+            "document_summary": {
+              "supplier": "BISTEK SUPERMERCADOS LTDA",
+              "total_value": 6.99,
+              "emission_date": "2025-03-16T15:34:24-03:00",
+              "document_key": "42250383261420001201550990003348371042993209"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: BISTEK SUPERMERCADOS LTDA",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 6.99",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": true,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [
+              {
+                "code": "3077756",
+                "description": "TESOURA PARA CHURRASCO 85 SELOS",
+                "ncm": "82130000",
+                "cfop": "1202",
+                "value": 6.99,
+                "type": "product",
+                "category": "Utensílios Domésticos",
+                "subcategory": "Utensílios de Cozinha",
+                "confidence": 0.85,
+                "categorization_method": "llm_enhanced"
+              }
+            ],
+            "category_insights": [
+              {
+                "type": "category_distribution",
+                "description": "Categoria mais comum: Utensílios Domésticos (1 itens)",
+                "confidence": 0.9
+              },
+              {
+                "type": "value_analysis",
+                "description": "Categoria com maior valor: Utensílios Domésticos (R$ 6.99)",
+                "confidence": 0.95
+              }
+            ],
+            "patterns_detected": [],
+            "total_items": 1,
+            "unique_categories": 1,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.0,
+            "risk_factors": [],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: BISTEK SUPERMERCADOS LTDA",
+                "value": 6.99,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.299454",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: BISTEK SUPERMERCADOS LTDA\n            Valor total: R$ 6.99\n            Risco calculado: 0.00",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 6.99",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "1",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "1",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.299454",
+            "document_id": "42250383261420001201550990003348371042993209",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 4,
+            "storage_timestamp": "2025-10-26T08:21:33.299454",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.002003,
+      "document_data": {
+        "document_type": "NFE",
+        "document_summary": {
+          "supplier": "BISTEK SUPERMERCADOS LTDA",
+          "total_value": 6.99,
+          "emission_date": "2025-03-16T15:34:24-03:00",
+          "document_key": "42250383261420001201550990003348371042993209"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: BISTEK SUPERMERCADOS LTDA",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 6.99",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": true,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [
+          {
+            "code": "3077756",
+            "description": "TESOURA PARA CHURRASCO 85 SELOS",
+            "ncm": "82130000",
+            "cfop": "1202",
+            "value": 6.99,
+            "type": "product",
+            "category": "Utensílios Domésticos",
+            "subcategory": "Utensílios de Cozinha",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Utensílios Domésticos (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Utensílios Domésticos (R$ 6.99)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: BISTEK SUPERMERCADOS LTDA",
+          "value": 6.99,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: BISTEK SUPERMERCADOS LTDA\n            Valor total: R$ 6.99\n            Risco calculado: 0.00",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 6.99",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "1",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "1",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.299454",
+        "document_id": "42250383261420001201550990003348371042993209",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "42250802314041001583650100000616501312602792.XML",
+      "file_size": 7267,
+      "timestamp": "2025-10-26T08:21:33.299454",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "document_type": "NFE",
+            "document_summary": {
+              "supplier": "IGUASPORT LTDA",
+              "total_value": 39.99,
+              "emission_date": "2025-08-03T14:20:07-03:00",
+              "document_key": "42250802314041001583650100000616501312602792"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: IGUASPORT LTDA",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 39.99",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": true,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [
+              {
+                "code": "797014",
+                "description": "TA OVERGRIP ABSORB BLUE",
+                "ncm": "39191090",
+                "cfop": "5102",
+                "value": 39.99,
+                "type": "product",
+                "category": "Artigos Esportivos",
+                "subcategory": "Tênis",
+                "confidence": 0.85,
+                "categorization_method": "llm_enhanced"
+              }
+            ],
+            "category_insights": [
+              {
+                "type": "category_distribution",
+                "description": "Categoria mais comum: Artigos Esportivos (1 itens)",
+                "confidence": 0.9
+              },
+              {
+                "type": "value_analysis",
+                "description": "Categoria com maior valor: Artigos Esportivos (R$ 39.99)",
+                "confidence": 0.95
+              }
+            ],
+            "patterns_detected": [],
+            "total_items": 1,
+            "unique_categories": 1,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.0,
+            "risk_factors": [],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: IGUASPORT LTDA",
+                "value": 39.99,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.300958",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: IGUASPORT LTDA\n            Valor total: R$ 39.99\n            Risco calculado: 0.00",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 39.99",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "1",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "1",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.301471",
+            "document_id": "42250802314041001583650100000616501312602792",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 4,
+            "storage_timestamp": "2025-10-26T08:21:33.301471",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.002017,
+      "document_data": {
+        "document_type": "NFE",
+        "document_summary": {
+          "supplier": "IGUASPORT LTDA",
+          "total_value": 39.99,
+          "emission_date": "2025-08-03T14:20:07-03:00",
+          "document_key": "42250802314041001583650100000616501312602792"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: IGUASPORT LTDA",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 39.99",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": true,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [
+          {
+            "code": "797014",
+            "description": "TA OVERGRIP ABSORB BLUE",
+            "ncm": "39191090",
+            "cfop": "5102",
+            "value": 39.99,
+            "type": "product",
+            "category": "Artigos Esportivos",
+            "subcategory": "Tênis",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Artigos Esportivos (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Artigos Esportivos (R$ 39.99)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: IGUASPORT LTDA",
+          "value": 39.99,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: IGUASPORT LTDA\n            Valor total: R$ 39.99\n            Risco calculado: 0.00",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 39.99",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "1",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "1",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.301471",
+        "document_id": "42250802314041001583650100000616501312602792",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "42250884683481030599650010002189261654640539.xml",
+      "file_size": 7382,
+      "timestamp": "2025-10-26T08:21:33.301471",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "document_type": "NFE",
+            "document_summary": {
+              "supplier": "CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+              "total_value": 44.3,
+              "emission_date": "2025-08-17T13:10:35-03:00",
+              "document_key": "42250884683481030599650010002189261654640539"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 44.30",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": true,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [
+              {
+                "code": "1000008025",
+                "description": "LACDAY C/30 CPR MAST 10000 FCC ALU",
+                "ncm": "21069030",
+                "cfop": "5102",
+                "value": 70.74,
+                "type": "product",
+                "category": "Medicamentos",
+                "subcategory": "Medicamentos Orais",
+                "confidence": 0.85,
+                "categorization_method": "llm_enhanced"
+              }
+            ],
+            "category_insights": [
+              {
+                "type": "category_distribution",
+                "description": "Categoria mais comum: Medicamentos (1 itens)",
+                "confidence": 0.9
+              },
+              {
+                "type": "value_analysis",
+                "description": "Categoria com maior valor: Medicamentos (R$ 70.74)",
+                "confidence": 0.95
+              }
+            ],
+            "patterns_detected": [],
+            "total_items": 1,
+            "unique_categories": 1,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.0,
+            "risk_factors": [],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+                "value": 44.3,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.302783",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: CIA LATINO AMERICANA DE MEDICAMENTOS (958)\n            Valor total: R$ 44.30\n            Risco calculado: 0.00",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 44.30",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "1",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "1",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.302783",
+            "document_id": "42250884683481030599650010002189261654640539",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 4,
+            "storage_timestamp": "2025-10-26T08:21:33.302783",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.001312,
+      "document_data": {
+        "document_type": "NFE",
+        "document_summary": {
+          "supplier": "CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+          "total_value": 44.3,
+          "emission_date": "2025-08-17T13:10:35-03:00",
+          "document_key": "42250884683481030599650010002189261654640539"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 44.30",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": true,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [
+          {
+            "code": "1000008025",
+            "description": "LACDAY C/30 CPR MAST 10000 FCC ALU",
+            "ncm": "21069030",
+            "cfop": "5102",
+            "value": 70.74,
+            "type": "product",
+            "category": "Medicamentos",
+            "subcategory": "Medicamentos Orais",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Medicamentos (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Medicamentos (R$ 70.74)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+          "value": 44.3,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: CIA LATINO AMERICANA DE MEDICAMENTOS (958)\n            Valor total: R$ 44.30\n            Risco calculado: 0.00",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 44.30",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "1",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "1",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.302783",
+        "document_id": "42250884683481030599650010002189261654640539",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "42251019791896002731550030004630421061735279.xml",
+      "file_size": 8792,
+      "timestamp": "2025-10-26T08:21:33.302783",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.001011,
+          "result": {
+            "document_type": "NFE",
+            "document_summary": {
+              "supplier": "SUPERGASBRAS ENERGIA LTDA",
+              "total_value": 124.4,
+              "emission_date": "2025-10-06T14:51:41-03:00",
+              "document_key": "42251019791896002731550030004630421061735279"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: SUPERGASBRAS ENERGIA LTDA",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 124.40",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": true,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [
+              {
+                "code": "000000000000096809",
+                "description": "ONU 1075 GLP 2.1 GLP GRANEL VENDA SGB",
+                "ncm": "27111910",
+                "cfop": "5656",
+                "value": 124.4,
+                "type": "product",
+                "category": "Combustíveis e Energia",
+                "subcategory": "Gás GLP",
+                "confidence": 0.85,
+                "categorization_method": "llm_enhanced"
+              }
+            ],
+            "category_insights": [
+              {
+                "type": "category_distribution",
+                "description": "Categoria mais comum: Combustíveis e Energia (1 itens)",
+                "confidence": 0.9
+              },
+              {
+                "type": "value_analysis",
+                "description": "Categoria com maior valor: Combustíveis e Energia (R$ 124.40)",
+                "confidence": 0.95
+              }
+            ],
+            "patterns_detected": [],
+            "total_items": 1,
+            "unique_categories": 1,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.0,
+            "risk_factors": [],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: SUPERGASBRAS ENERGIA LTDA",
+                "value": 124.4,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.303794",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: SUPERGASBRAS ENERGIA LTDA\n            Valor total: R$ 124.40\n            Risco calculado: 0.00",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 124.40",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.00",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "1",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "1",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.303794",
+            "document_id": "42251019791896002731550030004630421061735279",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 4,
+            "storage_timestamp": "2025-10-26T08:21:33.303794",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.001011,
+      "document_data": {
+        "document_type": "NFE",
+        "document_summary": {
+          "supplier": "SUPERGASBRAS ENERGIA LTDA",
+          "total_value": 124.4,
+          "emission_date": "2025-10-06T14:51:41-03:00",
+          "document_key": "42251019791896002731550030004630421061735279"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: SUPERGASBRAS ENERGIA LTDA",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 124.40",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": true,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [
+          {
+            "code": "000000000000096809",
+            "description": "ONU 1075 GLP 2.1 GLP GRANEL VENDA SGB",
+            "ncm": "27111910",
+            "cfop": "5656",
+            "value": 124.4,
+            "type": "product",
+            "category": "Combustíveis e Energia",
+            "subcategory": "Gás GLP",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Combustíveis e Energia (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Combustíveis e Energia (R$ 124.40)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: SUPERGASBRAS ENERGIA LTDA",
+          "value": 124.4,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: SUPERGASBRAS ENERGIA LTDA\n            Valor total: R$ 124.40\n            Risco calculado: 0.00",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 124.40",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.00",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "1",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "1",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.303794",
+        "document_id": "42251019791896002731550030004630421061735279",
+        "approval_required": false
+      },
+      "errors": []
+    },
+    {
+      "filename": "exemplo.xml",
+      "file_size": 8204,
+      "timestamp": "2025-10-26T08:21:33.304792",
+      "success": true,
+      "workflow_stages": {
+        "xml_processing": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "document_type": "NFE",
+            "document_summary": {
+              "supplier": "GK INFOSTORE SP",
+              "total_value": 5533.13,
+              "emission_date": "2025-09-15T09:55:59-03:00",
+              "document_key": "35250941797695000323550010000021281408322997"
+            },
+            "semantic_analysis": {
+              "document_structure": "valid",
+              "data_completeness": 0.85,
+              "confidence": 0.9,
+              "key_insights": [
+                "Documento fiscal válido identificado",
+                "Estrutura XML conforme padrão brasileiro",
+                "Dados essenciais extraídos com sucesso"
+              ]
+            },
+            "business_insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Fornecedor identificado: GK INFOSTORE SP",
+                "confidence": 0.85,
+                "recommendation": "Monitorar padrões de fornecimento"
+              },
+              {
+                "type": "value_analysis",
+                "description": "Valor do documento: R$ 5533.13",
+                "confidence": 0.9,
+                "recommendation": "Verificar conformidade com orçamento"
+              }
+            ],
+            "anomalies": [],
+            "business_validation": {
+              "has_supplier": true,
+              "has_total_value": true,
+              "has_emission_date": true,
+              "has_document_key": true
+            },
+            "processing_status": "completed"
+          }
+        },
+        "ai_categorization": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "categorized_items": [
+              {
+                "code": "912-V531-092",
+                "description": "Placa de Video MSI GeForce RTX 5070 TI Ventus 3X OC 16GB GDDR7 256 bit - 912-V531-092",
+                "ncm": "85423190",
+                "cfop": "6101",
+                "value": 6534.1,
+                "type": "product",
+                "category": "Eletrônicos",
+                "subcategory": "Placas de Vídeo",
+                "confidence": 0.85,
+                "categorization_method": "llm_enhanced"
+              }
+            ],
+            "category_insights": [
+              {
+                "type": "category_distribution",
+                "description": "Categoria mais comum: Eletrônicos (1 itens)",
+                "confidence": 0.9
+              },
+              {
+                "type": "value_analysis",
+                "description": "Categoria com maior valor: Eletrônicos (R$ 6534.10)",
+                "confidence": 0.95
+              }
+            ],
+            "patterns_detected": [
+              {
+                "type": "high_value_items",
+                "description": "Identificados 1 itens de alto valor (>R$ 1.000)",
+                "items_count": 1,
+                "confidence": 0.9
+              }
+            ],
+            "total_items": 1,
+            "unique_categories": 1,
+            "confidence": 0.85,
+            "processing_status": "completed"
+          }
+        },
+        "business_analysis": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "risk_score": 0.1,
+            "risk_factors": [
+              "Medium value transaction"
+            ],
+            "insights": [
+              {
+                "type": "supplier_analysis",
+                "description": "Transação com fornecedor: GK INFOSTORE SP",
+                "value": 5533.13,
+                "recommendation": "Monitorar histórico de transações com este fornecedor"
+              },
+              {
+                "type": "high_value_alert",
+                "description": "Transação de alto valor detectada: R$ 5,533.13",
+                "recommendation": "Revisar aprovações e documentação adicional"
+              }
+            ],
+            "analysis_timestamp": "2025-10-26T08:21:33.306443",
+            "confidence": 0.85
+          }
+        },
+        "executive_reporting": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: GK INFOSTORE SP\n            Valor total: R$ 5,533.13\n            Risco calculado: 0.10",
+            "key_metrics": [
+              {
+                "metric": "Document Value",
+                "value": "R$ 5,533.13",
+                "status": "normal"
+              },
+              {
+                "metric": "Risk Score",
+                "value": "0.10",
+                "status": "normal"
+              },
+              {
+                "metric": "Categories",
+                "value": "1",
+                "status": "normal"
+              },
+              {
+                "metric": "Items",
+                "value": "1",
+                "status": "normal"
+              }
+            ],
+            "recommendations": [
+              "Documento dentro dos parâmetros normais"
+            ],
+            "report_timestamp": "2025-10-26T08:21:33.306443",
+            "document_id": "35250941797695000323550010000021281408322997",
+            "approval_required": false
+          }
+        },
+        "database_storage": {
+          "success": true,
+          "processing_time": 0.0,
+          "result": {
+            "records_created": 5,
+            "storage_timestamp": "2025-10-26T08:21:33.306443",
+            "database_status": "simulated_success"
+          }
+        }
+      },
+      "total_processing_time": 0.001651,
+      "document_data": {
+        "document_type": "NFE",
+        "document_summary": {
+          "supplier": "GK INFOSTORE SP",
+          "total_value": 5533.13,
+          "emission_date": "2025-09-15T09:55:59-03:00",
+          "document_key": "35250941797695000323550010000021281408322997"
+        },
+        "semantic_analysis": {
+          "document_structure": "valid",
+          "data_completeness": 0.85,
+          "confidence": 0.9,
+          "key_insights": [
+            "Documento fiscal válido identificado",
+            "Estrutura XML conforme padrão brasileiro",
+            "Dados essenciais extraídos com sucesso"
+          ]
+        },
+        "business_insights": [
+          {
+            "type": "supplier_analysis",
+            "description": "Fornecedor identificado: GK INFOSTORE SP",
+            "confidence": 0.85,
+            "recommendation": "Monitorar padrões de fornecimento"
+          },
+          {
+            "type": "value_analysis",
+            "description": "Valor do documento: R$ 5533.13",
+            "confidence": 0.9,
+            "recommendation": "Verificar conformidade com orçamento"
+          }
+        ],
+        "anomalies": [],
+        "business_validation": {
+          "has_supplier": true,
+          "has_total_value": true,
+          "has_emission_date": true,
+          "has_document_key": true
+        },
+        "processing_status": "completed"
+      },
+      "categorization_data": {
+        "categorized_items": [
+          {
+            "code": "912-V531-092",
+            "description": "Placa de Video MSI GeForce RTX 5070 TI Ventus 3X OC 16GB GDDR7 256 bit - 912-V531-092",
+            "ncm": "85423190",
+            "cfop": "6101",
+            "value": 6534.1,
+            "type": "product",
+            "category": "Eletrônicos",
+            "subcategory": "Placas de Vídeo",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Eletrônicos (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Eletrônicos (R$ 6534.10)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [
+          {
+            "type": "high_value_items",
+            "description": "Identificados 1 itens de alto valor (>R$ 1.000)",
+            "items_count": 1,
+            "confidence": 0.9
+          }
+        ],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "business_insights": [
+        {
+          "type": "supplier_analysis",
+          "description": "Transação com fornecedor: GK INFOSTORE SP",
+          "value": 5533.13,
+          "recommendation": "Monitorar histórico de transações com este fornecedor"
+        },
+        {
+          "type": "high_value_alert",
+          "description": "Transação de alto valor detectada: R$ 5,533.13",
+          "recommendation": "Revisar aprovações e documentação adicional"
+        }
+      ],
+      "executive_summary": {
+        "executive_summary": "Documento fiscal processado com sucesso. \n            Fornecedor: GK INFOSTORE SP\n            Valor total: R$ 5,533.13\n            Risco calculado: 0.10",
+        "key_metrics": [
+          {
+            "metric": "Document Value",
+            "value": "R$ 5,533.13",
+            "status": "normal"
+          },
+          {
+            "metric": "Risk Score",
+            "value": "0.10",
+            "status": "normal"
+          },
+          {
+            "metric": "Categories",
+            "value": "1",
+            "status": "normal"
+          },
+          {
+            "metric": "Items",
+            "value": "1",
+            "status": "normal"
+          }
+        ],
+        "recommendations": [
+          "Documento dentro dos parâmetros normais"
+        ],
+        "report_timestamp": "2025-10-26T08:21:33.306443",
+        "document_id": "35250941797695000323550010000021281408322997",
+        "approval_required": false
+      },
+      "errors": []
+    }
+  ],
+  "workflow_metrics": {
+    "total_processing_time": 0.01902,
+    "documents_processed": 12,
+    "items_categorized": 10,
+    "insights_generated": 14,
+    "anomalies_detected": 0,
+    "business_validations": 48
+  },
+  "summary": {
+    "total_files": 12,
+    "successful_files": 12,
+    "failed_files": 0,
+    "success_rate": 100.0
+  }
+}

@@ -3,8 +3,8 @@ AI Agents for the Invoice Analysis System
 """
 
 from .base_agent import BaseAgent
-from .xml_processing_agent import XMLProcessingAgent
-from .ai_categorization_agent import AICategorization_Agent
+from .xml_processing_agent import LLMEnhancedXMLProcessingAgent
+from .ai_categorization_agent import LLMEnhancedAICategorizationAgent
 from .master_agent import MasterAgent
 from .sql_agent import SQLAgent, LLMEnhancedSQLAgent
 from .report_agent import ReportAgent
@@ -14,8 +14,8 @@ from .monitoring_agent import MonitoringAgent
 
 __all__ = [
     'BaseAgent',
-    'XMLProcessingAgent',
-    'AICategorization_Agent',
+    'LLMEnhancedXMLProcessingAgent',
+    'LLMEnhancedAICategorizationAgent',
     'MasterAgent',
     'SQLAgent',
     'LLMEnhancedSQLAgent',

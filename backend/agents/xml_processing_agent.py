@@ -20,6 +20,28 @@ class LLMEnhancedXMLProcessingAgent(BaseAgent):
         super().__init__("LLMEnhancedXMLProcessingAgent")
         self.agent_name = "xml_processing_agent"
     
+    async def initialize(self):
+        """Initialize agent-specific resources"""
+        logger.info("Initializing XML Processing Agent")
+        # Initialize any required resources here
+        pass
+    
+    async def cleanup(self):
+        """Cleanup agent-specific resources"""
+        logger.info("Cleaning up XML Processing Agent")
+        # Cleanup any resources here
+        pass
+    
+    async def process(self, data: Any) -> Any:
+        """Process data - main agent functionality"""
+        if isinstance(data, dict) and 'xml_content' in data:
+            return await self.process_xml_document(
+                data['xml_content'], 
+                data.get('context', {})
+            )
+        else:
+            raise ValueError("Invalid data format for XML processing")
+    
     async def process_xml_document(self, xml_content: str, context: Dict[str, Any]) -> Dict[str, Any]:
         """Process XML document with enhanced LLM capabilities and database integration"""
         try:

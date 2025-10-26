@@ -1,0 +1,511 @@
+{
+  "test_results": [
+    {
+      "filename": "42250383261420001201550990003348371042993209-nfe.xml",
+      "file_size": 7385,
+      "items_found": 1,
+      "items_categorized": 1,
+      "categories_found": 1,
+      "insights_generated": 2,
+      "patterns_detected": 0,
+      "supplier_name": "BISTEK SUPERMERCADOS LTDA",
+      "full_result": {
+        "categorized_items": [
+          {
+            "code": "3077756",
+            "description": "TESOURA PARA CHURRASCO 85 SELOS",
+            "ncm": "82130000",
+            "cfop": "1202",
+            "value": 6.99,
+            "type": "product",
+            "category": "Outros",
+            "subcategory": "Outros - Geral",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Outros (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Outros (R$ 6.99)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "success": true
+    },
+    {
+      "filename": "42250802314041001583650100000616501312602792.XML",
+      "file_size": 7267,
+      "items_found": 1,
+      "items_categorized": 1,
+      "categories_found": 1,
+      "insights_generated": 2,
+      "patterns_detected": 0,
+      "supplier_name": "IGUASPORT LTDA",
+      "full_result": {
+        "categorized_items": [
+          {
+            "code": "797014",
+            "description": "TA OVERGRIP ABSORB BLUE",
+            "ncm": "39191090",
+            "cfop": "5102",
+            "value": 39.99,
+            "type": "product",
+            "category": "Outros",
+            "subcategory": "Outros - Geral",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Outros (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Outros (R$ 39.99)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "success": true
+    },
+    {
+      "filename": "42250884683481030599650010002189261654640539.xml",
+      "file_size": 7382,
+      "items_found": 1,
+      "items_categorized": 1,
+      "categories_found": 1,
+      "insights_generated": 2,
+      "patterns_detected": 0,
+      "supplier_name": "CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+      "full_result": {
+        "categorized_items": [
+          {
+            "code": "1000008025",
+            "description": "LACDAY C/30 CPR MAST 10000 FCC ALU",
+            "ncm": "21069030",
+            "cfop": "5102",
+            "value": 70.74,
+            "type": "product",
+            "category": "Outros",
+            "subcategory": "Outros - Geral",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Outros (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Outros (R$ 70.74)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "success": true
+    },
+    {
+      "filename": "42251019791896002731550030004630421061735279.xml",
+      "file_size": 8792,
+      "items_found": 1,
+      "items_categorized": 1,
+      "categories_found": 1,
+      "insights_generated": 2,
+      "patterns_detected": 0,
+      "supplier_name": "SUPERGASBRAS ENERGIA LTDA",
+      "full_result": {
+        "categorized_items": [
+          {
+            "code": "000000000000096809",
+            "description": "ONU 1075 GLP 2.1 GLP GRANEL VENDA SGB",
+            "ncm": "27111910",
+            "cfop": "5656",
+            "value": 124.4,
+            "type": "product",
+            "category": "Outros",
+            "subcategory": "Outros - Geral",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Outros (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Outros (R$ 124.40)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "success": true
+    },
+    {
+      "filename": "exemplo.xml",
+      "file_size": 8204,
+      "items_found": 1,
+      "items_categorized": 1,
+      "categories_found": 1,
+      "insights_generated": 2,
+      "patterns_detected": 1,
+      "supplier_name": "GK INFOSTORE SP",
+      "full_result": {
+        "categorized_items": [
+          {
+            "code": "912-V531-092",
+            "description": "Placa de Video MSI GeForce RTX 5070 TI Ventus 3X OC 16GB GDDR7 256 bit - 912-V531-092",
+            "ncm": "85423190",
+            "cfop": "6101",
+            "value": 6534.1,
+            "type": "product",
+            "category": "Outros",
+            "subcategory": "Outros - Geral",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Outros (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Outros (R$ 6534.10)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [
+          {
+            "type": "high_value_items",
+            "description": "Identificados 1 itens de alto valor (>R$ 1.000)",
+            "items_count": 1,
+            "confidence": 0.9
+          }
+        ],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "success": true
+    },
+    {
+      "filename": "42250383261420001201550990003348371042993209-nfe.xml",
+      "file_size": 7385,
+      "items_found": 1,
+      "items_categorized": 1,
+      "categories_found": 1,
+      "insights_generated": 2,
+      "patterns_detected": 0,
+      "supplier_name": "BISTEK SUPERMERCADOS LTDA",
+      "full_result": {
+        "categorized_items": [
+          {
+            "code": "3077756",
+            "description": "TESOURA PARA CHURRASCO 85 SELOS",
+            "ncm": "82130000",
+            "cfop": "1202",
+            "value": 6.99,
+            "type": "product",
+            "category": "Outros",
+            "subcategory": "Outros - Geral",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Outros (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Outros (R$ 6.99)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "success": true
+    },
+    {
+      "filename": "42250802314041001583650100000616501312602792.XML",
+      "file_size": 7267,
+      "items_found": 1,
+      "items_categorized": 1,
+      "categories_found": 1,
+      "insights_generated": 2,
+      "patterns_detected": 0,
+      "supplier_name": "IGUASPORT LTDA",
+      "full_result": {
+        "categorized_items": [
+          {
+            "code": "797014",
+            "description": "TA OVERGRIP ABSORB BLUE",
+            "ncm": "39191090",
+            "cfop": "5102",
+            "value": 39.99,
+            "type": "product",
+            "category": "Outros",
+            "subcategory": "Outros - Geral",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Outros (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Outros (R$ 39.99)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "success": true
+    },
+    {
+      "filename": "42250884683481030599650010002189261654640539.xml",
+      "file_size": 7382,
+      "items_found": 1,
+      "items_categorized": 1,
+      "categories_found": 1,
+      "insights_generated": 2,
+      "patterns_detected": 0,
+      "supplier_name": "CIA LATINO AMERICANA DE MEDICAMENTOS (958)",
+      "full_result": {
+        "categorized_items": [
+          {
+            "code": "1000008025",
+            "description": "LACDAY C/30 CPR MAST 10000 FCC ALU",
+            "ncm": "21069030",
+            "cfop": "5102",
+            "value": 70.74,
+            "type": "product",
+            "category": "Outros",
+            "subcategory": "Outros - Geral",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Outros (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Outros (R$ 70.74)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "success": true
+    },
+    {
+      "filename": "42251019791896002731550030004630421061735279.xml",
+      "file_size": 8792,
+      "items_found": 1,
+      "items_categorized": 1,
+      "categories_found": 1,
+      "insights_generated": 2,
+      "patterns_detected": 0,
+      "supplier_name": "SUPERGASBRAS ENERGIA LTDA",
+      "full_result": {
+        "categorized_items": [
+          {
+            "code": "000000000000096809",
+            "description": "ONU 1075 GLP 2.1 GLP GRANEL VENDA SGB",
+            "ncm": "27111910",
+            "cfop": "5656",
+            "value": 124.4,
+            "type": "product",
+            "category": "Outros",
+            "subcategory": "Outros - Geral",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Outros (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Outros (R$ 124.40)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "success": true
+    },
+    {
+      "filename": "exemplo.xml",
+      "file_size": 8204,
+      "items_found": 1,
+      "items_categorized": 1,
+      "categories_found": 1,
+      "insights_generated": 2,
+      "patterns_detected": 1,
+      "supplier_name": "GK INFOSTORE SP",
+      "full_result": {
+        "categorized_items": [
+          {
+            "code": "912-V531-092",
+            "description": "Placa de Video MSI GeForce RTX 5070 TI Ventus 3X OC 16GB GDDR7 256 bit - 912-V531-092",
+            "ncm": "85423190",
+            "cfop": "6101",
+            "value": 6534.1,
+            "type": "product",
+            "category": "Outros",
+            "subcategory": "Outros - Geral",
+            "confidence": 0.85,
+            "categorization_method": "llm_enhanced"
+          }
+        ],
+        "category_insights": [
+          {
+            "type": "category_distribution",
+            "description": "Categoria mais comum: Outros (1 itens)",
+            "confidence": 0.9
+          },
+          {
+            "type": "value_analysis",
+            "description": "Categoria com maior valor: Outros (R$ 6534.10)",
+            "confidence": 0.95
+          }
+        ],
+        "patterns_detected": [
+          {
+            "type": "high_value_items",
+            "description": "Identificados 1 itens de alto valor (>R$ 1.000)",
+            "items_count": 1,
+            "confidence": 0.9
+          }
+        ],
+        "total_items": 1,
+        "unique_categories": 1,
+        "confidence": 0.85,
+        "processing_status": "completed"
+      },
+      "success": true
+    }
+  ],
+  "summary": {
+    "total_files": 10,
+    "successful_files": 10,
+    "failed_files": 0,
+    "all_categories": [
+      "Outros"
+    ],
+    "all_subcategories": [
+      "Outros - Geral"
+    ],
+    "supplier_analysis": {
+      "BISTEK SUPERMERCADOS LTDA": {
+        "documents": 2,
+        "categories": [
+          "Outros"
+        ],
+        "total_items": 2,
+        "total_value": 13.98
+      },
+      "IGUASPORT LTDA": {
+        "documents": 2,
+        "categories": [
+          "Outros"
+        ],
+        "total_items": 2,
+        "total_value": 79.98
+      },
+      "CIA LATINO AMERICANA DE MEDICAMENTOS (958)": {
+        "documents": 2,
+        "categories": [
+          "Outros"
+        ],
+        "total_items": 2,
+        "total_value": 141.48
+      },
+      "SUPERGASBRAS ENERGIA LTDA": {
+        "documents": 2,
+        "categories": [
+          "Outros"
+        ],
+        "total_items": 2,
+        "total_value": 248.8
+      },
+      "GK INFOSTORE SP": {
+        "documents": 2,
+        "categories": [
+          "Outros"
+        ],
+        "total_items": 2,
+        "total_value": 13068.2
+      }
+    }
+  }
+}
