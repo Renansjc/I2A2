@@ -203,3 +203,80 @@ class StatusSistemaResponse(BaseModel):
     tempo_atividade: str = Field(..., description="Tempo de atividade")
     estatisticas_uso: Dict[str, Any] = Field(default_factory=dict, description="Estatísticas de uso")
     ultima_atualizacao: datetime = Field(default_factory=datetime.now, description="Última atualização")
+
+# Document Management Schemas
+class DocumentListItem(BaseModel):
+    """Schema para item da lista de documentos"""
+    id: str = Field(..., description="ID único do documento")
+    filename: str = Field(..., description="Nome do arquivo")
+    document_type: str = Field(..., description="Tipo do documento (NFE/NFSE)")
+    processing_status: str = Field(..., description="Status do processamento")
+    upload_timestamp: datetime = Field(..., description="Data/hora do upload")
+    file_size: int = Field(..., description="Tamanho do arquivo em bytes")
+    nome_emitente: Optional[str] = Field(None, description="Nome do emitente")
+    valor_total: Optional[Decimal] = Field(None, description="Valor total do documento")
+    data_emissao: Optional[datetime] = Field(None, description="Data de emissão")
+
+class DocumentListResponse(BaseModel):
+    """Schema para resposta da lista de documentos"""
+    documents: List[DocumentListItem] = Field(..., description="Lista de documentos")
+    total_count: int = Field(..., description="Total de documentos")
+    page: int = Field(..., description="Página atual")
+    page_size: int = Field(..., description="Tamanho da página")
+    has_next: bool = Field(..., description="Indica se há próxima página")
+
+class AgentStatus(BaseModel):
+    """Schema para status de processamento de agente"""
+    agent_name: str = Field(..., description="Nome do agente")
+    status: str = Field(..., description="Status do processamento")
+    started_at: Optional[datetime] = Field(None, description="Data/hora de início")
+    completed_at: Optional[datetime] = Field(None, description="Data/hora de conclusão")
+    error_message: Optional[str] = Field(None, description="Mensagem de erro se houver")
+    retry_count: int = Field(0, description="Número de tentativas")
+
+class ProcessingResult(BaseModel):
+    """Schema para resultado de processamento de agente"""
+    agent_name: str = Field(..., description="Nome do agente")
+    result_type: str = Field(..., description="Tipo do resultado")
+    result_data: Dict[str, Any] = Field(..., description="Dados do resultado")
+    confidence_score: Optional[float] = Field(None, description="Score de confiança")
+    processing_time_ms: Optional[int] = Field(None, description="Tempo de processamento em ms")
+    created_at: datetime = Field(..., description="Data/hora de criação")
+
+class DocumentDetailResponse(BaseModel):
+    """Schema para detalhes completos do documento"""
+    id: str = Field(..., description="ID único do documento")
+    filename: str = Field(..., description="Nome do arquivo")
+    document_type: str = Field(..., description="Tipo do documento")
+    processing_status: str = Field(..., description="Status do processamento")
+    upload_timestamp: datetime = Field(..., description="Data/hora do upload")
+    file_size: int = Field(..., description="Tamanho do arquivo")
+    # Metadata
+    cnpj_emitente: Optional[str] = Field(None, description="CNPJ do emitente")
+    nome_emitente: Optional[str] = Field(None, description="Nome do emitente")
+    cnpj_destinatario: Optional[str] = Field(None, description="CNPJ do destinatário")
+    nome_destinatario: Optional[str] = Field(None, description="Nome do destinatário")
+    numero_documento: Optional[str] = Field(None, description="Número do documento")
+    serie_documento: Optional[str] = Field(None, description="Série do documento")
+    data_emissao: Optional[datetime] = Field(None, description="Data de emissão")
+    valor_total: Optional[Decimal] = Field(None, description="Valor total")
+    valor_tributos: Optional[Decimal] = Field(None, description="Valor dos tributos")
+    natureza_operacao: Optional[str] = Field(None, description="Natureza da operação")
+    # Processing info
+    processing_started_at: Optional[datetime] = Field(None, description="Início do processamento")
+    processing_completed_at: Optional[datetime] = Field(None, description="Fim do processamento")
+    error_message: Optional[str] = Field(None, description="Mensagem de erro")
+    # Links
+    chave_nfe: Optional[str] = Field(None, description="Chave da NF-e processada")
+    id_nfse: Optional[str] = Field(None, description="ID da NFS-e processada")
+
+class DocumentStatusResponse(BaseModel):
+    """Schema para status de processamento do documento"""
+    document_id: str = Field(..., description="ID do documento")
+    overall_status: str = Field(..., description="Status geral do processamento")
+    agent_statuses: List[AgentStatus] = Field(..., description="Status de cada agente")
+    processing_results: List[ProcessingResult] = Field(..., description="Resultados do processamento")
+    processing_started_at: Optional[datetime] = Field(None, description="Início do processamento")
+    processing_completed_at: Optional[datetime] = Field(None, description="Fim do processamento")
+    total_processing_time_ms: Optional[int] = Field(None, description="Tempo total de processamento")
+    error_summary: Optional[str] = Field(None, description="Resumo de erros se houver")

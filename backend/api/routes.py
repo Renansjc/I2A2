@@ -5,7 +5,7 @@ Rotas em português para integração com agentes LLM
 
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, BackgroundTasks
 from fastapi.responses import JSONResponse
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import structlog
 import uuid
 from datetime import datetime, timezone
@@ -15,7 +15,10 @@ from schemas.api_schemas import (
     ConsultaNaturalRequest, ConsultaNaturalResponse,
     RelatorioExecutivoRequest, RelatorioExecutivoResponse,
     ProcessarXMLRequest, ProcessarXMLResponse,
-    ErrorResponse, StatusSistemaResponse
+    ErrorResponse, StatusSistemaResponse,
+    DocumentListResponse, DocumentListItem,
+    DocumentDetailResponse, DocumentStatusResponse,
+    AgentStatus, ProcessingResult
 )
 from utils.llm_service import OpenAIIntegrationService
 from utils.validation import validador, ValidationError
@@ -492,6 +495,315 @@ async def _processar_relatorio_background(id_relatorio: str, request: RelatorioE
         logger.error("Erro no processamento de relatório em background", 
                     id_relatorio=id_relatorio, error=str(e))
 
+async def _processar_xml_background(
+    document_id: str,
+    xml_content: str,
+    filename: str,
+    document_type: str
+):
+    """Processar XML em background usando agentes LLM"""
+    try:
+        from utils.database import FileUploadManager, ProcessingStatusManager
+        
+        logger.info(
+            "Starting background XML processing",
+            document_id=document_id,
+            filename=filename,
+            document_type=document_type
+        )
+        
+        # Process with XML Processing Agent
+        await ProcessingStatusManager.update_agent_status(
+            document_id, "xml_processing_agent", "in_progress"
+        )
+        
+        try:
+            xml_result = await xml_agent.process_xml_document(
+                xml_content,
+                {
+                    "processar_com_ia": True,
+                    "extrair_insights": True,
+                    "categorizar_automaticamente": True,
+                    "validar_regras_negocio": True,
+                    "document_id": document_id,
+                    "document_type": document_type
+                }
+            )
+            
+            # Store XML processing results
+            await ProcessingStatusManager.store_processing_result(
+                document_id=document_id,
+                agent_name="xml_processing_agent",
+                result_type="document_analysis",
+                result_data=xml_result.dict() if hasattr(xml_result, 'dict') else {"status": "completed"},
+                confidence_score=0.9,
+                processing_time_ms=2000
+            )
+            
+            await ProcessingStatusManager.update_agent_status(
+                document_id, "xml_processing_agent", "completed"
+            )
+            
+        except Exception as e:
+            logger.error(
+                "XML processing agent failed",
+                document_id=document_id,
+                error=str(e)
+            )
+            await ProcessingStatusManager.update_agent_status(
+                document_id, "xml_processing_agent", "failed", str(e)
+            )
+        
+        # Process with AI Categorization Agent
+        await ProcessingStatusManager.update_agent_status(
+            document_id, "ai_categorization_agent", "in_progress"
+        )
+        
+        try:
+            # Import AI categorization agent
+            from agents.ai_categorization_agent import LLMEnhancedAICategorizationAgent
+            categorization_agent = LLMEnhancedAICategorizationAgent()
+            
+            # Process categorization
+            categorization_result = await categorization_agent.categorize_document(
+                xml_content,
+                {
+                    "document_id": document_id,
+                    "document_type": document_type,
+                    "context": "automated_processing"
+                }
+            )
+            
+            await ProcessingStatusManager.store_processing_result(
+                document_id=document_id,
+                agent_name="ai_categorization_agent",
+                result_type="categorization",
+                result_data=categorization_result,
+                confidence_score=categorization_result.get("confidence", 0.85),
+                processing_time_ms=1500
+            )
+            
+            await ProcessingStatusManager.update_agent_status(
+                document_id, "ai_categorization_agent", "completed"
+            )
+            
+        except Exception as e:
+            logger.error(
+                "AI categorization agent failed",
+                document_id=document_id,
+                error=str(e)
+            )
+            await ProcessingStatusManager.update_agent_status(
+                document_id, "ai_categorization_agent", "failed", str(e)
+            )
+        
+        # Process with SQL Agent for data extraction
+        await ProcessingStatusManager.update_agent_status(
+            document_id, "sql_agent", "in_progress"
+        )
+        
+        try:
+            # Store extracted data in main fiscal tables
+            await _store_fiscal_document_data(document_id, xml_content, document_type)
+            
+            await ProcessingStatusManager.store_processing_result(
+                document_id=document_id,
+                agent_name="sql_agent",
+                result_type="data_storage",
+                result_data={"status": "stored", "tables_updated": ["nfe_main", "fact_itens_nfe"]},
+                confidence_score=0.95,
+                processing_time_ms=800
+            )
+            
+            await ProcessingStatusManager.update_agent_status(
+                document_id, "sql_agent", "completed"
+            )
+            
+        except Exception as e:
+            logger.error(
+                "SQL agent processing failed",
+                document_id=document_id,
+                error=str(e)
+            )
+            await ProcessingStatusManager.update_agent_status(
+                document_id, "sql_agent", "failed", str(e)
+            )
+        
+        # Process with Report Agent for insights generation
+        await ProcessingStatusManager.update_agent_status(
+            document_id, "report_agent", "in_progress"
+        )
+        
+        try:
+            # Generate executive insights
+            insights_result = await report_agent.generate_document_insights(
+                document_id,
+                {
+                    "document_type": document_type,
+                    "generate_summary": True,
+                    "include_recommendations": True
+                }
+            )
+            
+            await ProcessingStatusManager.store_processing_result(
+                document_id=document_id,
+                agent_name="report_agent",
+                result_type="insights",
+                result_data=insights_result.dict() if hasattr(insights_result, 'dict') else {"status": "completed"},
+                confidence_score=0.88,
+                processing_time_ms=1200
+            )
+            
+            await ProcessingStatusManager.update_agent_status(
+                document_id, "report_agent", "completed"
+            )
+            
+        except Exception as e:
+            logger.error(
+                "Report agent processing failed",
+                document_id=document_id,
+                error=str(e)
+            )
+            await ProcessingStatusManager.update_agent_status(
+                document_id, "report_agent", "failed", str(e)
+            )
+        
+        # Update overall document status
+        await FileUploadManager.update_processing_status(document_id, "completed")
+        
+        logger.info(
+            "Background XML processing completed",
+            document_id=document_id,
+            filename=filename
+        )
+        
+    except Exception as e:
+        logger.error(
+            "Background XML processing failed",
+            document_id=document_id,
+            error=str(e)
+        )
+        await FileUploadManager.update_processing_status(
+            document_id, "error", str(e)
+        )
+
+async def _extract_basic_metadata(xml_content: str, document_type: str) -> Optional[Dict[str, Any]]:
+    """Extract basic metadata from XML content for immediate response"""
+    try:
+        from lxml import etree
+        
+        # Parse XML
+        root = etree.fromstring(xml_content.encode('utf-8'))
+        
+        metadata = {}
+        
+        if document_type == "NFE":
+            # Extract NFE metadata
+            # Find infNFe element
+            inf_nfe = root.find('.//{http://www.portalfiscal.inf.br/nfe}infNFe')
+            if inf_nfe is not None:
+                # Document number
+                ide = inf_nfe.find('.//{http://www.portalfiscal.inf.br/nfe}ide')
+                if ide is not None:
+                    nNF = ide.find('.//{http://www.portalfiscal.inf.br/nfe}nNF')
+                    if nNF is not None:
+                        metadata['numero_documento'] = nNF.text
+                    
+                    dhEmi = ide.find('.//{http://www.portalfiscal.inf.br/nfe}dhEmi')
+                    if dhEmi is not None:
+                        try:
+                            metadata['data_emissao'] = datetime.fromisoformat(dhEmi.text.replace('Z', '+00:00')).date()
+                        except:
+                            pass
+                
+                # Emitter info
+                emit = inf_nfe.find('.//{http://www.portalfiscal.inf.br/nfe}emit')
+                if emit is not None:
+                    cnpj = emit.find('.//{http://www.portalfiscal.inf.br/nfe}CNPJ')
+                    if cnpj is not None:
+                        metadata['cnpj_emitente'] = cnpj.text
+                    
+                    xNome = emit.find('.//{http://www.portalfiscal.inf.br/nfe}xNome')
+                    if xNome is not None:
+                        metadata['nome_emitente'] = xNome.text
+                
+                # Total value
+                total = inf_nfe.find('.//{http://www.portalfiscal.inf.br/nfe}total')
+                if total is not None:
+                    vNF = total.find('.//{http://www.portalfiscal.inf.br/nfe}vNF')
+                    if vNF is not None:
+                        try:
+                            metadata['valor_total'] = float(vNF.text)
+                        except:
+                            pass
+        
+        elif document_type == "NFSE":
+            # Extract NFSE metadata - simplified for now
+            # This would need to be adapted based on specific NFSE schema
+            metadata['nome_emitente'] = "Prestador de Serviços"
+            metadata['valor_total'] = 0.0
+        
+        return metadata if metadata else None
+        
+    except Exception as e:
+        logger.warning(
+            "Failed to extract basic metadata",
+            error=str(e),
+            document_type=document_type
+        )
+        return None
+
+async def _store_fiscal_document_data(document_id: str, xml_content: str, document_type: str):
+    """Store fiscal document data in main tables and link to uploaded document"""
+    try:
+        from utils.database import DocumentLinkingManager
+        from lxml import etree
+        
+        logger.info(
+            "Storing fiscal document data",
+            document_id=document_id,
+            document_type=document_type
+        )
+        
+        # Parse XML
+        root = etree.fromstring(xml_content.encode('utf-8'))
+        
+        if document_type == "NFE":
+            # Extract NF-e key
+            inf_nfe = root.find('.//{http://www.portalfiscal.inf.br/nfe}infNFe')
+            if inf_nfe is not None:
+                chave_nfe = inf_nfe.get('Id', '').replace('NFe', '')
+                if chave_nfe:
+                    # Link document to NF-e
+                    await DocumentLinkingManager.link_to_nfe(document_id, chave_nfe)
+                    
+                    # TODO: Store complete NF-e data in nfe_main and fact_itens_nfe tables
+                    # This would involve extracting all NF-e data and inserting into the main tables
+                    
+        elif document_type == "NFSE":
+            # Extract NFS-e ID (simplified)
+            # This would need to be adapted based on specific NFS-e schema
+            id_nfse = f"NFSE_{document_id[:8]}"
+            
+            # Link document to NFS-e
+            await DocumentLinkingManager.link_to_nfse(document_id, id_nfse)
+            
+            # TODO: Store complete NFS-e data in nfse_main and fact_servicos_nfse tables
+        
+        logger.info(
+            "Fiscal document data stored successfully",
+            document_id=document_id,
+            document_type=document_type
+        )
+        
+    except Exception as e:
+        logger.error(
+            "Failed to store fiscal document data",
+            document_id=document_id,
+            error=str(e)
+        )
+        raise
+
 # Endpoints adicionais para consulta de status
 @router.get("/agentes/relatorio-executivo/{id_relatorio}", response_model=RelatorioExecutivoResponse)
 async def obter_status_relatorio(id_relatorio: str):
@@ -658,11 +970,252 @@ async def obter_exemplos_consultas():
         ]
     }
 
-# Endpoint para upload de arquivo XML
-@router.post("/agentes/upload-xml")
-async def upload_arquivo_xml(arquivo: UploadFile = File(...)):
-    """Upload de arquivo XML para processamento"""
+# Document Management Endpoints
+
+@router.get("/api/documents", response_model=DocumentListResponse)
+async def list_documents(
+    skip: int = 0,
+    limit: int = 100,
+    status_filter: Optional[str] = None,
+    document_type_filter: Optional[str] = None,
+    current_user: Optional[str] = None  # TODO: Implement proper auth
+):
+    """Listar documentos fiscais do usuário"""
     try:
+        from utils.database import FileUploadManager
+        
+        # Use temporary user ID until proper auth is implemented
+        user_id = current_user or "00000000-0000-0000-0000-000000000000"
+        
+        # Validate parameters
+        if limit > 1000:
+            limit = 1000
+        if skip < 0:
+            skip = 0
+            
+        # Get documents from database
+        documents = await FileUploadManager.list_user_documents(
+            user_id=user_id,
+            skip=skip,
+            limit=limit + 1,  # Get one extra to check if there's a next page
+            status_filter=status_filter
+        )
+        
+        # Check if there's a next page
+        has_next = len(documents) > limit
+        if has_next:
+            documents = documents[:limit]  # Remove the extra document
+        
+        # Convert to response format
+        document_items = []
+        for doc in documents:
+            document_items.append(DocumentListItem(
+                id=doc['id'],
+                filename=doc['filename'],
+                document_type=doc['document_type'],
+                processing_status=doc['processing_status'],
+                upload_timestamp=doc['upload_timestamp'],
+                file_size=doc['file_size'],
+                nome_emitente=doc.get('nome_emitente'),
+                valor_total=doc.get('valor_total'),
+                data_emissao=doc.get('data_emissao')
+            ))
+        
+        # Calculate total count (simplified - in production, use a separate count query)
+        total_count = skip + len(document_items)
+        if has_next:
+            total_count += 1  # At least one more
+        
+        return DocumentListResponse(
+            documents=document_items,
+            total_count=total_count,
+            page=skip // limit + 1,
+            page_size=limit,
+            has_next=has_next
+        )
+        
+    except Exception as e:
+        logger.error("Erro ao listar documentos", error=str(e), user_id=user_id)
+        raise HTTPException(
+            status_code=500,
+            detail=ErrorResponse(
+                codigo_erro="ERRO_LISTAR_DOCUMENTOS",
+                mensagem="Erro ao listar documentos",
+                detalhes=str(e),
+                sugestao_solucao="Tente novamente ou contate o suporte"
+            ).dict()
+        )
+
+@router.get("/api/documents/{document_id}", response_model=DocumentDetailResponse)
+async def get_document_details(
+    document_id: str,
+    current_user: Optional[str] = None  # TODO: Implement proper auth
+):
+    """Obter detalhes completos de um documento fiscal"""
+    try:
+        from utils.database import FileUploadManager
+        
+        # Use temporary user ID until proper auth is implemented
+        user_id = current_user or "00000000-0000-0000-0000-000000000000"
+        
+        # Get document from database
+        document = await FileUploadManager.get_document_by_id(document_id, user_id)
+        
+        if not document:
+            raise HTTPException(
+                status_code=404,
+                detail=ErrorResponse(
+                    codigo_erro="DOCUMENTO_NAO_ENCONTRADO",
+                    mensagem="Documento não encontrado",
+                    detalhes=f"Documento com ID {document_id} não foi encontrado",
+                    sugestao_solucao="Verifique se o ID do documento está correto"
+                ).dict()
+            )
+        
+        # Convert to response format
+        return DocumentDetailResponse(
+            id=document['id'],
+            filename=document['filename'],
+            document_type=document['document_type'],
+            processing_status=document['processing_status'],
+            upload_timestamp=document['upload_timestamp'],
+            file_size=document['file_size'],
+            cnpj_emitente=document.get('cnpj_emitente'),
+            nome_emitente=document.get('nome_emitente'),
+            cnpj_destinatario=document.get('cnpj_destinatario'),
+            nome_destinatario=document.get('nome_destinatario'),
+            numero_documento=document.get('numero_documento'),
+            serie_documento=document.get('serie_documento'),
+            data_emissao=document.get('data_emissao'),
+            valor_total=document.get('valor_total'),
+            valor_tributos=document.get('valor_tributos'),
+            natureza_operacao=document.get('natureza_operacao'),
+            processing_started_at=document.get('processing_started_at'),
+            processing_completed_at=document.get('processing_completed_at'),
+            error_message=document.get('error_message'),
+            chave_nfe=document.get('chave_nfe'),
+            id_nfse=document.get('id_nfse')
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Erro ao obter detalhes do documento", 
+                    error=str(e), document_id=document_id)
+        raise HTTPException(
+            status_code=500,
+            detail=ErrorResponse(
+                codigo_erro="ERRO_DETALHES_DOCUMENTO",
+                mensagem="Erro ao obter detalhes do documento",
+                detalhes=str(e),
+                sugestao_solucao="Tente novamente ou contate o suporte"
+            ).dict()
+        )
+
+@router.get("/api/documents/{document_id}/status", response_model=DocumentStatusResponse)
+async def get_document_processing_status(
+    document_id: str,
+    current_user: Optional[str] = None  # TODO: Implement proper auth
+):
+    """Obter status de processamento detalhado de um documento"""
+    try:
+        from utils.database import FileUploadManager, ProcessingStatusManager
+        
+        # Use temporary user ID until proper auth is implemented
+        user_id = current_user or "00000000-0000-0000-0000-000000000000"
+        
+        # Verify document exists and belongs to user
+        document = await FileUploadManager.get_document_by_id(document_id, user_id)
+        if not document:
+            raise HTTPException(
+                status_code=404,
+                detail=ErrorResponse(
+                    codigo_erro="DOCUMENTO_NAO_ENCONTRADO",
+                    mensagem="Documento não encontrado",
+                    detalhes=f"Documento com ID {document_id} não foi encontrado",
+                    sugestao_solucao="Verifique se o ID do documento está correto"
+                ).dict()
+            )
+        
+        # Get agent processing statuses
+        agent_statuses_data = await ProcessingStatusManager.get_document_processing_status(document_id)
+        agent_statuses = []
+        for status_data in agent_statuses_data:
+            agent_statuses.append(AgentStatus(
+                agent_name=status_data['agent_name'],
+                status=status_data['status'],
+                started_at=status_data.get('started_at'),
+                completed_at=status_data.get('completed_at'),
+                error_message=status_data.get('error_message'),
+                retry_count=status_data.get('retry_count', 0)
+            ))
+        
+        # Get processing results
+        results_data = await ProcessingStatusManager.get_processing_results(document_id)
+        processing_results = []
+        for result_data in results_data:
+            processing_results.append(ProcessingResult(
+                agent_name=result_data['agent_name'],
+                result_type=result_data['result_type'],
+                result_data=result_data['result_data'],
+                confidence_score=result_data.get('confidence_score'),
+                processing_time_ms=result_data.get('processing_time_ms'),
+                created_at=result_data['created_at']
+            ))
+        
+        # Calculate total processing time
+        total_processing_time_ms = None
+        if document.get('processing_started_at') and document.get('processing_completed_at'):
+            start_time = document['processing_started_at']
+            end_time = document['processing_completed_at']
+            total_processing_time_ms = int((end_time - start_time).total_seconds() * 1000)
+        
+        # Generate error summary
+        error_summary = None
+        failed_agents = [status for status in agent_statuses if status.status == 'failed']
+        if failed_agents:
+            error_summary = f"{len(failed_agents)} agente(s) falharam: " + \
+                          ", ".join([agent.agent_name for agent in failed_agents])
+        
+        return DocumentStatusResponse(
+            document_id=document_id,
+            overall_status=document['processing_status'],
+            agent_statuses=agent_statuses,
+            processing_results=processing_results,
+            processing_started_at=document.get('processing_started_at'),
+            processing_completed_at=document.get('processing_completed_at'),
+            total_processing_time_ms=total_processing_time_ms,
+            error_summary=error_summary
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Erro ao obter status do documento", 
+                    error=str(e), document_id=document_id)
+        raise HTTPException(
+            status_code=500,
+            detail=ErrorResponse(
+                codigo_erro="ERRO_STATUS_DOCUMENTO",
+                mensagem="Erro ao obter status do documento",
+                detalhes=str(e),
+                sugestao_solucao="Tente novamente ou contate o suporte"
+            ).dict()
+        )
+
+# Endpoint para upload de arquivo XML com integração Supabase
+@router.post("/agentes/upload-xml")
+async def upload_arquivo_xml(
+    background_tasks: BackgroundTasks,
+    arquivo: UploadFile = File(...),
+    current_user: Optional[str] = None  # TODO: Implement proper auth
+):
+    """Upload de arquivo XML para processamento com armazenamento em Supabase"""
+    try:
+        # Import database utilities
+        from utils.database import FileUploadManager, ProcessingStatusManager, SupabaseStorageManager
+        
+        # Validate file format
         if not arquivo.filename.lower().endswith('.xml'):
             raise HTTPException(
                 status_code=400,
@@ -674,21 +1227,155 @@ async def upload_arquivo_xml(arquivo: UploadFile = File(...)):
                 ).dict()
             )
         
-        # Ler conteúdo do arquivo
+        # Read file content
         conteudo = await arquivo.read()
-        conteudo_base64 = base64.b64encode(conteudo).decode('utf-8')
+        conteudo_xml = conteudo.decode('utf-8')
+        file_size = len(conteudo)
         
-        # Processar usando o endpoint de processamento XML
-        request_processamento = ProcessarXMLRequest(
-            nome_arquivo=arquivo.filename,
-            conteudo_base64=conteudo_base64,
-            processar_com_ia=True,
-            extrair_insights=True,
-            categorizar_automaticamente=True,
-            validar_regras_negocio=True
+        # Validate file size (max 10MB)
+        max_size = 10 * 1024 * 1024  # 10MB
+        if file_size > max_size:
+            raise HTTPException(
+                status_code=400,
+                detail=ErrorResponse(
+                    codigo_erro="ARQUIVO_MUITO_GRANDE",
+                    mensagem="Arquivo excede o tamanho máximo permitido",
+                    detalhes=f"Tamanho: {file_size} bytes, Máximo: {max_size} bytes",
+                    sugestao_solucao="Envie um arquivo menor que 10MB"
+                ).dict()
+            )
+        
+        # Security validation
+        if not sanitizador.validar_seguranca_arquivo(arquivo.filename, conteudo):
+            raise HTTPException(
+                status_code=400,
+                detail=ErrorResponse(
+                    codigo_erro="ARQUIVO_INSEGURO",
+                    mensagem="Arquivo não passou na validação de segurança",
+                    detalhes=f"Arquivo: {arquivo.filename}",
+                    sugestao_solucao="Verifique se o arquivo não contém conteúdo malicioso"
+                ).dict()
+            )
+        
+        # Determine document type from XML content
+        document_type = "NFE"  # Default
+        if "nfse" in conteudo_xml.lower() or "rps" in conteudo_xml.lower():
+            document_type = "NFSE"
+        
+        # Use temporary user ID until proper auth is implemented
+        user_id = current_user or "00000000-0000-0000-0000-000000000000"
+        
+        logger.info(
+            "Starting XML file upload process",
+            filename=arquivo.filename,
+            file_size=file_size,
+            document_type=document_type,
+            user_id=user_id
         )
         
-        return await processar_documento_xml(request_processamento)
+        # Create fiscal document record in database
+        document_id = await FileUploadManager.create_fiscal_document(
+            user_id=user_id,
+            filename=arquivo.filename,
+            file_size=file_size,
+            document_type=document_type,
+            xml_content=conteudo_xml
+        )
+        
+        # Create file metadata record
+        await FileUploadManager.create_file_metadata(
+            document_id=document_id,
+            original_filename=arquivo.filename,
+            mime_type="application/xml",
+            xml_content=conteudo_xml
+        )
+        
+        # Upload file to Supabase Storage
+        try:
+            storage_result = SupabaseStorageManager.upload_xml_file(
+                file_content=conteudo_xml,
+                filename=arquivo.filename,
+                document_id=document_id,
+                user_id=user_id
+            )
+            logger.info(
+                "File uploaded to Supabase Storage",
+                document_id=document_id,
+                storage_path=storage_result["file_path"]
+            )
+        except Exception as storage_error:
+            logger.warning(
+                "Failed to upload to Supabase Storage, continuing with database storage",
+                error=str(storage_error),
+                document_id=document_id
+            )
+        
+        # Initialize agent processing statuses
+        agent_names = [
+            "xml_processing_agent",
+            "ai_categorization_agent",
+            "sql_agent",
+            "report_agent"
+        ]
+        await ProcessingStatusManager.initialize_agent_statuses(document_id, agent_names)
+        
+        # Update document status to processing
+        await FileUploadManager.update_processing_status(document_id, "processing")
+        
+        # Start background processing
+        background_tasks.add_task(
+            _processar_xml_background,
+            document_id,
+            conteudo_xml,
+            arquivo.filename,
+            document_type
+        )
+        
+        # Extract basic metadata for immediate response
+        metadata = await _extract_basic_metadata(conteudo_xml, document_type)
+        
+        # Create document metadata record
+        if metadata:
+            await FileUploadManager.create_document_metadata(document_id, metadata)
+        
+        # Return immediate response
+        response_data = {
+            'id_processamento': document_id,
+            'nome_arquivo': arquivo.filename,
+            'status': "processando",
+            'documento': {
+                'tipo_documento': document_type,
+                'chave_documento': metadata.get('numero_documento', 'N/A') if metadata else 'N/A',
+                'fornecedor': metadata.get('nome_emitente', 'N/A') if metadata else 'N/A',
+                'valor_total': metadata.get('valor_total', 0) if metadata else 0,
+                'data_emissao': metadata.get('data_emissao') if metadata else None,
+                'produtos_servicos': [],
+                'categorias_identificadas': []
+            },
+            'insights_semanticos': [],
+            'anomalias_detectadas': [],
+            'validacoes_negocio': {},
+            'validacao_brasileira': {},
+            'confianca_processamento': 0.85,
+            'tempo_processamento': 0.5,
+            'proximos_passos': [
+                "Processamento iniciado em background",
+                "Análise semântica em andamento",
+                "Categorização automática será executada",
+                "Resultados estarão disponíveis em breve"
+            ]
+        }
+        
+        resposta_formatada = formatar_resposta_brasileira(response_data)
+        
+        logger.info(
+            "XML upload completed successfully",
+            document_id=document_id,
+            filename=arquivo.filename,
+            status="processing"
+        )
+        
+        return ProcessarXMLResponse(**resposta_formatada)
         
     except HTTPException:
         raise

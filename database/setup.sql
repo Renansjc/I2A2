@@ -8,6 +8,9 @@
 \i schema/04_views.sql
 \i schema/05_indexes.sql
 \i schema/06_rls_policies.sql
+\i schema/07_file_upload_tables.sql
+\i schema/08_file_upload_indexes.sql
+\i schema/09_file_upload_rls_policies.sql
 
 -- Verify setup
 SELECT 'Database setup completed successfully!' as status;
