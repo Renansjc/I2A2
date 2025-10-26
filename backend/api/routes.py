@@ -517,7 +517,7 @@ async def _processar_xml_background(
         
         # Process with XML Processing Agent
         await ProcessingStatusManager.update_agent_status(
-            document_id, "xml_processing_agent", "in_progress"
+            document_id, "xml_processing_agent", "in_progress", admin_mode=True
         )
         
         try:
@@ -540,11 +540,12 @@ async def _processar_xml_background(
                 result_type="document_analysis",
                 result_data=xml_result.dict() if hasattr(xml_result, 'dict') else {"status": "completed"},
                 confidence_score=0.9,
-                processing_time_ms=2000
+                processing_time_ms=2000,
+                admin_mode=True
             )
             
             await ProcessingStatusManager.update_agent_status(
-                document_id, "xml_processing_agent", "completed"
+                document_id, "xml_processing_agent", "completed", admin_mode=True
             )
             
         except Exception as e:
@@ -554,12 +555,12 @@ async def _processar_xml_background(
                 error=str(e)
             )
             await ProcessingStatusManager.update_agent_status(
-                document_id, "xml_processing_agent", "failed", str(e)
+                document_id, "xml_processing_agent", "failed", str(e), admin_mode=True
             )
         
         # Process with AI Categorization Agent
         await ProcessingStatusManager.update_agent_status(
-            document_id, "ai_categorization_agent", "in_progress"
+            document_id, "ai_categorization_agent", "in_progress", admin_mode=True
         )
         
         try:
@@ -583,11 +584,12 @@ async def _processar_xml_background(
                 result_type="categorization",
                 result_data=categorization_result,
                 confidence_score=categorization_result.get("confidence", 0.85),
-                processing_time_ms=1500
+                processing_time_ms=1500,
+                admin_mode=True
             )
             
             await ProcessingStatusManager.update_agent_status(
-                document_id, "ai_categorization_agent", "completed"
+                document_id, "ai_categorization_agent", "completed", admin_mode=True
             )
             
         except Exception as e:
@@ -597,12 +599,12 @@ async def _processar_xml_background(
                 error=str(e)
             )
             await ProcessingStatusManager.update_agent_status(
-                document_id, "ai_categorization_agent", "failed", str(e)
+                document_id, "ai_categorization_agent", "failed", str(e), admin_mode=True
             )
         
         # Process with SQL Agent for data extraction
         await ProcessingStatusManager.update_agent_status(
-            document_id, "sql_agent", "in_progress"
+            document_id, "sql_agent", "in_progress", admin_mode=True
         )
         
         try:
@@ -615,11 +617,12 @@ async def _processar_xml_background(
                 result_type="data_storage",
                 result_data={"status": "stored", "tables_updated": ["nfe_main", "fact_itens_nfe"]},
                 confidence_score=0.95,
-                processing_time_ms=800
+                processing_time_ms=800,
+                admin_mode=True
             )
             
             await ProcessingStatusManager.update_agent_status(
-                document_id, "sql_agent", "completed"
+                document_id, "sql_agent", "completed", admin_mode=True
             )
             
         except Exception as e:
@@ -629,12 +632,12 @@ async def _processar_xml_background(
                 error=str(e)
             )
             await ProcessingStatusManager.update_agent_status(
-                document_id, "sql_agent", "failed", str(e)
+                document_id, "sql_agent", "failed", str(e), admin_mode=True
             )
         
         # Process with Report Agent for insights generation
         await ProcessingStatusManager.update_agent_status(
-            document_id, "report_agent", "in_progress"
+            document_id, "report_agent", "in_progress", admin_mode=True
         )
         
         try:
@@ -654,11 +657,12 @@ async def _processar_xml_background(
                 result_type="insights",
                 result_data=insights_result.dict() if hasattr(insights_result, 'dict') else {"status": "completed"},
                 confidence_score=0.88,
-                processing_time_ms=1200
+                processing_time_ms=1200,
+                admin_mode=True
             )
             
             await ProcessingStatusManager.update_agent_status(
-                document_id, "report_agent", "completed"
+                document_id, "report_agent", "completed", admin_mode=True
             )
             
         except Exception as e:
@@ -668,7 +672,7 @@ async def _processar_xml_background(
                 error=str(e)
             )
             await ProcessingStatusManager.update_agent_status(
-                document_id, "report_agent", "failed", str(e)
+                document_id, "report_agent", "failed", str(e), admin_mode=True
             )
         
         # Update overall document status
@@ -779,7 +783,7 @@ async def _store_fiscal_document_data(document_id: str, xml_content: str, docume
                 chave_nfe = inf_nfe.get('Id', '').replace('NFe', '')
                 if chave_nfe:
                     # Link document to NF-e
-                    await DocumentLinkingManager.link_to_nfe(document_id, chave_nfe)
+                    await DocumentLinkingManager.link_to_nfe(document_id, chave_nfe, admin_mode=True)
                     
                     # TODO: Store complete NF-e data in nfe_main and fact_itens_nfe tables
                     # This would involve extracting all NF-e data and inserting into the main tables
@@ -790,7 +794,7 @@ async def _store_fiscal_document_data(document_id: str, xml_content: str, docume
             id_nfse = f"NFSE_{document_id[:8]}"
             
             # Link document to NFS-e
-            await DocumentLinkingManager.link_to_nfse(document_id, id_nfse)
+            await DocumentLinkingManager.link_to_nfse(document_id, id_nfse, admin_mode=True)
             
             # TODO: Store complete NFS-e data in nfse_main and fact_servicos_nfse tables
         

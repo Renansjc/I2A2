@@ -60,7 +60,7 @@ export const useNaturalLanguageApi = () => {
         query: string
         description: string
       }>
-    }>('/api/v1/api/nlp/suggestions', {
+    }>('/agentes/exemplos-consultas', { // Using examples endpoint as suggestions
       ...options,
       query,
       cache: true,
@@ -89,7 +89,7 @@ export const useNaturalLanguageApi = () => {
         variables: string[]
         description: string
       }>
-    }>('/api/v1/api/nlp/examples', {
+    }>('/agentes/exemplos-consultas', {
       ...options,
       query: { executive_level: executiveLevel },
       cache: true,

@@ -438,54 +438,65 @@ class ProcessingStatusManager:
     ):
         """Update agent processing status"""
         try:
-            # Update or insert agent status record
-            status_data = {
-                'document_id': document_id,
-                'agent_name': agent_name,
-                'status': status,
-                'updated_at': datetime.now(timezone.utc).isoformat()
-            }
-            
-            if status == 'in_progress':
-                status_data['started_at'] = datetime.now(timezone.utc).isoformat()
-            elif status in ['completed', 'failed']:
-                status_data['completed_at'] = datetime.now(timezone.utc).isoformat()
-            
-            if error_message:
-                status_data['error_message'] = error_message
-            
             # Use admin client for test operations
             client = get_supabase_client(admin_mode)
             
-            # Try to update existing record, if not exists, insert new one
-            try:
+            # First, check if record exists
+            existing_result = await asyncio.to_thread(
+                lambda: client.client.table('document_processing_status')
+                .select('id, started_at')
+                .eq('document_id', document_id)
+                .eq('agent_name', agent_name)
+                .execute()
+            )
+            
+            current_time = datetime.now(timezone.utc).isoformat()
+            
+            if existing_result.data:
+                # Record exists, update it
+                update_data = {
+                    'status': status,
+                    'updated_at': current_time
+                }
+                
+                if status == 'in_progress' and not existing_result.data[0].get('started_at'):
+                    update_data['started_at'] = current_time
+                elif status in ['completed', 'failed']:
+                    update_data['completed_at'] = current_time
+                
+                if error_message:
+                    update_data['error_message'] = error_message
+                
                 result = await asyncio.to_thread(
                     lambda: client.client.table('document_processing_status')
-                    .update(status_data)
+                    .update(update_data)
                     .eq('document_id', document_id)
                     .eq('agent_name', agent_name)
                     .execute()
                 )
+            else:
+                # Record doesn't exist, create new one
+                insert_data = {
+                    'id': str(uuid.uuid4()),
+                    'document_id': document_id,
+                    'agent_name': agent_name,
+                    'status': status,
+                    'created_at': current_time,
+                    'updated_at': current_time
+                }
                 
-                # If no rows were updated, insert new record
-                if not result.data:
-                    status_data['id'] = str(uuid.uuid4())
-                    status_data['created_at'] = datetime.now(timezone.utc).isoformat()
-                    
-                    result = await asyncio.to_thread(
-                        lambda: client.client.table('document_processing_status')
-                        .insert(status_data)
-                        .execute()
-                    )
-                    
-            except Exception:
-                # If update fails, try insert
-                status_data['id'] = str(uuid.uuid4())
-                status_data['created_at'] = datetime.now(timezone.utc).isoformat()
+                if status == 'in_progress':
+                    insert_data['started_at'] = current_time
+                elif status in ['completed', 'failed']:
+                    insert_data['started_at'] = current_time
+                    insert_data['completed_at'] = current_time
+                
+                if error_message:
+                    insert_data['error_message'] = error_message
                 
                 result = await asyncio.to_thread(
                     lambda: client.client.table('document_processing_status')
-                    .insert(status_data)
+                    .insert(insert_data)
                     .execute()
                 )
             
@@ -583,7 +594,7 @@ class ProcessingStatusManager:
         processing_time_ms: int,
         admin_mode: bool = False
     ):
-        """Store processing result"""
+        """Store processing result using upsert to handle duplicates"""
         try:
             result_record = {
                 'id': str(uuid.uuid4()),
@@ -599,8 +610,11 @@ class ProcessingStatusManager:
             # Use admin client for test operations
             client = get_supabase_client(admin_mode)
             
+            # Use upsert to handle duplicates
             result = await asyncio.to_thread(
-                lambda: client.client.table('processing_results').insert(result_record).execute()
+                lambda: client.client.table('processing_results')
+                .upsert(result_record, on_conflict='document_id,agent_name,result_type')
+                .execute()
             )
             
             logger.info(
@@ -679,6 +693,70 @@ class SupabaseStorageManager:
         except Exception as e:
             logger.error("Failed to delete file from storage", error=str(e), file_path=file_path)
             return False
+
+
+class DocumentLinkingManager:
+    """Manager for linking uploaded documents to processed fiscal documents"""
+    
+    @staticmethod
+    async def link_to_nfe(document_id: str, chave_nfe: str, admin_mode: bool = False):
+        """Link uploaded document to NF-e record"""
+        try:
+            # Use admin client for test operations
+            client = get_supabase_client(admin_mode)
+            
+            update_data = {
+                'chave_nfe': chave_nfe,
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }
+            
+            result = await asyncio.to_thread(
+                lambda: client.client.table('fiscal_documents')
+                .update(update_data)
+                .eq('id', document_id)
+                .execute()
+            )
+            
+            logger.info(
+                "Document linked to NF-e",
+                document_id=document_id,
+                chave_nfe=chave_nfe,
+                admin_mode=admin_mode
+            )
+            
+        except Exception as e:
+            logger.error("Failed to link document to NF-e", error=str(e), document_id=document_id)
+            raise
+    
+    @staticmethod
+    async def link_to_nfse(document_id: str, id_nfse: str, admin_mode: bool = False):
+        """Link uploaded document to NFS-e record"""
+        try:
+            # Use admin client for test operations
+            client = get_supabase_client(admin_mode)
+            
+            update_data = {
+                'id_nfse': id_nfse,
+                'updated_at': datetime.now(timezone.utc).isoformat()
+            }
+            
+            result = await asyncio.to_thread(
+                lambda: client.client.table('fiscal_documents')
+                .update(update_data)
+                .eq('id', document_id)
+                .execute()
+            )
+            
+            logger.info(
+                "Document linked to NFS-e",
+                document_id=document_id,
+                id_nfse=id_nfse,
+                admin_mode=admin_mode
+            )
+            
+        except Exception as e:
+            logger.error("Failed to link document to NFS-e", error=str(e), document_id=document_id)
+            raise
 
 
 class DocumentManager:

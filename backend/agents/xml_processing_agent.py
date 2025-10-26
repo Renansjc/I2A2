@@ -59,7 +59,7 @@ class LLMEnhancedXMLProcessingAgent(BaseAgent):
             # Update processing status
             if document_id:
                 await ProcessingStatusManager.update_agent_status(
-                    document_id, self.agent_name, "in_progress"
+                    document_id, self.agent_name, "in_progress", admin_mode=True
                 )
             
             # Detect document type from content
@@ -109,11 +109,12 @@ class LLMEnhancedXMLProcessingAgent(BaseAgent):
                     result_type="document_analysis",
                     result_data=result,
                     confidence_score=semantic_analysis.get("confidence", 0.9),
-                    processing_time_ms=2000
+                    processing_time_ms=2000,
+                    admin_mode=True
                 )
                 
                 await ProcessingStatusManager.update_agent_status(
-                    document_id, self.agent_name, "completed"
+                    document_id, self.agent_name, "completed", admin_mode=True
                 )
             
             logger.info(
@@ -134,7 +135,7 @@ class LLMEnhancedXMLProcessingAgent(BaseAgent):
             # Update error status
             if document_id:
                 await ProcessingStatusManager.update_agent_status(
-                    document_id, self.agent_name, "failed", str(e)
+                    document_id, self.agent_name, "failed", str(e), admin_mode=True
                 )
             
             raise
