@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     
     # OpenAI Configuration
     OPENAI_API_KEY: str = ""
-    OPENAI_DEFAULT_MODEL: str = "gpt-4"
+    OPENAI_DEFAULT_MODEL: str = "gpt-4o-mini"
     OPENAI_FALLBACK_MODEL: str = "gpt-3.5-turbo"
     OPENAI_MAX_TOKENS: int = 4000
     OPENAI_TEMPERATURE: float = 0.1

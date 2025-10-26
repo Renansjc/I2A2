@@ -27,7 +27,7 @@ logger = structlog.get_logger(__name__)
 class LLMModel(Enum):
     """Available LLM models"""
     GPT_4_mini = "gpt-4o-mini"
-    GPT_4 = "gpt-4"
+    GPT_4 = "gpt-4o-mini"
     GPT_4_TURBO = "gpt-4-turbo-preview"
     GPT_3_5_TURBO = "gpt-3.5-turbo"
 
@@ -79,6 +79,42 @@ class PromptManager:
     def _load_templates(self) -> Dict[str, str]:
         """Load prompt templates for different use cases"""
         return {
+            "query_interpretation": """
+Você é um assistente de IA especializado em análise de documentos fiscais brasileiros para executivos C-level.
+
+Analise a consulta do usuário e forneça uma interpretação estruturada incluindo:
+
+1. **Intenção Principal**: Identifique o objetivo empresarial (consulta_dados, gerar_relatorio, agendar_tarefa, analisar_tendencias, etc.)
+2. **Objetivo Empresarial**: Descreva o que o usuário quer alcançar em termos de negócio
+3. **Entidades Extraídas**: Identifique períodos, fornecedores, produtos, valores, etc.
+4. **Requisitos de Dados**: Liste que dados são necessários para atender a consulta
+5. **Nível de Confiança**: Avalie sua confiança na interpretação (0.0 a 1.0)
+6. **Necessidade de Esclarecimento**: Determine se precisa de mais informações
+7. **Esclarecimentos Sugeridos**: Liste perguntas para esclarecer ambiguidades
+8. **Consulta Normalizada**: Reformule a consulta de forma clara e estruturada
+9. **Parâmetros**: Extraia parâmetros específicos (formato, período, filtros, etc.)
+
+Contexto disponível:
+- Consulta: {query}
+- Cargo do usuário: {user_role}
+- Histórico de conversa: {conversation_history}
+- Dados disponíveis: {available_data}
+- Contexto empresarial: {business_context}
+- Capacidades do sistema: {system_capabilities}
+
+Responda em formato JSON válido com as chaves:
+- intent
+- business_objective  
+- entities (lista de objetos com type, value, confidence)
+- data_requirements (lista de strings)
+- confidence_level (float)
+- clarification_needed (boolean)
+- suggested_clarifications (lista de strings)
+- normalized_query (string)
+- parameters (objeto com chaves específicas)
+
+Use linguagem empresarial clara em português brasileiro.
+""",
             "business_to_sql_translation": """
 Você é um especialista em SQL e análise de dados fiscais brasileiros. Sua tarefa é converter perguntas empresariais em consultas SQL otimizadas.
 

@@ -650,7 +650,7 @@ RESPOSTA EM JSON:
             llm_response = await self.llm_service.generate_completion(
                 "data_insight_generation", 
                 llm_context,
-                model="gpt-4",
+                model="gpt-4o-mini",
                 temperature=0.2
             )
             
@@ -887,7 +887,7 @@ RESPOSTA EM JSON:
             llm_response = await self.llm_service.generate_completion(
                 "executive_summary_generation",
                 llm_context,
-                model="gpt-4",
+                model="gpt-4o-mini",
                 temperature=0.1  # Lower temperature for more consistent executive communication
             )
             
@@ -1051,7 +1051,7 @@ RESPOSTA EM JSON:
             llm_response = await self.llm_service.generate_completion(
                 "recommendation_generation",
                 llm_context,
-                model="gpt-4",
+                model="gpt-4o-mini",
                 temperature=0.3  # Moderate temperature for creative but practical recommendations
             )
             

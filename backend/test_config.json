@@ -1,0 +1,29 @@
+{
+  "save_results": true,
+  "test_timeout": 300,
+  "retry_failed_tests": false,
+  "detailed_logging": true,
+  "performance_thresholds": {
+    "query_interpretation_max_time": 5.0,
+    "sql_translation_max_time": 8.0,
+    "report_generation_max_time": 15.0,
+    "end_to_end_workflow_max_time": 30.0
+  },
+  "quality_thresholds": {
+    "minimum_accuracy_score": 0.7,
+    "minimum_business_relevance": 0.8,
+    "minimum_prompt_quality": 0.7,
+    "minimum_context_preservation": 0.8
+  },
+  "test_data": {
+    "mock_suppliers_count": 5,
+    "mock_products_count": 10,
+    "test_queries_per_category": 3,
+    "context_history_length": 5
+  },
+  "reporting": {
+    "generate_html_report": false,
+    "include_performance_charts": false,
+    "export_csv_metrics": false
+  }
+}
