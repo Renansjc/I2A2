@@ -389,3 +389,184 @@ class SanitizadorCompleto:
 # Instâncias globais
 sanitizador = SanitizadorCompleto()
 validador_seguranca = ValidadorSeguranca()
+
+
+class SupabaseSecurityManager:
+    """Security manager for Supabase integration"""
+    
+    @staticmethod
+    def validate_user_access(user_id: str, resource_id: str, resource_type: str) -> bool:
+        """Validate user access to resources"""
+        try:
+            # Basic validation - user can only access their own resources
+            # This would be enhanced with actual Supabase RLS policies
+            
+            if not user_id or not resource_id:
+                logger.warning("Invalid user or resource ID", user_id=user_id, resource_id=resource_id)
+                return False
+            
+            # Additional validation logic would go here
+            # For now, we rely on RLS policies in Supabase
+            
+            logger.info("User access validated", user_id=user_id, resource_type=resource_type)
+            return True
+            
+        except Exception as e:
+            logger.error("User access validation failed", error=str(e), user_id=user_id)
+            return False
+    
+    @staticmethod
+    def sanitize_storage_path(path: str) -> str:
+        """Sanitize storage path for Supabase Storage"""
+        if not path:
+            return ""
+        
+        # Remove dangerous characters
+        sanitized = re.sub(r'[<>:"|?*\x00-\x1f]', '_', path)
+        
+        # Remove path traversal attempts
+        sanitized = re.sub(r'\.\./', '', sanitized)
+        sanitized = re.sub(r'\.\.\\', '', sanitized)
+        
+        # Normalize slashes
+        sanitized = sanitized.replace('\\', '/')
+        
+        # Remove multiple consecutive slashes
+        sanitized = re.sub(r'/+', '/', sanitized)
+        
+        # Remove leading/trailing slashes
+        sanitized = sanitized.strip('/')
+        
+        return sanitized
+    
+    @staticmethod
+    def generate_secure_document_id() -> str:
+        """Generate secure document ID"""
+        return secrets.token_urlsafe(32)
+    
+    @staticmethod
+    def validate_file_upload_security(
+        filename: str, 
+        content: bytes, 
+        user_id: str,
+        max_size: int = 10 * 1024 * 1024  # 10MB default
+    ) -> Dict[str, Any]:
+        """Comprehensive file upload security validation"""
+        
+        security_result = {
+            'valid': True,
+            'errors': [],
+            'warnings': [],
+            'security_measures': {
+                'filename_sanitized': False,
+                'content_scanned': False,
+                'size_validated': False,
+                'user_validated': False,
+                'path_secured': False
+            }
+        }
+        
+        try:
+            # Validate user
+            if not user_id or len(user_id) < 10:
+                security_result['valid'] = False
+                security_result['errors'].append("ID de usuário inválido")
+            else:
+                security_result['security_measures']['user_validated'] = True
+            
+            # Validate file size
+            if len(content) > max_size:
+                security_result['valid'] = False
+                security_result['errors'].append(f"Arquivo excede o tamanho máximo de {max_size / (1024*1024):.1f}MB")
+            else:
+                security_result['security_measures']['size_validated'] = True
+            
+            # Sanitize filename
+            original_filename = filename
+            sanitized_filename = SanitizadorEntrada.sanitizar_nome_arquivo(filename)
+            
+            if sanitized_filename != original_filename:
+                security_result['warnings'].append("Nome do arquivo foi sanitizado por segurança")
+            
+            security_result['security_measures']['filename_sanitized'] = True
+            security_result['sanitized_filename'] = sanitized_filename
+            
+            # Content security scan
+            if sanitizador.validar_seguranca_arquivo(sanitized_filename, content):
+                security_result['security_measures']['content_scanned'] = True
+            else:
+                security_result['valid'] = False
+                security_result['errors'].append("Arquivo contém conteúdo potencialmente perigoso")
+            
+            # Generate secure path
+            document_id = SupabaseSecurityManager.generate_secure_document_id()
+            secure_path = SupabaseSecurityManager.sanitize_storage_path(
+                f"{user_id}/{document_id}/{sanitized_filename}"
+            )
+            
+            security_result['security_measures']['path_secured'] = True
+            security_result['secure_path'] = secure_path
+            security_result['document_id'] = document_id
+            
+            logger.info(
+                "File upload security validation completed",
+                filename=sanitized_filename,
+                user_id=user_id,
+                valid=security_result['valid'],
+                errors=len(security_result['errors'])
+            )
+            
+        except Exception as e:
+            security_result['valid'] = False
+            security_result['errors'].append(f"Erro na validação de segurança: {str(e)}")
+            logger.error("File upload security validation failed", error=str(e))
+        
+        return security_result
+
+
+class FileAccessLogger:
+    """Logger for file access and security events"""
+    
+    @staticmethod
+    def log_file_upload(user_id: str, filename: str, file_size: int, success: bool, errors: List[str] = None):
+        """Log file upload attempt"""
+        logger.info(
+            "File upload attempt",
+            user_id=user_id,
+            filename=filename,
+            file_size=file_size,
+            success=success,
+            errors=errors or [],
+            timestamp=datetime.now().isoformat(),
+            event_type="file_upload"
+        )
+    
+    @staticmethod
+    def log_file_access(user_id: str, file_path: str, access_type: str, success: bool):
+        """Log file access attempt"""
+        logger.info(
+            "File access attempt",
+            user_id=user_id,
+            file_path=file_path,
+            access_type=access_type,
+            success=success,
+            timestamp=datetime.now().isoformat(),
+            event_type="file_access"
+        )
+    
+    @staticmethod
+    def log_security_event(event_type: str, user_id: str, details: Dict[str, Any], severity: str = "warning"):
+        """Log security event"""
+        log_func = getattr(logger, severity, logger.warning)
+        log_func(
+            "Security event",
+            event_type=event_type,
+            user_id=user_id,
+            details=details,
+            timestamp=datetime.now().isoformat()
+        )
+
+
+# Enhanced global instances
+supabase_security = SupabaseSecurityManager()
+file_access_logger = FileAccessLogger()
