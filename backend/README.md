@@ -306,31 +306,28 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 - Secure agent communication
 - Input validation and sanitization
 
+## Documentation
+
+### Comprehensive Documentation Suite
+
+- **[API Documentation](API_DOCUMENTATION.md)** - Complete API reference with examples
+- **[Integration Examples](INTEGRATION_EXAMPLES.md)** - Code samples and usage patterns
+- **[Troubleshooting Guide](TROUBLESHOOTING_GUIDE.md)** - Solutions for common issues
+- **[Database Schema Documentation](../database/DATABASE_SCHEMA_DOCUMENTATION.md)** - Complete database reference
+
+### Quick Links
+
+- **API Reference**: Detailed endpoint documentation with request/response examples
+- **SDK Examples**: Python and JavaScript integration examples
+- **Error Handling**: Comprehensive error codes and solutions
+- **Performance Optimization**: Caching, query optimization, and scaling strategies
+- **Database Schema**: Complete table specifications and relationships
+
 ## Troubleshooting
 
-### Common Issues
+For detailed troubleshooting information, see the [Troubleshooting Guide](TROUBLESHOOTING_GUIDE.md).
 
-1. **Database Connection Errors**
-   - Check DATABASE_URL configuration
-   - Verify PostgreSQL/Supabase connectivity
-   - Check connection pool settings
-
-2. **Agent Communication Issues**
-   - Verify Redis connectivity
-   - Check agent registration
-   - Review CrewAI configuration
-
-3. **XML Processing Errors**
-   - Validate XML schema compliance
-   - Check file permissions
-   - Review error logs in monitoring agent
-
-4. **Performance Issues**
-   - Monitor database query performance
-   - Check Redis memory usage
-   - Review agent task queues
-
-### Debugging
+### Quick Debugging
 ```bash
 # Enable debug logging
 export LOG_LEVEL=DEBUG
@@ -338,6 +335,9 @@ export LOG_LEVEL=DEBUG
 # Run with detailed logging
 python main.py
 
-# Check agent status
-curl http://localhost:8000/api/v1/status
+# Check system status
+curl http://localhost:8000/status
+
+# Check agent capabilities
+curl http://localhost:8000/agentes/capacidades
 ```

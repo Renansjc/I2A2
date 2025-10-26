@@ -325,7 +325,7 @@ const criticalErrors = ref<(ErrorLog & { frequency: number; lastOccurrence: Date
     lastOccurrence: new Date(Date.now() - 2 * 60 * 1000),
     context: {
       endpoint: '/v1/chat/completions',
-      model: 'gpt-4',
+      model: 'gpt-4o-mini',
       retryAfter: 60
     }
   },

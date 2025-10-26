@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     
     # OpenAI Configuration
     openai_api_key: str = Field(env="OPENAI_API_KEY")
-    openai_default_model: str = Field(default="gpt-4", env="OPENAI_DEFAULT_MODEL")
+    openai_default_model: str = Field(default="gpt-4o-mini", env="OPENAI_DEFAULT_MODEL")
     openai_fallback_model: str = Field(default="gpt-3.5-turbo", env="OPENAI_FALLBACK_MODEL")
     openai_max_tokens: int = Field(default=4000, env="OPENAI_MAX_TOKENS")
     openai_temperature: float = Field(default=0.1, env="OPENAI_TEMPERATURE")

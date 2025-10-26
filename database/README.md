@@ -76,10 +76,24 @@ This directory contains the complete database schema for the AI Agents Invoice A
 - Full-text search indexes for product/service descriptions
 - Optimized views for executive dashboards
 
+## Complete Documentation
+
+For comprehensive database documentation, see [DATABASE_SCHEMA_DOCUMENTATION.md](DATABASE_SCHEMA_DOCUMENTATION.md).
+
+### Documentation Includes
+
+- **Complete Table Specifications**: Detailed field descriptions and business rules
+- **Supabase Integration Tables**: File upload tracking and agent processing
+- **Performance Optimization**: Strategic indexing and query optimization
+- **Security Implementation**: RLS policies and data protection measures
+- **Troubleshooting Guide**: Common database issues and solutions
+- **Integration Examples**: API integration patterns and usage examples
+
 ## Requirements Addressed
 
-- **Requirement 6.1**: Centralized data storage with integrity and consistency
-- **Requirement 6.2**: Data integrity maintenance and referential constraints
-- **Requirement 6.3**: Historical data preservation for trend analysis
-- **Requirement 6.4**: Referential integrity between invoices, suppliers, and products
-- **Requirement 6.5**: Optimized access for complex queries and advanced analytics
+- **Requirement 2.1**: Centralized data storage with integrity and consistency
+- **Requirement 2.2**: Data integrity maintenance and referential constraints  
+- **Requirement 2.3**: Historical data preservation for trend analysis
+- **Requirement 2.4**: Referential integrity between invoices, suppliers, and products
+- **Requirement 2.5**: Optimized access for complex queries and advanced analytics
+- **Requirements 4.1-4.4**: API endpoint data management and document tracking

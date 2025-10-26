@@ -67,8 +67,8 @@ O Serviço de Integração OpenAI é o núcleo das capacidades de Large Language
 ```bash
 # OpenAI Configuration
 OPENAI_API_KEY=your-openai-api-key
-OPENAI_DEFAULT_MODEL=gpt-4
-OPENAI_FALLBACK_MODEL=gpt-3.5-turbo
+OPENAI_DEFAULT_MODEL=gpt-4o-mini
+OPENAI_FALLBACK_MODEL=gpt-4
 OPENAI_MAX_TOKENS=4000
 OPENAI_TEMPERATURE=0.1
 OPENAI_MAX_RETRIES=3
