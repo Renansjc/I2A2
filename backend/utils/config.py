@@ -4,11 +4,15 @@ Configuration settings for the AI Agents system
 
 import os
 from typing import List, Optional
-from pydantic import BaseSettings, Field
-from pydantic_settings import BaseSettings as PydanticBaseSettings
+from pydantic import Field
+
+try:
+    from pydantic_settings import BaseSettings
+except ImportError:
+    from pydantic import BaseSettings
 
 
-class Settings(PydanticBaseSettings):
+class Settings(BaseSettings):
     """Application settings with Supabase integration"""
     
     # Application Settings
