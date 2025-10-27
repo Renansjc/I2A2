@@ -1,0 +1,126 @@
+{
+  "extracted_data": {
+    "emitente": {
+      "razao_social": "BISTEK SUPERMERCADOS LTDA",
+      "nome_fantasia": "LJ 12   FLP   012 4",
+      "cnpj": "83261420001201",
+      "inscricao_estadual": "255345933",
+      "crt": 3.0,
+      "logradouro": "RUA JOAO CANCIO JACQUES,",
+      "numero": "49",
+      "complemento": null,
+      "bairro": "COSTEIRA PIRAJUBAE",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "cep": "88047010",
+      "telefone": "4832396900"
+    },
+    "destinatario": {
+      "nome": "RENAN MELLO NOGUEIRA",
+      "razao_social": "RENAN MELLO NOGUEIRA",
+      "cnpj": null,
+      "cpf": "40796649820",
+      "inscricao_estadual": null,
+      "logradouro": "RUA LAURO LINHARES",
+      "numero": "897",
+      "complemento": "1",
+      "bairro": "TRINDADE",
+      "municipio": "FLORIANOPOLIS",
+      "uf": "SC",
+      "cep": "88036001",
+      "telefone": "48996007992",
+      "email": "renanmnogueira@gmail.com"
+    },
+    "itens": [
+      {
+        "codigo_produto": "3077756",
+        "codigo_ean": "SEM GTIN",
+        "descricao": "TESOURA PARA CHURRASCO 85 SELOS",
+        "ncm": "82130000",
+        "cfop": "1202",
+        "unidade_comercial": "UN",
+        "quantidade_comercial": 1.0,
+        "valor_unitario_comercial": 6.99,
+        "unidade_tributavel": "UN",
+        "quantidade_tributavel": 1.0,
+        "valor_unitario_tributavel": 6.99,
+        "valor_produto": 6.99,
+        "valor_frete": null,
+        "valor_seguro": null,
+        "valor_desconto": null,
+        "valor_outros": null,
+        "total_tributos_item": null,
+        "icms_origem": 2.0,
+        "icms_cst": null,
+        "icms_base_calculo": 6.99,
+        "icms_aliquota": 17.0,
+        "icms_valor": 1.19,
+        "pis_cst": "50",
+        "pis_base_calculo": 5.8,
+        "pis_aliquota": 1.65,
+        "pis_valor": 0.09,
+        "cofins_cst": "50",
+        "cofins_base_calculo": 5.8,
+        "cofins_aliquota": 7.6,
+        "cofins_valor": 0.44
+      }
+    ],
+    "impostos": {
+      "icms": {
+        "aliquota": null,
+        "base_calculo": 6.99,
+        "valor": 1.19
+      },
+      "ipi": {
+        "valor": 0.0
+      },
+      "pis": {
+        "valor": 0.09
+      },
+      "cofins": {
+        "valor": 0.44
+      }
+    },
+    "codigos_fiscais": {
+      "cfop": null,
+      "cst": null,
+      "ncm": null,
+      "csosn": null
+    },
+    "numero_nota": "334837",
+    "chave_acesso": "42250383261420001201550990003348371042993209",
+    "data_emissao": "2025-03-16",
+    "natureza_operacao": "DEV.DE VENDA DE MERC ADQ OU RE",
+    "forma_pagamento": 90.0,
+    "valor_total": 6.99,
+    "serie": "99",
+    "dh_emi": "2025-03-16T15:34:24-03:00",
+    "data_saida": null,
+    "consumidor_final": true,
+    "presenca_comprador": 9.0,
+    "tipo_operacao": "Entrada",
+    "valor_produtos": 6.99,
+    "valor_frete": 0.0,
+    "valor_seguro": 0.0,
+    "valor_desconto": 0.0,
+    "valor_outros": 0.0,
+    "modalidade_frete": 1.0,
+    "quantidade_volumes": 1.0,
+    "peso_liquido": 1.0,
+    "peso_bruto": 0.3,
+    "valor_pagamento": 0.0,
+    "data_vencimento": null
+  },
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "confidence": 1.0
+  },
+  "processing_metadata": {
+    "agent": "XML Processing Agent",
+    "version": "1.0.0",
+    "processed_at": "2025-10-26T23:02:36.173054",
+    "method": "xml_structured"
+  }
+}

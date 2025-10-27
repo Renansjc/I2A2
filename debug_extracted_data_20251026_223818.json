@@ -1,0 +1,70 @@
+{
+  "extracted_data": {
+    "emitente": {
+      "razao_social": "BISTEK SUPERMERCADOS LTDA",
+      "cnpj": "83261420001201",
+      "inscricao_estadual": "255345933",
+      "endereco": "RUA JOAO CANCIO JACQUES,"
+    },
+    "destinatario": {
+      "razao_social": "RENAN MELLO NOGUEIRA",
+      "cnpj": "40796649820",
+      "inscricao_estadual": null,
+      "endereco": "RUA LAURO LINHARES"
+    },
+    "itens": [
+      {
+        "descricao": "TESOURA PARA CHURRASCO 85 SELOS",
+        "quantidade": null,
+        "unidade": null,
+        "valor_unitario": null,
+        "valor_total": null,
+        "codigo": null,
+        "ncm": "82130000",
+        "cfop": "1202"
+      }
+    ],
+    "impostos": {
+      "icms": {
+        "aliquota": null,
+        "base_calculo": 6.99,
+        "valor": 1.19
+      },
+      "ipi": {
+        "valor": 0.0
+      },
+      "pis": {
+        "valor": 0.09
+      },
+      "cofins": {
+        "valor": 0.44
+      }
+    },
+    "codigos_fiscais": {
+      "cfop": null,
+      "cst": null,
+      "ncm": null,
+      "csosn": null
+    },
+    "numero_nota": "334837",
+    "chave_acesso": "42250383261420001201550990003348371042993209",
+    "data_emissao": "2025-03-16",
+    "natureza_operacao": "DEV.DE VENDA DE MERC ADQ OU RE",
+    "forma_pagamento": 90.0,
+    "valor_total": 6.99
+  },
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": [
+      "CNPJ do destinatário inválido"
+    ],
+    "confidence": 0.9
+  },
+  "processing_metadata": {
+    "agent": "XML Processing Agent",
+    "version": "1.0.0",
+    "processed_at": "2025-10-26T22:38:18.903611",
+    "method": "xml_structured"
+  }
+}
